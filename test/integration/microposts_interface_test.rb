@@ -86,6 +86,6 @@ class ImageUploadTest < MicropostsInterface
         content: cont, image: img
       }
     }
-    assert Micropost.last.image.attached?
+    assert Micropost.first.image.attached?
   end
 end
