@@ -2,6 +2,7 @@ source "https://rubygems.org"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails",                    "~> 8.1.3"
+gem "active_storage_validations", "0.9.8"
 gem "bcrypt",                   "3.1.18"
 gem "faker",                    "2.21.0"
 gem "will_paginate",            "3.3.1"
