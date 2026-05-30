@@ -42,6 +42,7 @@ class User < ApplicationRecord
     remember_digest
   end
 
+  # remember_digestがあればそれを返し、なければ新しいトークンを作って返す
   def session_token
     remember_digest || remember
   end
