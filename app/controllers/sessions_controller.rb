@@ -9,13 +9,12 @@ class SessionsController < ApplicationController
       if @user.activated?
         forwarding_url = session[:forwarding_url]
         reset_session
-        remember @user
         params[:session][:remember_me] == '1' ? remember(@user) : forget(@user)
         log_in @user
         redirect_to forwarding_url || @user
       else
         message = "Account not actiated. "
-        message += "Check your email for the activation link.z"
+        message += "Check your email for the activation link"
         flash[:warning] = message
         redirect_to root_url
       end
