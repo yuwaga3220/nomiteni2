@@ -10,7 +10,7 @@ gem "will_paginate",            "3.3.1"
 gem "bootstrap-will_paginate",  "1.0.0"
 gem "bootstrap-sass",           "3.4.1"
 gem "sassc-rails",              "2.1.2"
-gem "sprockets-rails",          "3.4.2"
+gem "sprockets-rails",          "3.5.2"
 
 # Sprockets is used for Bootstrap (bootstrap-sass) in this app.
 # Use sqlite3 as the database for Active Record
