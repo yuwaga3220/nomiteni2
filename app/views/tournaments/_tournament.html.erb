@@ -1,0 +1,26 @@
+<li id="tournament-<%= tournament.id %>">
+  <%= link_to gravatar_for(tournament.user, size: 50), tournament.user %>
+  <span class="user"><%= link_to tournament.user.name, tournament.user %></span>
+  <span class="content">
+    <strong><%= tournament.title %></strong>
+    <% if tournament.held_on.present? %>
+      <span class="held-on"> 開催日: <%= tournament.held_on.strftime("%Y年%m月%d日") %></span>
+    <% end %>
+    <% if tournament.venue.present? %>
+      <span class="venue"> 場所: <%= tournament.venue %></span>
+    <% end %>
+    <% if tournament.description.present? %>
+      <p><%= tournament.description %></p>
+    <% end %>
+    <% if tournament.image.attached? %>
+      <%= image_tag tournament.image.variant(:display) %>
+    <% end %>
+  </span>
+  <span class="timestamp">
+    <%= time_ago_in_words(tournament.created_at) %>前に作成
+    <% if current_user?(tournament.user) %>
+      <%= link_to "削除", tournament, data: { "turbo-method": :delete,
+                                             "turbo-confirm": "本当に削除しますか？" } %>
+    <% end %>
+  </span>
+</li>

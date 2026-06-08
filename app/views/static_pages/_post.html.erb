@@ -1,17 +1,38 @@
 <div class="row">
-    <aside class="col-md-4">
-      <section class="user_info">
-        <%= render 'shared/user_info' %>
-      </section>
-      <section class="stats">
-        <%= render 'shared/stats' %>
-      </section>
-      <section class="micropost_form">
-        <%= render 'shared/micropost_form' %>
-      </section>
-    </aside>
-    <div class="col-md-8">
-        <h3>Micropost feed</h3>
-        <%= render 'shared/feed' %>
-    </div>
+  <aside class="col-md-4">
+    <section class="user_info">
+      <%= render 'shared/user_info' %>
+    </section>
+    <section class="tournament_form">
+      <%= form_with(model: @tournament) do |f| %>
+        <%= render 'shared/error_messages', object: f.object %>
+        <div class="field">
+          <%= f.text_field :title, placeholder: "大会名を入力..." %>
+        </div>
+        <div class="field">
+          <%= f.text_area :description, placeholder: "大会の詳細（任意）", rows: 3 %>
+        </div>
+        <div class="field">
+          <%= f.label :held_on, "開催日" %>
+          <%= f.date_field :held_on %>
+        </div>
+        <div class="field">
+          <%= f.text_field :venue, placeholder: "開催場所（任意）" %>
+        </div>
+        <%= f.submit "大会を作成", class: "btn btn-primary" %>
+        <span class="image">
+          <%= f.file_field :image, accept: "image/jpeg,image/gif,image/png" %>
+        </span>
+      <% end %>
+    </section>
+  </aside>
+  <div class="col-md-8">
+    <h3>大会一覧</h3>
+    <% if @tournaments.any? %>
+      <ol class="tournaments">
+        <%= render @tournaments %>
+      </ol>
+      <%= will_paginate @tournaments, params: { controller: :static_pages, action: :home } %>
+    <% end %>
   </div>
+</div>

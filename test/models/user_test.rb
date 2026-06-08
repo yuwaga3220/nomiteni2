@@ -90,39 +90,12 @@ class UserTest < ActiveSupport::TestCase
     assert_not @user.authenticated?(:remember, '')
   end
 
-  test "associated microposts should be destroyed" do
+  test "associated tournaments should be destroyed" do
     @user.save
-    @user.microposts.create!(content: "Lorem ipsum")
-    assert_difference 'Micropost.count', -1 do
+    @user.tournaments.create!(title: "春季テニス大会")
+    assert_difference 'Tournament.count', -1 do
       @user.destroy
     end
   end
 
-  test "should follow and unfollow a user" do
-    michael = users(:michael)
-    archer = users(:archer)
-    assert_not michael.following?(archer)
-    michael.follow(archer)
-    assert michael.following?(archer)
-    assert archer.followers.include?(michael)
-    michael.unfollow(archer)
-    assert_not michael.following?(archer)
-    michael.follow(michael)
-    assert_not michael.following?(michael)
-  end
-
-  test "feed should have the right post" do
-    michael = users(:michael)
-    archer = users(:archer)
-    lana = users(:lana)
-    michael.microposts.each do |m|
-      assert michael.feed.include?(m)
-    end
-    lana.microposts.each do |m|
-      assert michael.feed.include?(m)
-    end
-    archer.microposts.each do |m|
-      assert_not michael.feed.include?(m)
-    end
-  end
 end

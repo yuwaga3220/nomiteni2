@@ -7,18 +7,14 @@
         <%= @user.name %>
       </h1>
     </section>
-    <section class="stats">
-      <%= render 'shared/stats' %>
-    </section>
   </aside>
   <div class="col-md-8">
-    <%= render 'follow_form' if logged_in? %>
-    <% if @user.microposts.any? %>
-      <h3>Microposts (<%= @user.microposts.count %>)</h3>
-      <ol class="microposts">
-        <%= render @microposts %>
+    <% if @user.tournaments.any? %>
+      <h3>作成した大会 (<%= @user.tournaments.count %>)</h3>
+      <ol class="tournaments">
+        <%= render @tournaments %>
       </ol>
-      <%= will_paginate @microposts %>
+      <%= will_paginate @tournaments %>
     <% end %>
     
   </div>
