@@ -10,7 +10,4 @@
   <% if @tournament.description.present? %>
     <p><%= @tournament.description %></p>
   <% end %>
-  <% if @tournament.image.attached? %>
-    <%= image_tag @tournament.image.variant(:display) %>
-  <% end %>
 </div>

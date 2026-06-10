@@ -51,6 +51,15 @@ class TournamentsInterfaceTest < TournamentsInterface
   end
 end
 
+class TournamentShowAccessTest < ActionDispatch::IntegrationTest
+
+  test "should redirect show when not logged in" do
+    tournament = tournaments(:orange)
+    get tournament_path(tournament)
+    assert_redirected_to login_url
+  end
+end
+
 class TournamentShowTest < TournamentsInterface
 
   test "should link to tournament show page from listing" do

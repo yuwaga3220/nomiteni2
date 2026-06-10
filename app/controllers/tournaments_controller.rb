@@ -1,5 +1,5 @@
 class TournamentsController < ApplicationController
-  before_action :logged_in_user, only: [ :create, :destroy ]
+  before_action :logged_in_user, only: [ :show, :create, :destroy ]
   before_action :correct_user, only: [ :destroy ]
 
   def show
@@ -8,7 +8,6 @@ class TournamentsController < ApplicationController
 
   def create
     @tournament = current_user.tournaments.build(tournament_params)
-    @tournament.image.attach(params[:tournament][:image])
     if @tournament.save
       flash[:success] = "大会を作成しました！"
       redirect_to root_url
@@ -27,7 +26,7 @@ class TournamentsController < ApplicationController
   private
 
   def tournament_params
-    params.require(:tournament).permit(:title, :description, :held_on, :venue, :image)
+    params.require(:tournament).permit(:title, :description, :held_on, :venue)
   end
 
   def correct_user
