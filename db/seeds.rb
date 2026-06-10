@@ -26,7 +26,7 @@ users = User.order(:created_at)
 users.each do |user|
   # 既存の大会は一旦削除して、0〜3件を再生成する
   user.tournaments.delete_all
-  rand(0..3).times do
+  rand(0..2).times do
     user.tournaments.create!(
       title: Faker::Lorem.sentence(word_count: 3),
       description: Faker::Lorem.sentence(word_count: 10),

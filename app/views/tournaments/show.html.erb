@@ -1,0 +1,16 @@
+<% provide(:title, @tournament.title) %>
+<div class="tournament">
+  <h1><%= @tournament.title %></h1>
+  <% if @tournament.held_on.present? %>
+    <p>開催日: <%= @tournament.held_on.strftime("%Y年%m月%d日") %></p>
+  <% end %>
+  <% if @tournament.venue.present? %>
+    <p>場所: <%= @tournament.venue %></p>
+  <% end %>
+  <% if @tournament.description.present? %>
+    <p><%= @tournament.description %></p>
+  <% end %>
+  <% if @tournament.image.attached? %>
+    <%= image_tag @tournament.image.variant(:display) %>
+  <% end %>
+</div>

@@ -51,6 +51,23 @@ class TournamentsInterfaceTest < TournamentsInterface
   end
 end
 
+class TournamentShowTest < TournamentsInterface
+
+  test "should link to tournament show page from listing" do
+    get root_path
+    tournament = tournaments(:orange)
+    assert_select "a[href=?]", tournament_path(tournament)
+  end
+
+  test "should display tournament detail on show page" do
+    tournament = tournaments(:orange)
+    get tournament_path(tournament)
+    assert_response :success
+    assert_select "title", full_title(tournament.title)
+    assert_match tournament.title, response.body
+  end
+end
+
 class TournamentSidebarTest < TournamentsInterface
 
   test "should display the right tournament count" do

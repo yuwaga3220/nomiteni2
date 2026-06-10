@@ -1,7 +1,10 @@
 class TournamentsController < ApplicationController
-  before_action :logged_in_user, only: [:create, :destroy]
-  before_action :correct_user, only: [:destroy]
+  before_action :logged_in_user, only: [ :create, :destroy ]
+  before_action :correct_user, only: [ :destroy ]
 
+  def show
+    @tournament = Tournament.find(params[:id])
+  end
 
   def create
     @tournament = current_user.tournaments.build(tournament_params)
@@ -11,7 +14,7 @@ class TournamentsController < ApplicationController
       redirect_to root_url
     else
       @tournaments = Tournament.all.paginate(page: params[:page])
-      render 'static_pages/home', status: :unprocessable_entity
+      render "static_pages/home", status: :unprocessable_entity
     end
   end
 
@@ -31,5 +34,4 @@ class TournamentsController < ApplicationController
     @tournament = current_user.tournaments.find_by(id: params[:id])
     redirect_to root_url, status: :see_other if @tournament.nil?
   end
-  
 end
