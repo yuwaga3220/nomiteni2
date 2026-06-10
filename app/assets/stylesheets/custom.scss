@@ -278,7 +278,6 @@ input {
   }
   .content {
     display: block;
-    margin-left: 60px;
     img {
       display: block;
       padding: 5px 0;
@@ -287,12 +286,6 @@ input {
   .timestamp {
     color: $gray-light;
     display: block;
-    margin-left: 60px;
-  }
-  .gravatar {
-    float: left;
-    margin-right: 10px;
-    margin-top: 5px;
   }
 }
 

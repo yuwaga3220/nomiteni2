@@ -1,6 +1,4 @@
 <li id="tournament-<%= tournament.id %>">
-  <%= link_to gravatar_for(tournament.user, size: 50), tournament.user %>
-  <span class="user"><%= link_to tournament.user.name, tournament.user %></span>
   <span class="content">
     <strong><%= tournament.title %></strong>
     <% if tournament.held_on.present? %>
@@ -16,6 +14,7 @@
       <%= image_tag tournament.image.variant(:display) %>
     <% end %>
   </span>
+  <span class="user"><%= link_to tournament.user.name, tournament.user %></span>
   <span class="timestamp">
     <%= time_ago_in_words(tournament.created_at) %>前に作成
     <% if current_user?(tournament.user) %>

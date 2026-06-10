@@ -9,7 +9,7 @@ User.find_or_create_by!(email: "example@railstutorial.org") do |u|
 end
 
 # 追加のユーザーをまとめて生成する
-99.times do |n|
+30.times do |n|
   name  = Faker::Name.name
   email = "example-#{n+1}@railstutorial.org"
   password = "password"
