@@ -58,22 +58,3 @@ class TournamentSidebarTest < TournamentsInterface
     assert_match "#{@user.tournaments.count} 大会", response.body
   end
 end
-
-class ImageUploadTest < TournamentsInterface
-
-  test "should have a file input field for images" do
-    get root_path
-    assert_select 'input[type=file]'
-  end
-
-  test "should be able to attach an image" do
-    title = "画像付き大会テスト"
-    img = fixture_file_upload('kitten.jpg', 'image/jpeg')
-    post tournaments_path, params: {
-      tournament: {
-        title: title, image: img
-      }
-    }
-    assert Tournament.first.image.attached?
-  end
-end

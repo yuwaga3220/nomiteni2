@@ -35,13 +35,3 @@ users.each do |user|
     )
   end
 end
-
-# ユーザーフォローのリレーションシップを作成する
-users = User.all
-user  = users.first
-following = users[2..50]
-followers = users[3..40]
-if User.new.respond_to?(:follow)
-  following.each { |followed| user.follow(followed) }
-  followers.each { |follower| follower.follow(user) }
-end
