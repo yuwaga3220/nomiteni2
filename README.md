@@ -1,35 +1,68 @@
-# Ruby on Rails チュートリアルのサンプルアプリケーション
+# Tennis'Ems
 
-これは、次の教材で作られたサンプルアプリケーションです。
-[*Ruby on Rails チュートリアル*](https://railstutorial.jp/)
-（第7版）
-[Michael Hartl](https://www.michaelhartl.com/) 著
+テニスのトーナメント大会を管理するWebアプリケーションです。大会の作成・選手登録・対戦組み合わせの管理ができます。
 
-## ライセンス
+## 機能
 
-[Ruby on Rails チュートリアル](https://railstutorial.jp/)内にある
-ソースコードはMITライセンスとBeerwareライセンスのもとで公開されています。
-詳細は [LICENSE.md](LICENSE.md) をご覧ください。
+- ユーザー登録・ログイン（メール認証、パスワードリセット）
+- 大会の作成・閲覧・削除
+- 大会への選手登録・ポジション割り当て
 
-## 使い方
+## 技術スタック
 
-このアプリケーションを動かす場合は、まずはリポジトリをフォークしてください。
+- Ruby 3.4 / Rails 8.1
+- SQLite（開発・テスト） / PostgreSQL（本番）
+- Bootstrap 3 / Turbo / Stimulus
 
-フォークしたリポジトリで、「Code」から「Codespaces」タブに移動し、
-「Create codespace on main」をクリックすると環境構築がスタートします。
-Railsサーバーが立ち上がり、シンプルブラウザが表示されるまでしばらくお待ちください。
+## セットアップ
 
-次に、データベースへのマイグレーションを実行します。
-
-```
-$ rails db:migrate
+```bash
+bundle install
+bin/rails db:migrate
+bin/rails db:seed      # サンプルデータ投入（任意）
+bin/rails server
 ```
 
-最後に、テストを実行してうまく動いているかどうか確認してください。
+## テスト
 
-```
-$ rails test
+```bash
+bin/rails test
 ```
 
-詳しくは、[*Ruby on Rails チュートリアル*](https://railstutorial.jp/)
-を参考にしてください。
+## ER図
+
+```mermaid
+erDiagram
+    User {
+        integer id PK
+        string name
+        string email
+        string password_digest
+        boolean admin
+        boolean activated
+        datetime activated_at
+        string activation_digest
+        string remember_digest
+        string reset_digest
+        datetime reset_sent_at
+    }
+
+    Tournament {
+        integer id PK
+        integer user_id FK
+        text title
+        text description
+        date held_on
+        string venue
+    }
+
+    Player {
+        integer id PK
+        integer tournament_id FK
+        string name
+        integer position
+    }
+
+    User ||--o{ Tournament : "作成する"
+    Tournament ||--o{ Player : "参加する"
+```
