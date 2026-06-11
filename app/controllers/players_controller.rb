@@ -12,6 +12,29 @@ class PlayersController < ApplicationController
     redirect_to tournament_path(@tournament)
   end
 
+  def update_positions
+    positions = params[:positions].permit!.to_h
+    blank_players = positions.select { |_, position| position.blank? }
+                             .filter_map { |player_id, _| @tournament.players.find_by(id: player_id)&.name }
+    if blank_players.any?
+      flash[:danger] = "#{blank_players.join('、')} のポジションが入力されていません"
+      redirect_to tournament_path(@tournament) and return
+    end
+
+    errors = []
+    positions.each do |player_id, position|
+      player = @tournament.players.find_by(id: player_id)
+      next unless player
+      errors << player.errors.full_messages unless player.update(position: position)
+    end
+    if errors.empty?
+      flash[:success] = "ポジションを更新しました"
+    else
+      flash[:danger] = errors.flatten.join(", ")
+    end
+    redirect_to tournament_path(@tournament)
+  end
+
   def destroy
     @player = @tournament.players.find(params[:id])
     @player.destroy

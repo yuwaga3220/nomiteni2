@@ -44,7 +44,7 @@ class PlayerTest < ActiveSupport::TestCase
     assert_not @player.valid?
     @player.position = nil
     assert @player.valid?
-    @player.position = 1
+    @player.position = 99
     assert @player.valid?
   end
 end
