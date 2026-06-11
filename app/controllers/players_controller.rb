@@ -22,7 +22,7 @@ class PlayersController < ApplicationController
   private
 
   def player_params
-    params.require(:player).permit(:name, :seed)
+    params.require(:player).permit(:name, :position)
   end
 
   def correct_tournament_user

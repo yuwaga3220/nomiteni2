@@ -16,9 +16,9 @@
   <div class="<%= current_user?(@tournament.user) ? 'col-md-8' : 'col-md-12' %>">
     <h3>参加選手（<%= @tournament.players.count %>人）</h3>
     <ul class="list-group">
-      <% @tournament.players.order(:seed, :created_at).each do |player| %>
+      <% @tournament.players.order(:position, :created_at).each do |player| %>
         <li class="list-group-item">
-          <%= player.seed ? "[#{player.seed}] " : "" %><%= player.name %>
+          <%= player.position ? "[#{player.position}] " : "" %><%= player.name %>
           <% if current_user?(@tournament.user) %>
             <%= link_to "削除",
                   tournament_player_path(@tournament, player),
@@ -39,7 +39,7 @@
             <%= f.text_field :name, placeholder: "プレイヤー名", class: "form-control" %>
           </div>
           <div class="field">
-            <%= f.number_field :seed, placeholder: "シード番号（任意）", class: "form-control" %>
+            <%= f.number_field :position, placeholder: "ポジション番号（任意）", class: "form-control" %>
           </div>
           <%= f.submit "追加", class: "btn btn-primary" %>
         <% end %>

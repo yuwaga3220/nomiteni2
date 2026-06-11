@@ -37,14 +37,14 @@ class PlayerTest < ActiveSupport::TestCase
     assert other.valid?
   end
 
-  test "seed should be nil or positive integer" do
-    @player.seed = 0
+  test "position should be nil or positive integer" do
+    @player.position = 0
     assert_not @player.valid?
-    @player.seed = -1
+    @player.position = -1
     assert_not @player.valid?
-    @player.seed = nil
+    @player.position = nil
     assert @player.valid?
-    @player.seed = 1
+    @player.position = 1
     assert @player.valid?
   end
 end
