@@ -11,3 +11,39 @@
     <p><%= @tournament.description %></p>
   <% end %>
 </div>
+
+<div class="row">
+  <div class="<%= current_user?(@tournament.user) ? 'col-md-8' : 'col-md-12' %>">
+    <h3>参加選手（<%= @tournament.players.count %>人）</h3>
+    <ul class="list-group">
+      <% @tournament.players.order(:seed, :created_at).each do |player| %>
+        <li class="list-group-item">
+          <%= player.seed ? "[#{player.seed}] " : "" %><%= player.name %>
+          <% if current_user?(@tournament.user) %>
+            <%= link_to "削除",
+                  tournament_player_path(@tournament, player),
+                  data: { "turbo-method": :delete, "turbo-confirm": "削除しますか？" },
+                  class: "btn btn-xs btn-danger pull-right" %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+
+  <% if current_user?(@tournament.user) %>
+    <div class="col-md-4">
+      <div class="well">
+        <h4>選手登録</h4>
+        <%= form_with(model: [@tournament, Player.new]) do |f| %>
+          <div class="field">
+            <%= f.text_field :name, placeholder: "プレイヤー名", class: "form-control" %>
+          </div>
+          <div class="field">
+            <%= f.number_field :seed, placeholder: "シード番号（任意）", class: "form-control" %>
+          </div>
+          <%= f.submit "追加", class: "btn btn-primary" %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

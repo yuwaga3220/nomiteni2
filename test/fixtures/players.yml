@@ -1,0 +1,9 @@
+alice:
+  tournament: orange
+  name: "アリス"
+  seed: 1
+
+bob:
+  tournament: orange
+  name: "ボブ"
+  seed: 2
