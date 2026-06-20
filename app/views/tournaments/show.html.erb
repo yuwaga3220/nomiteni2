@@ -14,20 +14,20 @@
 
 <div class="row">
   <div class="<%= current_user?(@tournament.user) ? 'col-md-8' : 'col-md-12' %>">
-    <h3>参加選手（<%= @tournament.players.count %>人）</h3>
-    <% players = @tournament.players.order(:position, :created_at) %>
+    <h3>参加者（<%= @tournament.participants.count %>人）</h3>
+    <% participants = @tournament.participants.order(:position, :created_at) %>
     <% if current_user?(@tournament.user) %>
       <p>１回戦のポジションを入力してください。空欄の場合は自動で決定されます。</p>
-      <%= form_with(url: update_positions_tournament_players_path(@tournament), method: :patch) do |f| %>
+      <%= form_with(url: update_positions_tournament_participants_path(@tournament), method: :patch) do |f| %>
         <ul class="list-group">
-          <% players.each do |player| %>
+          <% participants.each do |participant| %>
             <li class="list-group-item">
-              <%= number_field_tag "positions[#{player.id}]", player.position,
-                    placeholder: "#", min: 1, max: @tournament.players.count,
+              <%= number_field_tag "positions[#{participant.id}]", participant.position,
+                    placeholder: "#", min: 1, max: @tournament.participants.count,
                     class: "form-control input-sm", style: "width: 60px; display: inline-block" %>
-              <%= player.name %>
+              <%= participant.name %>
               <%= link_to "削除",
-                    tournament_player_path(@tournament, player),
+                    tournament_participant_path(@tournament, participant),
                     data: { "turbo-method": :delete, "turbo-confirm": "削除しますか？" },
                     class: "btn btn-xs btn-danger pull-right" %>
             </li>
@@ -37,9 +37,9 @@
       <% end %>
     <% else %>
       <ul class="list-group">
-        <% players.each do |player| %>
+        <% participants.each do |participant| %>
           <li class="list-group-item">
-            <%= player.position ? "[#{player.position}] " : "" %><%= player.name %>
+            <%= participant.position ? "[#{participant.position}] " : "" %><%= participant.name %>
           </li>
         <% end %>
       </ul>
@@ -49,10 +49,10 @@
   <% if current_user?(@tournament.user) %>
     <div class="col-md-4">
       <div class="well">
-        <h4>選手登録</h4>
-        <%= form_with(model: [@tournament, Player.new]) do |f| %>
+        <h4>参加者登録</h4>
+        <%= form_with(model: [@tournament, Participant.new]) do |f| %>
           <div class="field">
-            <%= f.text_field :name, placeholder: "プレイヤー名", class: "form-control" %>
+            <%= f.text_field :name, placeholder: "参加者名", class: "form-control" %>
           </div>
           <%= f.submit "追加", class: "btn btn-primary" %>
         <% end %>

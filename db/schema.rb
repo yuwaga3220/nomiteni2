@@ -10,15 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_11_061736) do
-  create_table "players", force: :cascade do |t|
+ActiveRecord::Schema[8.1].define(version: 2026_06_20_041134) do
+  create_table "participants", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
     t.integer "position"
     t.integer "tournament_id", null: false
     t.datetime "updated_at", null: false
-    t.index ["tournament_id", "name"], name: "index_players_on_tournament_id_and_name", unique: true
-    t.index ["tournament_id"], name: "index_players_on_tournament_id"
+    t.index ["tournament_id", "name"], name: "index_participants_on_tournament_id_and_name", unique: true
+    t.index ["tournament_id"], name: "index_participants_on_tournament_id"
   end
 
   create_table "tournaments", force: :cascade do |t|
@@ -49,6 +49,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_061736) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
-  add_foreign_key "players", "tournaments"
+  add_foreign_key "participants", "tournaments"
   add_foreign_key "tournaments", "users"
 end
