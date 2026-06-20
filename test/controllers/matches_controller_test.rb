@@ -69,4 +69,45 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to tournament_path(@tournament)
   end
+
+  test "should redirect destroy_all when not logged in" do
+    @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    assert_no_difference "Match.count" do
+      delete destroy_all_tournament_matches_path(@tournament)
+    end
+    assert_redirected_to login_url
+  end
+
+  test "should redirect destroy_all when wrong user" do
+    @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    log_in_as(users(:archer))
+    assert_no_difference "Match.count" do
+      delete destroy_all_tournament_matches_path(@tournament)
+    end
+    assert_redirected_to root_url
+  end
+
+  test "should destroy all matches for owner" do
+    @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    log_in_as(users(:michael))
+    assert_difference "Match.count", -1 do
+      delete destroy_all_tournament_matches_path(@tournament)
+    end
+    assert_redirected_to tournament_path(@tournament)
+  end
+
+  test "should destroy all matches across multiple rounds" do
+    tournament = tournaments(:zone)
+    frank = participants(:frank)
+    grace = participants(:grace)
+    heidi = participants(:heidi)
+    ivan = participants(:ivan)
+    log_in_as(users(:archer))
+    post tournament_matches_path(tournament),
+         params: { positions: { frank.id => 1, grace.id => 2, heidi.id => 3, ivan.id => 4 } }
+    assert_difference "Match.count", -3 do
+      delete destroy_all_tournament_matches_path(tournament)
+    end
+    assert_redirected_to tournament_path(tournament)
+  end
 end

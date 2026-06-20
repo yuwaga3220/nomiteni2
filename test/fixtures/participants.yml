@@ -17,3 +17,19 @@ dave:
 eve:
   tournament: ants
   name: "イブ"
+
+frank:
+  tournament: zone
+  name: "フランク"
+
+grace:
+  tournament: zone
+  name: "グレース"
+
+heidi:
+  tournament: zone
+  name: "ハイジ"
+
+ivan:
+  tournament: zone
+  name: "イワン"

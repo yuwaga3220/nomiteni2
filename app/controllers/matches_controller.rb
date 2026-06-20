@@ -30,10 +30,18 @@ class MatchesController < ApplicationController
                                      @tournament.participants.find(participant_id) }
 
     Match.transaction do
+      @tournament.matches.update_all(next_match_id: nil)
       @tournament.matches.destroy_all
       build_bracket(ordered_participants)
     end
     flash[:success] = "トーナメントツリーを作成しました"
+    redirect_to tournament_path(@tournament)
+  end
+
+  def destroy_all
+    @tournament.matches.update_all(next_match_id: nil)
+    @tournament.matches.destroy_all
+    flash[:success] = "トーナメントツリーを削除しました"
     redirect_to tournament_path(@tournament)
   end
 

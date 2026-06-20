@@ -64,7 +64,14 @@
 <% if @tournament.matches.any? %>
   <div class="row">
     <div class="col-md-12">
-      <h3>トーナメントツリー</h3>
+      <h3>
+        トーナメントツリー
+        <% if current_user?(@tournament.user) %>
+          <%= link_to "削除", destroy_all_tournament_matches_path(@tournament),
+                data: { "turbo-method": :delete, "turbo-confirm": "トーナメントツリーを削除しますか？" },
+                class: "btn btn-xs btn-danger" %>
+        <% end %>
+      </h3>
       <div class="bracket">
         <% @tournament.matches.includes(:participant1, :participant2, :winner)
                               .group_by(&:round).sort.each do |round, matches| %>
