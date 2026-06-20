@@ -7,7 +7,8 @@ class MatchesController < ApplicationController
     count = @tournament.participants.count
 
     blank_names = positions.select { |_, position| position.blank? }
-                            .filter_map { |participant_id, _| @tournament.participants.find_by(id: participant_id)&.name }
+                           .filter_map { |participant_id, _|
+                           @tournament.participants.find_by(id: participant_id)&.name }
     if blank_names.any?
       flash[:danger] = "#{blank_names.join('、')} のポジションが入力されていません"
       redirect_to tournament_path(@tournament) and return
@@ -25,7 +26,8 @@ class MatchesController < ApplicationController
     end
 
     ordered_participants = positions.sort_by { |_, position| position.to_i }
-                                     .map { |participant_id, _| @tournament.participants.find(participant_id) }
+                                     .map { |participant_id, _|
+                                     @tournament.participants.find(participant_id) }
 
     Match.transaction do
       @tournament.matches.destroy_all
@@ -37,10 +39,12 @@ class MatchesController < ApplicationController
 
   private
 
+  # 2の冪乗かチェックする
   def power_of_two?(count)
     count >= 2 && (count & (count - 1)).zero?
   end
 
+  # 整列済みparticipantsを入力としてトーナメントツリーを構築する
   def build_bracket(ordered_participants)
     count = ordered_participants.size
     rounds = Math.log2(count).to_i
