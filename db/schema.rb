@@ -10,11 +10,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_20_041134) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_20_043636) do
+  create_table "matches", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "next_match_id"
+    t.integer "participant1_id"
+    t.integer "participant2_id"
+    t.integer "round", null: false
+    t.integer "tournament_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "winner_id"
+    t.index ["next_match_id"], name: "index_matches_on_next_match_id"
+    t.index ["participant1_id"], name: "index_matches_on_participant1_id"
+    t.index ["participant2_id"], name: "index_matches_on_participant2_id"
+    t.index ["tournament_id"], name: "index_matches_on_tournament_id"
+    t.index ["winner_id"], name: "index_matches_on_winner_id"
+  end
+
   create_table "participants", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
-    t.integer "position"
     t.integer "tournament_id", null: false
     t.datetime "updated_at", null: false
     t.index ["tournament_id", "name"], name: "index_participants_on_tournament_id_and_name", unique: true
@@ -49,6 +64,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_20_041134) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
+  add_foreign_key "matches", "matches", column: "next_match_id"
+  add_foreign_key "matches", "participants", column: "participant1_id"
+  add_foreign_key "matches", "participants", column: "participant2_id"
+  add_foreign_key "matches", "participants", column: "winner_id"
+  add_foreign_key "matches", "tournaments"
   add_foreign_key "participants", "tournaments"
   add_foreign_key "tournaments", "users"
 end

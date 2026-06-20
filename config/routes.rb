@@ -11,10 +11,7 @@ Rails.application.routes.draw do
   resources :account_activations, only: [ :edit ]
   resources :password_resets, only: [ :new, :create, :edit, :update ]
   resources :tournaments, only: [ :create, :destroy, :show ] do
-    resources :participants, only: [ :create, :destroy ] do
-      collection do
-        patch :update_positions
-      end
-    end
+    resources :participants, only: [ :create, :destroy ]
+    resources :matches, only: [ :create ]
   end
 end

@@ -1,9 +1,19 @@
 alice:
   tournament: orange
   name: "アリス"
-  position: 1
 
 bob:
   tournament: orange
   name: "ボブ"
-  position: 2
+
+carol:
+  tournament: ants
+  name: "キャロル"
+
+dave:
+  tournament: ants
+  name: "デイブ"
+
+eve:
+  tournament: ants
+  name: "イブ"

@@ -36,15 +36,4 @@ class ParticipantTest < ActiveSupport::TestCase
     other = tournaments(:ants).participants.build(name: @participant.name)
     assert other.valid?
   end
-
-  test "position should be nil or positive integer" do
-    @participant.position = 0
-    assert_not @participant.valid?
-    @participant.position = -1
-    assert_not @participant.valid?
-    @participant.position = nil
-    assert @participant.valid?
-    @participant.position = 99
-    assert @participant.valid?
-  end
 end
