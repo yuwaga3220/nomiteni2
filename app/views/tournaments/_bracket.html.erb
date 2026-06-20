@@ -1,0 +1,32 @@
+<div class="row">
+  <div class="col-md-12">
+    <h3>
+      トーナメントツリー
+      <% if current_user?(@tournament.user) %>
+        <%= link_to "削除", destroy_all_tournament_matches_path(@tournament),
+              data: { "turbo-method": :delete, "turbo-confirm": "トーナメントツリーを削除しますか？" },
+              class: "btn btn-xs btn-danger" %>
+      <% end %>
+    </h3>
+    <div class="bracket">
+      <% @tournament.matches.includes(:participant1, :participant2, :winner)
+                            .group_by(&:round).sort.each do |round, matches| %>
+        <div class="bracket-round">
+          <h4><%= round %>回戦</h4>
+          <ul class="list-group">
+            <% matches.each do |match| %>
+              <li class="list-group-item">
+                <%= match.participant1&.name || "未定" %>
+                vs
+                <%= match.participant2&.name || "未定" %>
+                <% if match.winner.present? %>
+                  （勝者: <%= match.winner.name %>）
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

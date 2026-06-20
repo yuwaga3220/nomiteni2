@@ -1,0 +1,11 @@
+  <div class="col-md-4">
+    <div class="well">
+      <h4>参加者登録</h4>
+      <%= form_with(model: [@tournament, Participant.new]) do |f| %>
+        <div class="field">
+          <%= f.text_field :name, placeholder: "参加者名", class: "form-control" %>
+        </div>
+        <%= f.submit "追加", class: "btn btn-primary" %>
+      <% end %>
+    </div>
+  </div>

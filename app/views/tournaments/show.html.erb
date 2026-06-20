@@ -12,86 +12,11 @@
   <% end %>
 </div>
 
-<div class="row">
-  <div class="<%= current_user?(@tournament.user) ? 'col-md-8' : 'col-md-12' %>">
-    <h3>参加者（<%= @tournament.participants.count %>人）</h3>
-    <% participants = @tournament.participants.order(:created_at) %>
-    <% if current_user?(@tournament.user) %>
-      <p>１回戦のポジションを入力してください。参加者数は2の冪乗（2, 4, 8...）である必要があります。</p>
-      <%= form_with(url: tournament_matches_path(@tournament), method: :post) do |f| %>
-        <ul class="list-group">
-          <% participants.each do |participant| %>
-            <li class="list-group-item">
-              <%= number_field_tag "positions[#{participant.id}]", nil,
-                    placeholder: "#", min: 1, max: @tournament.participants.count,
-                    class: "form-control input-sm", style: "width: 60px; display: inline-block" %>
-              <%= participant.name %>
-              <%= link_to "削除",
-                    tournament_participant_path(@tournament, participant),
-                    data: { "turbo-method": :delete, "turbo-confirm": "削除しますか？" },
-                    class: "btn btn-xs btn-danger pull-right" %>
-            </li>
-          <% end %>
-        </ul>
-        <%= f.submit "確定してトーナメントツリーを作成する。", class: "btn btn-primary" %>
-      <% end %>
-    <% else %>
-      <ul class="list-group">
-        <% participants.each do |participant| %>
-          <li class="list-group-item">
-            <%= participant.name %>
-          </li>
-        <% end %>
-      </ul>
-    <% end %>
-  </div>
-
-  <% if current_user?(@tournament.user) %>
-    <div class="col-md-4">
-      <div class="well">
-        <h4>参加者登録</h4>
-        <%= form_with(model: [@tournament, Participant.new]) do |f| %>
-          <div class="field">
-            <%= f.text_field :name, placeholder: "参加者名", class: "form-control" %>
-          </div>
-          <%= f.submit "追加", class: "btn btn-primary" %>
-        <% end %>
-      </div>
-    </div>
-  <% end %>
-</div>
-
-<% if @tournament.matches.any? %>
+<% unless @tournament.matches.any? %>
   <div class="row">
-    <div class="col-md-12">
-      <h3>
-        トーナメントツリー
-        <% if current_user?(@tournament.user) %>
-          <%= link_to "削除", destroy_all_tournament_matches_path(@tournament),
-                data: { "turbo-method": :delete, "turbo-confirm": "トーナメントツリーを削除しますか？" },
-                class: "btn btn-xs btn-danger" %>
-        <% end %>
-      </h3>
-      <div class="bracket">
-        <% @tournament.matches.includes(:participant1, :participant2, :winner)
-                              .group_by(&:round).sort.each do |round, matches| %>
-          <div class="bracket-round">
-            <h4><%= round %>回戦</h4>
-            <ul class="list-group">
-              <% matches.each do |match| %>
-                <li class="list-group-item">
-                  <%= match.participant1&.name || "未定" %>
-                  vs
-                  <%= match.participant2&.name || "未定" %>
-                  <% if match.winner.present? %>
-                    （勝者: <%= match.winner.name %>）
-                  <% end %>
-                </li>
-              <% end %>
-            </ul>
-          </div>
-        <% end %>
-      </div>
-    </div>
+    <%= render "participant_list" %>
+    <%= render "participant_form" if current_user?(@tournament.user) %>
   </div>
 <% end %>
+
+<%= render "bracket" if @tournament.matches.any? %>
