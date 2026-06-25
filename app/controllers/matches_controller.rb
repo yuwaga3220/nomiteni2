@@ -61,7 +61,10 @@ class MatchesController < ApplicationController
       matches_count = count / (2**round)
       current_round_matches = Array.new(matches_count) do |i|
         attrs = { tournament: @tournament, round: round }
-        attrs[:next_match] = next_round_matches[i / 2] if next_round_matches
+        if next_round_matches
+          attrs[:next_match] = next_round_matches[i / 2]
+          attrs[:next_slot] = (i % 2) + 1
+        end
         if round == 1
           attrs[:participant1] = ordered_participants[2 * i]
           attrs[:participant2] = ordered_participants[2 * i + 1]

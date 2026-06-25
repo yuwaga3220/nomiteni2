@@ -10,10 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_20_043636) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_25_130424) do
   create_table "matches", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "next_match_id"
+    t.integer "next_slot"
     t.integer "participant1_id"
     t.integer "participant2_id"
     t.integer "round", null: false

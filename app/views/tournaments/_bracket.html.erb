@@ -16,9 +16,13 @@
           <ul class="list-group">
             <% matches.each do |match| %>
               <li class="list-group-item">
-                <%= match.participant1&.name || "未定" %>
+                <button class="btn btn-xs btn-default">
+                  <%= match.participant1&.name || "未定" %>
+                </button>
                 vs
-                <%= match.participant2&.name || "未定" %>
+                <button class="btn btn-xs btn-default">
+                  <%= match.participant2&.name || "未定" %>
+                </button>
                 <% if match.winner.present? %>
                   （勝者: <%= match.winner.name %>）
                 <% end %>
