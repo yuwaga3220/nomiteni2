@@ -1,6 +1,9 @@
 # Hit'Ems
 
-テニスのトーナメント大会を管理するWebアプリケーションです。大会の作成・選手登録・対戦組み合わせの管理ができます。
+- テニスのトーナメント大会を管理するWebアプリケーション
+- 大会運営
+- トーナメント進捗状況のリアルタイム確認
+- トーナメントの予想
 
 ## 機能
 
@@ -11,8 +14,7 @@
 ## 技術スタック
 
 - Ruby 3.4 / Rails 8.1
-- SQLite（開発・テスト） / PostgreSQL（本番）
-- Bootstrap 3 / Turbo / Stimulus
+- SQLite
 
 ## セットアップ
 
@@ -29,40 +31,16 @@ bin/rails server
 bin/rails test
 ```
 
-## ER図
+## メモ
 
-```mermaid
-erDiagram
-    User {
-        integer id PK
-        string name
-        string email
-        string password_digest
-        boolean admin
-        boolean activated
-        datetime activated_at
-        string activation_digest
-        string remember_digest
-        string reset_digest
-        datetime reset_sent_at
-    }
+トーナメントの状態管理
+　　開催前、開催中、開催後
 
-    Tournament {
-        integer id PK
-        integer user_id FK
-        text title
-        text description
-        date held_on
-        string venue
-    }
+各試合の状態管理
+　　試合前、試合中、試合終了
+　　　　試合中なら試合管理可
+　　　　試合前なら試合予想可
 
-    Player {
-        integer id PK
-        integer tournament_id FK
-        string name
-        integer position
-    }
-
-    User ||--o{ Tournament : "作成する"
-    Tournament ||--o{ Player : "参加する"
-```
+matchに勝者と敗者それぞれの取得ゲーム数設定
+試合管理：モーダルあり。試合結果入力・確定ボタン設置
+試合予想：モーダルなし。ぽちぽちと試合結果を入力可
