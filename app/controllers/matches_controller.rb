@@ -38,6 +38,31 @@ class MatchesController < ApplicationController
     redirect_to tournament_path(@tournament)
   end
 
+  def set_winner
+    match = @tournament.matches.find(params[:id])
+    winner = case params[:slot].to_i
+    when 1 then match.participant1
+    when 2 then match.participant2
+    end
+    unless winner
+      flash[:danger] = "選手が見つかりません"
+      redirect_to tournament_path(@tournament) and return
+    end
+
+    Match.transaction do
+      match.update!(winner: winner)
+      if match.next_match && match.next_slot
+        next_match = match.next_match
+        if match.next_slot == 1
+          next_match.update!(participant1: winner)
+        else
+          next_match.update!(participant2: winner)
+        end
+      end
+    end
+    redirect_to tournament_path(@tournament)
+  end
+
   def destroy_all
     @tournament.matches.update_all(next_match_id: nil)
     @tournament.matches.destroy_all

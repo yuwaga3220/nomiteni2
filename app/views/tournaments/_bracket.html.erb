@@ -8,21 +8,24 @@
               class: "btn btn-xs btn-danger" %>
       <% end %>
     </h3>
-    <div class="bracket">
+    <div class="bracket" style="display: flex; gap: 24px; align-items: flex-start;">
       <% @tournament.matches.includes(:participant1, :participant2, :winner)
                             .group_by(&:round).sort.each do |round, matches| %>
-        <div class="bracket-round">
+        <div class="bracket-round" style="min-width: 200px;">
           <h4><%= round %>回戦</h4>
           <ul class="list-group">
             <% matches.each do |match| %>
               <li class="list-group-item">
-                <button class="btn btn-xs btn-default">
-                  <%= match.participant1&.name || "未定" %>
-                </button>
-                vs
-                <button class="btn btn-xs btn-default">
-                  <%= match.participant2&.name || "未定" %>
-                </button>
+                <%= button_to match.participant1&.name || "未定",
+                      set_winner_tournament_match_path(@tournament, match),
+                      params: { slot: 1 },
+                      method: :patch,
+                      class: "btn btn-xs btn-default" %>
+                <%= button_to match.participant2&.name || "未定",
+                      set_winner_tournament_match_path(@tournament, match),
+                      params: { slot: 2 },
+                      method: :patch,
+                      class: "btn btn-xs btn-default" %>
                 <% if match.winner.present? %>
                   （勝者: <%= match.winner.name %>）
                 <% end %>
