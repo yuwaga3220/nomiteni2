@@ -8,13 +8,25 @@
               class: "btn btn-xs btn-danger" %>
       <% end %>
     </h3>
+    <% unit = 60
+       match_height = 44
+       grouped = @tournament.matches.includes(:participant1, :participant2, :winner)
+                                    .group_by(&:round).sort %>
+    <div style="display: flex; gap: 24px;">
+      <% grouped.each do |round, _| %>
+        <div style="min-width: 200px;">
+          <h4>Round <%= round %></h4>
+        </div>
+      <% end %>
+    </div>
     <div class="bracket" style="display: flex; gap: 24px; align-items: flex-start;">
-      <% @tournament.matches.includes(:participant1, :participant2, :winner)
-                            .group_by(&:round).sort.each do |round, matches| %>
-        <div class="bracket-round" style="min-width: 200px;">
-          <h4><%= round %>回戦</h4>
-          <% matches.each do |match| %>
-            <div style="margin-bottom: 16px;">
+      <% grouped.each do |round, matches| %>
+        <% spacing = unit * (2 ** (round - 1))
+           round_offset = unit / 2 * (2 ** (round - 1) - 1) %>
+        <div class="bracket-round" style="min-width: 200px; padding-top: <%= round_offset %>px;">
+          <% matches.each_with_index do |match, i| %>
+            <% margin_top = i == 0 ? 0 : spacing - match_height %>
+            <div style="margin-top: <%= margin_top %>px;">
               <div style="width: 160px;">
                 <%= button_to match.participant1&.name || "未定",
                       set_winner_tournament_match_path(@tournament, match),

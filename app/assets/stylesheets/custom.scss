@@ -5,6 +5,13 @@
 
 $gray-medium-light: #eaeaea;
 
+/* dark theme colors */
+$bg-dark:        #111111;
+$bg-navbar:      #1e1e1e;
+$text-primary:   #e0e0e0;
+$text-muted-dark: #888888;
+$border-dark:    #333333;
+
 @mixin box_sizing {
   -moz-box-sizing:    border-box;
   -webkit-box-sizing: border-box;
@@ -15,6 +22,8 @@ $gray-medium-light: #eaeaea;
 
 body {
   padding-top: 60px;
+  background-color: $bg-dark;
+  color: $text-primary;
 }
 
 section {
@@ -62,6 +71,29 @@ p {
 
 /* header */
 
+.navbar-inverse {
+  background-color: $bg-navbar;
+  border-color: $border-dark;
+
+  .navbar-nav > li > a {
+    color: $text-primary;
+    &:hover { color: #ffffff; }
+  }
+
+  .dropdown-menu {
+    background-color: $bg-navbar;
+    border-color: $border-dark;
+    > li > a {
+      color: $text-primary;
+      &:hover {
+        background-color: $border-dark;
+        color: #ffffff;
+      }
+    }
+    .divider { background-color: $border-dark; }
+  }
+}
+
 #logo {
   float: left;
   margin-right: 10px;
@@ -82,12 +114,12 @@ p {
 footer {
   margin-top: 45px;
   padding-top: 5px;
-  border-top: 1px solid $gray-medium-light;
-  color: $gray-light;
+  border-top: 1px solid $border-dark;
+  color: $text-muted-dark;
   a {
-    color: $gray;
+    color: $text-muted-dark;
     &:hover {
-      color: $gray-darker;
+      color: $text-primary;
     }
   }
   small {
@@ -297,4 +329,72 @@ span.image {
   input {
     border: 0;
   }
+}
+
+/* dark theme overrides for Bootstrap components */
+
+.panel {
+  background-color: #1a1a1a;
+  border-color: $border-dark;
+  .panel-heading { background-color: $bg-navbar; border-color: $border-dark; color: $text-primary; }
+  .panel-body { color: $text-primary; }
+}
+
+.list-group-item {
+  background-color: #1a1a1a;
+  border-color: $border-dark;
+  color: $text-primary;
+  &:hover, &:focus { background-color: #252525; color: #ffffff; }
+}
+
+.well {
+  background-color: #1a1a1a;
+  border-color: $border-dark;
+  color: $text-primary;
+}
+
+.form-control {
+  background-color: #1a1a1a;
+  border-color: $border-dark;
+  color: $text-primary;
+  &:focus {
+    background-color: #222222;
+    border-color: #555555;
+    color: $text-primary;
+  }
+}
+
+input, textarea {
+  background-color: #1a1a1a !important;
+  color: $text-primary !important;
+  border-color: $border-dark !important;
+}
+
+.table {
+  color: $text-primary;
+  > thead > tr > th { border-color: $border-dark; color: $text-muted-dark; }
+  > tbody > tr > td { border-color: $border-dark; }
+  > tbody > tr:hover > td { background-color: #1a1a1a; }
+}
+
+.users li, .tournaments li {
+  border-color: $border-dark;
+}
+
+a { color: #6ab0f5; &:hover { color: #9fcfff; } }
+
+h1, h2, h3, h4, h5, h6 { color: $text-primary; }
+
+h2 { color: $text-muted-dark; }
+
+.alert-info    { background-color: #1a3a4a; border-color: #2a5a6a; color: #7dd3e8; }
+.alert-success { background-color: #1a3a1a; border-color: #2a5a2a; color: #7dd87d; }
+.alert-danger  { background-color: #3a1a1a; border-color: #5a2a2a; color: #e87d7d; }
+.alert-warning { background-color: #3a2e1a; border-color: #5a4a2a; color: #e8c87d; }
+
+.btn-default {
+  background-color: #2a2a2a;
+  border-color: #444444;
+  color: $text-primary;
+  &:hover { background-color: #383838; color: #ffffff; }
 }
