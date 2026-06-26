@@ -8,44 +8,65 @@
               class: "btn btn-xs btn-danger" %>
       <% end %>
     </h3>
-    <% unit = 60
-       match_height = 44
-       grouped = @tournament.matches.includes(:participant1, :participant2, :winner)
-                                    .group_by(&:round).sort %>
-    <div style="display: flex; gap: 24px;">
-      <% grouped.each do |round, _| %>
-        <div style="min-width: 200px;">
+    <% unit           = 100
+       match_height   = 84
+       connector_w    = 40
+       col_width      = 220
+       grouped        = @tournament.matches.includes(:participant1, :participant2, :winner)
+                                          .group_by(&:round).sort
+       n_rounds       = grouped.size
+       total_height   = (2 ** (n_rounds - 1) - 1) * unit + match_height %>
+    <div style="display: flex;">
+      <% grouped.each_with_index do |(round, _), i| %>
+        <div style="min-width: <%= col_width %>px;">
           <h4>Round <%= round %></h4>
         </div>
+        <% unless i == n_rounds - 1 %>
+          <div style="width: <%= connector_w %>px;"></div>
+        <% end %>
       <% end %>
     </div>
-    <div class="bracket" style="display: flex; gap: 24px; align-items: flex-start;">
-      <% grouped.each do |round, matches| %>
-        <% spacing = unit * (2 ** (round - 1))
+    <div class="bracket" style="display: flex; align-items: flex-start;">
+      <% grouped.each_with_index do |(round, matches), col_idx| %>
+        <% spacing     = unit * (2 ** (round - 1))
            round_offset = unit / 2 * (2 ** (round - 1) - 1) %>
-        <div class="bracket-round" style="min-width: 200px; padding-top: <%= round_offset %>px;">
+        <div class="bracket-round" style="min-width: <%= col_width %>px; padding-top: <%= round_offset %>px;">
           <% matches.each_with_index do |match, i| %>
             <% margin_top = i == 0 ? 0 : spacing - match_height %>
             <div style="margin-top: <%= margin_top %>px;">
-              <div style="width: 160px;">
+              <div style="width: 190px;">
                 <%= button_to match.participant1&.name || "未定",
                       set_winner_tournament_match_path(@tournament, match),
                       params: { slot: 1 },
                       method: :patch,
                       form: { style: "display: block; margin: 0;" },
-                      class: "btn btn-xs #{match.winner == match.participant1 ? 'btn-success' : 'btn-default'}",
-                      style: "width: 100%; border-radius: 4px 4px 0 0; margin: 0;" %>
+                      class: "btn btn-sm #{match.winner == match.participant1 ? 'btn-success' : 'btn-default'}",
+                      style: "width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em;" %>
                 <%= button_to match.participant2&.name || "未定",
                       set_winner_tournament_match_path(@tournament, match),
                       params: { slot: 2 },
                       method: :patch,
                       form: { style: "display: block; margin: 0;" },
-                      class: "btn btn-xs #{match.winner == match.participant2 ? 'btn-success' : 'btn-default'}",
-                      style: "width: 100%; border-radius: 0 0 4px 4px; margin-top: -1px;" %>
+                      class: "btn btn-sm #{match.winner == match.participant2 ? 'btn-success' : 'btn-default'}",
+                      style: "width: 100%; border-radius: 0 0 4px 4px; margin-top: -1px; padding: 10px 12px; font-size: 1em;" %>
               </div>
             </div>
           <% end %>
         </div>
+        <% unless col_idx == n_rounds - 1 %>
+          <svg width="<%= connector_w %>" height="<%= total_height %>" style="flex-shrink: 0; overflow: visible;">
+            <% matches.each_slice(2).with_index do |(m1, m2), pair_idx| %>
+              <% y_top = round_offset + pair_idx * 2 * spacing + match_height / 2
+                 y_bot = round_offset + (pair_idx * 2 + 1) * spacing + match_height / 2
+                 y_mid = (y_top + y_bot) / 2
+                 x_mid = connector_w / 2 %>
+              <line x1="<%= -(col_width - 190) %>" y1="<%= y_top %>" x2="<%= x_mid %>" y2="<%= y_top %>" stroke="#666" stroke-width="1"/>
+              <line x1="<%= -(col_width - 190) %>" y1="<%= y_bot %>" x2="<%= x_mid %>" y2="<%= y_bot %>" stroke="#666" stroke-width="1"/>
+              <line x1="<%= x_mid %>" y1="<%= y_top %>" x2="<%= x_mid %>" y2="<%= y_bot %>" stroke="#666" stroke-width="1"/>
+              <line x1="<%= x_mid %>" y1="<%= y_mid %>" x2="<%= connector_w %>" y2="<%= y_mid %>" stroke="#666" stroke-width="1"/>
+            <% end %>
+          </svg>
+        <% end %>
       <% end %>
     </div>
   </div>
