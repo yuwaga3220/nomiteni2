@@ -35,20 +35,31 @@
             <% margin_top = i == 0 ? 0 : spacing - match_height %>
             <div style="margin-top: <%= margin_top %>px;">
               <div style="width: 190px;">
-                <%= button_to match.participant1&.name || "未定",
-                      set_winner_tournament_match_path(@tournament, match),
-                      params: { slot: 1 },
-                      method: :patch,
-                      form: { style: "display: block; margin: 0;" },
-                      class: "btn btn-sm #{match.winner == match.participant1 ? 'btn-success' : 'btn-default'}",
-                      style: "width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em;" %>
-                <%= button_to match.participant2&.name || "未定",
-                      set_winner_tournament_match_path(@tournament, match),
-                      params: { slot: 2 },
-                      method: :patch,
-                      form: { style: "display: block; margin: 0;" },
-                      class: "btn btn-sm #{match.winner == match.participant2 ? 'btn-success' : 'btn-default'}",
-                      style: "width: 100%; border-radius: 0 0 4px 4px; margin-top: -1px; padding: 10px 12px; font-size: 1em;" %>
+                <% p1_class = match.winner == match.participant1 ? 'btn-success' : 'btn-default'
+                   p2_class = match.winner == match.participant2 ? 'btn-success' : 'btn-default' %>
+                <% if editable %>
+                  <%= button_to match.participant1&.name || "未定",
+                        set_winner_tournament_match_path(@tournament, match),
+                        params: { slot: 1 },
+                        method: :patch,
+                        form: { style: "display: block; margin: 0;" },
+                        class: "btn btn-sm #{p1_class}",
+                        style: "width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em;" %>
+                  <%= button_to match.participant2&.name || "未定",
+                        set_winner_tournament_match_path(@tournament, match),
+                        params: { slot: 2 },
+                        method: :patch,
+                        form: { style: "display: block; margin: 0;" },
+                        class: "btn btn-sm #{p2_class}",
+                        style: "width: 100%; border-radius: 0 0 4px 4px; margin-top: -1px; padding: 10px 12px; font-size: 1em;" %>
+                <% else %>
+                  <div class="btn btn-sm <%= p1_class %>" style="width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em; cursor: default;">
+                    <%= match.participant1&.name || "未定" %>
+                  </div>
+                  <div class="btn btn-sm <%= p2_class %>" style="width: 100%; border-radius: 0 0 4px 4px; margin-top: -1px; padding: 10px 12px; font-size: 1em; cursor: default;">
+                    <%= match.participant2&.name || "未定" %>
+                  </div>
+                <% end %>
               </div>
             </div>
           <% end %>

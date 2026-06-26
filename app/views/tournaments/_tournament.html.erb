@@ -12,7 +12,12 @@
       <p><%= tournament.description %></p>
     <% end %>
   </span>
-  <%= link_to "トーナメントを確認する", tournament%>
+  <% if current_user?(tournament.user) %>
+    <%= link_to "試合を管理する", tournament%>
+  <% else %>
+    <%= link_to "確認する", tournament%>
+  <% end %>
+  <%= link_to "試合結果を予想する" %>
   <br>
   <span class="user">主催者：<%= link_to tournament.user.name, tournament.user %></span>
   <span class="timestamp">
