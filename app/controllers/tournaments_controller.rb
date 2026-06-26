@@ -1,6 +1,6 @@
 class TournamentsController < ApplicationController
-  before_action :logged_in_user, only: [ :show, :create, :destroy ]
-  before_action :correct_user, only: [ :destroy ]
+  before_action :logged_in_user, only: [ :show, :create, :destroy, :update_status ]
+  before_action :correct_user, only: [ :destroy, :update_status ]
 
   def show
     @tournament = Tournament.find(params[:id])
@@ -15,6 +15,13 @@ class TournamentsController < ApplicationController
       @tournaments = Tournament.all.paginate(page: params[:page])
       render "static_pages/home", status: :unprocessable_entity
     end
+  end
+
+  def update_status
+    if Tournament.statuses.key?(params[:status])
+      @tournament.update!(status: params[:status])
+    end
+    redirect_to tournament_path(@tournament)
   end
 
   def destroy

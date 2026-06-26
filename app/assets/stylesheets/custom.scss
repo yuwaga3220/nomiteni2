@@ -398,3 +398,18 @@ h2 { color: $text-muted-dark; }
   color: $text-primary;
   &:hover { background-color: #383838; color: #ffffff; }
 }
+
+.jumbotron {
+  background-color: #1a1a1a;
+  color: $text-primary;
+}
+
+.container, .container-fluid {
+  background-color: transparent;
+}
+
+.panel, .well, .list-group-item, .page-header {
+  background-color: #1a1a1a;
+  border-color: $border-dark;
+  color: $text-primary;
+}
