@@ -1,6 +1,11 @@
 <li id="tournament-<%= tournament.id %>">
   <span class="content">
     <strong><%= tournament.title %></strong>
+    <% if tournament.before? %>
+      <span class="text-muted">（開催前）</span>
+    <% elsif tournament.after? %>
+      <span class="text-muted">（終了）</span>
+    <% end %>
     <br>
     <% if tournament.held_on.present? %>
       <span class="held-on"> 開催日: <%= tournament.held_on.strftime("%Y年%m月%d日") %></span>
@@ -17,7 +22,7 @@
   <% else %>
     <%= link_to "確認する", tournament%>
   <% end %>
-  <%= link_to "試合結果を予想する" %>
+  <%= link_to "試合結果を予想する", new_tournament_prediction_path(tournament) %>
   <br>
   <span class="user">主催者：<%= link_to tournament.user.name, tournament.user %></span>
   <span class="timestamp">

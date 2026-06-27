@@ -14,6 +14,7 @@ Rails.application.routes.draw do
     member do
       patch :update_status
     end
+    resource :prediction, only: [ :new, :create ]
     resources :participants, only: [ :create, :destroy ]
     resources :matches, only: [ :create ] do
       collection do

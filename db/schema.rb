@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_26_131016) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_27_084501) do
   create_table "matches", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "next_match_id"
@@ -35,6 +35,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_26_131016) do
     t.datetime "updated_at", null: false
     t.index ["tournament_id", "name"], name: "index_participants_on_tournament_id_and_name", unique: true
     t.index ["tournament_id"], name: "index_participants_on_tournament_id"
+  end
+
+  create_table "predictions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "match_id", null: false
+    t.integer "predicted_participant_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["match_id"], name: "index_predictions_on_match_id"
+    t.index ["predicted_participant_id"], name: "index_predictions_on_predicted_participant_id"
+    t.index ["user_id", "match_id"], name: "index_predictions_on_user_id_and_match_id", unique: true
+    t.index ["user_id"], name: "index_predictions_on_user_id"
   end
 
   create_table "tournaments", force: :cascade do |t|
@@ -72,5 +84,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_26_131016) do
   add_foreign_key "matches", "participants", column: "winner_id"
   add_foreign_key "matches", "tournaments"
   add_foreign_key "participants", "tournaments"
+  add_foreign_key "predictions", "matches"
+  add_foreign_key "predictions", "participants", column: "predicted_participant_id"
+  add_foreign_key "predictions", "users"
   add_foreign_key "tournaments", "users"
 end
