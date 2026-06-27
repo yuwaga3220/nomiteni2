@@ -1,9 +1,3 @@
 <% provide(:title, "試合結果を予想") %>
 <h2>試合結果を予想 — <%= @tournament.title %></h2>
-
-<%= form_with url: tournament_prediction_path(@tournament) do |f| %>
-  <%= render "tournaments/prediction_bracket" %>
-  <div style="margin-top: 24px;">
-    <%= f.submit "確定する", class: "btn btn-primary" %>
-  </div>
-<% end %>
+<%= render "tournaments/prediction_bracket" %>

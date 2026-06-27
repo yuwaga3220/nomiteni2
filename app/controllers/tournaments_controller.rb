@@ -19,7 +19,14 @@ class TournamentsController < ApplicationController
 
   def update_status
     if Tournament.statuses.key?(params[:status])
-      @tournament.update!(status: params[:status])
+      Match.transaction do
+        @tournament.update!(status: params[:status])
+        if @tournament.before?
+          @tournament.matches.update_all(winner_id: nil)
+          @tournament.matches.where("round > 1")
+                     .update_all(participant1_id: nil, participant2_id: nil)
+        end
+      end
     end
     redirect_to tournament_path(@tournament)
   end

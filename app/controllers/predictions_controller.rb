@@ -5,25 +5,36 @@ class PredictionsController < ApplicationController
   def new
     @existing_predictions = current_user.predictions
                                         .where(match: @tournament.matches)
+                                        .includes(:predicted_participant)
                                         .index_by(&:match_id)
+    @all_matches = @tournament.matches.includes(:participant1, :participant2).to_a
+    @feeder_matches = @all_matches.each_with_object({}) do |m, h|
+      next unless m.next_match_id
+      h[[m.next_match_id, m.next_slot]] = m
+    end
   end
 
   def create
+    match = @tournament.matches.find(params[:match_id])
     Prediction.transaction do
-      params[:predictions].each do |match_id, participant_id|
-        next if participant_id.blank?
-        match = @tournament.matches.find(match_id)
-        prediction = current_user.predictions.find_or_initialize_by(match: match)
-        prediction.update!(predicted_participant_id: participant_id)
-      end
+      current_user.predictions.find_or_initialize_by(match: match)
+                  .update!(predicted_participant_id: params[:participant_id])
+      delete_downstream_predictions(match)
     end
-    flash[:success] = "予想を確定しました"
-    redirect_to tournament_path(@tournament)
+    redirect_to new_tournament_prediction_path(@tournament)
   end
 
   private
 
   def set_tournament
     @tournament = Tournament.find(params[:tournament_id])
+  end
+
+  def delete_downstream_predictions(match)
+    return unless match.next_match_id
+    next_match = @tournament.matches.find_by(id: match.next_match_id)
+    return unless next_match
+    current_user.predictions.where(match: next_match).destroy_all
+    delete_downstream_predictions(next_match)
   end
 end

@@ -2,8 +2,7 @@
    match_height   = 84
    connector_w    = 40
    col_width      = 220
-   grouped        = @tournament.matches.includes(:participant1, :participant2)
-                                       .group_by(&:round).sort
+   grouped        = @all_matches.group_by(&:round).sort
    n_rounds       = grouped.size
    total_height   = (2 ** (n_rounds - 1) - 1) * unit + match_height %>
 <div style="display: flex;">
@@ -22,32 +21,37 @@
        round_offset = unit / 2 * (2 ** (round - 1) - 1) %>
     <div class="bracket-round" style="min-width: <%= col_width %>px; padding-top: <%= round_offset %>px;">
       <% matches.each_with_index do |match, i| %>
-        <% margin_top  = i == 0 ? 0 : spacing - match_height
+        <% margin_top = i == 0 ? 0 : spacing - match_height
+           if round == 1
+             p1 = match.participant1
+             p2 = match.participant2
+           else
+             feeder1 = @feeder_matches[[match.id, 1]]
+             feeder2 = @feeder_matches[[match.id, 2]]
+             p1 = @existing_predictions[feeder1&.id]&.predicted_participant
+             p2 = @existing_predictions[feeder2&.id]&.predicted_participant
+           end
            prediction  = @existing_predictions[match.id]
-           p1_selected = prediction&.predicted_participant_id == match.participant1&.id
-           p2_selected = prediction&.predicted_participant_id == match.participant2&.id %>
+           p1_selected = p1.present? && prediction&.predicted_participant_id == p1.id
+           p2_selected = p2.present? && prediction&.predicted_participant_id == p2.id %>
         <div style="margin-top: <%= margin_top %>px;">
-          <div style="width: 190px;" data-controller="prediction">
-            <%= radio_button_tag "predictions[#{match.id}]",
-                  match.participant1&.id,
-                  p1_selected,
-                  id: "pred_#{match.id}_1",
-                  style: "display: none;",
-                  data: { prediction_target: "radio", action: "change->prediction#select" } %>
-            <%= label_tag "pred_#{match.id}_1",
-                  match.participant1&.name || "未定",
+          <div style="width: 190px;">
+            <%= button_to p1&.name || "未定",
+                  tournament_prediction_path(@tournament),
+                  params: { match_id: match.id, participant_id: p1&.id },
+                  method: :post,
+                  form: { style: "display: block; margin: 0;" },
+                  disabled: p1.nil?,
                   class: "btn btn-sm #{p1_selected ? 'btn-warning' : 'btn-default'}",
-                  style: "width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em; cursor: pointer;" %>
-            <%= radio_button_tag "predictions[#{match.id}]",
-                  match.participant2&.id,
-                  p2_selected,
-                  id: "pred_#{match.id}_2",
-                  style: "display: none;",
-                  data: { prediction_target: "radio", action: "change->prediction#select" } %>
-            <%= label_tag "pred_#{match.id}_2",
-                  match.participant2&.name || "未定",
+                  style: "width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em; cursor: #{p1.nil? ? 'default' : 'pointer'};" %>
+            <%= button_to p2&.name || "未定",
+                  tournament_prediction_path(@tournament),
+                  params: { match_id: match.id, participant_id: p2&.id },
+                  method: :post,
+                  form: { style: "display: block; margin: 0;" },
+                  disabled: p2.nil?,
                   class: "btn btn-sm #{p2_selected ? 'btn-warning' : 'btn-default'}",
-                  style: "width: 100%; border-radius: 0 0 4px 4px; margin-top: -1px; padding: 10px 12px; font-size: 1em; cursor: pointer;" %>
+                  style: "width: 100%; border-radius: 0 0 4px 4px; margin-top: -1px; padding: 10px 12px; font-size: 1em; cursor: #{p2.nil? ? 'default' : 'pointer'};" %>
           </div>
         </div>
       <% end %>
