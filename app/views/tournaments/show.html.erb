@@ -32,4 +32,4 @@
   </div>
 <% end %>
 
-<%= render "bracket", editable: current_user?(@tournament.user) if @tournament.matches.any? %>
+<%= render "bracket", editable: current_user?(@tournament.user) && !@tournament.before? if @tournament.matches.any? %>

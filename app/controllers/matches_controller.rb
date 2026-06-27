@@ -39,6 +39,10 @@ class MatchesController < ApplicationController
   end
 
   def set_winner
+    if @tournament.before?
+      flash[:danger] = "開催前は試合結果を入力できません"
+      redirect_to tournament_path(@tournament) and return
+    end
     match = @tournament.matches.find(params[:id])
     winner = case params[:slot].to_i
     when 1 then match.participant1
