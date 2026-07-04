@@ -15,6 +15,10 @@ class PredictionsController < ApplicationController
   end
 
   def create
+    unless @tournament.before?
+      flash[:danger] = "開催前以外は予想を入力できません"
+      redirect_to new_tournament_prediction_path(@tournament) and return
+    end
     match = @tournament.matches.find(params[:match_id])
     Prediction.transaction do
       current_user.predictions.find_or_initialize_by(match: match)

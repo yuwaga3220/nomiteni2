@@ -11,14 +11,7 @@
     <p><%= @tournament.description %></p>
   <% end %>
   <% if current_user?(@tournament.user) %>
-    <%= form_with url: update_status_tournament_path(@tournament), method: :patch do |f| %>
-      <%= f.radio_button :status, "before", id: "status_before", checked: @tournament.before?, onchange: "if(confirm('本当にトーナメントステータスを更新しますか？')) { this.form.requestSubmit(); } else { this.form.reset(); }" %>
-      <%= label_tag "status_before", "開催前" %>
-      <%= f.radio_button :status, "during", id: "status_during", checked: @tournament.during?, onchange: "if(confirm('本当にトーナメントステータスを更新しますか？')) { this.form.requestSubmit(); } else { this.form.reset(); }" %>
-      <%= label_tag "status_during", "開催中" %>
-      <%= f.radio_button :status, "after", id: "status_after", checked: @tournament.after?, onchange: "if(confirm('本当にトーナメントステータスを更新しますか？')) { this.form.requestSubmit(); } else { this.form.reset(); }" %>
-      <%= label_tag "status_after", "開催後" %>
-    <% end %>
+    <%= render "status_form", tournament: @tournament %>
   <% else %>
     <% status_labels = { "before" => "開催前", "during" => "開催中", "after" => "開催後" } %>
     <p>ステータス: <strong><%= status_labels[@tournament.status] %></strong></p>
@@ -32,4 +25,5 @@
   </div>
 <% end %>
 
-<%= render "bracket", editable: current_user?(@tournament.user) && !@tournament.before? if @tournament.matches.any? %>
+<%= render "bracket", 
+  editable: current_user?(@tournament.user) && @tournament.during? if @tournament.matches.any? %>
