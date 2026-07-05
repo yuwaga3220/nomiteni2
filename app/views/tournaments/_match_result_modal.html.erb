@@ -10,7 +10,7 @@
         <div class="modal-body">
           <div class="form-group">
             <label><%= p1.name %>の獲得ゲーム数</label>
-            <%= number_field_tag "participant1_games", match.winner == p1 ? match.winner_games : (match.winner == p2 ? match.loser_games : nil), min: 0, required: true, class: "form-control", data: { "match-result-modal-target": "firstInput" } %>
+            <%= number_field_tag "participant1_games", match.winner == p1 ? match.winner_games : (match.winner == p2 ? match.loser_games : nil), min: 0, required: true, class: "form-control" %>
           </div>
           <div class="form-group">
             <label><%= p2.name %>の獲得ゲーム数</label>

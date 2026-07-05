@@ -4,7 +4,7 @@
     <nav>
       <div class="navbar-header">
         <button id="hamburger" type="button" class="navbar-toggle collapsed">
-          <span class="sr-only">Toggle navigation</span>
+          <span class="sr-only">ナビゲーションを切り替え</span>
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
@@ -12,29 +12,29 @@
       </div>
       <ul id="navbar-menu" class="nav navbar-nav navbar-right collaspe navbar-collaspe">
         <% if logged_in? %>
-          <li><%= link_to "Dashboard", root_path %></li>
+          <li><%= link_to "ダッシュボード", root_path %></li>
         <% else %>
-          <li><%= link_to "Home", root_path %></li>
+          <li><%= link_to "ホーム", root_path %></li>
         <% end %>
         <% if logged_in? %>
-          <li><%= link_to "Users", users_path %></li>
+          <li><%= link_to "ユーザー", users_path %></li>
           <li class="dropdown">
             <a href="#" id="account" class="dropdown-toggle">
-              Account <b class="caret"></b>
+              アカウント <b class="caret"></b>
             </a>
             <ul id="dropdown-menu" class="dropdown-menu">
-              <li><%= link_to "Profile", current_user %></li>
-              <li><%= link_to "Settings", edit_user_path(current_user) %></li>
+              <li><%= link_to "プロフィール", current_user %></li>
+              <li><%= link_to "設定", edit_user_path(current_user) %></li>
               <li class="divider"></li>
               <li>
-                <%= link_to "Log out", logout_path,
-                  data: { "turbo-method": :delete } 
+                <%= link_to "ログアウト", logout_path,
+                  data: { "turbo-method": :delete }
                 %>
               </li>
             </ul>
           </li>
         <% else %>
-          <li><%= link_to "Log in", login_path %></li>
+          <li><%= link_to "ログイン", login_path %></li>
         <% end %>
       </ul>
     </nav>

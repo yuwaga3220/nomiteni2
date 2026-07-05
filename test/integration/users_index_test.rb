@@ -32,7 +32,7 @@ class UsersIndexAdminTest < UsersIndexAdmin
     first_page_of_users.each do |user|
       assert_select 'a[href=?]', user_path(user), text: user.name
       unless user == @admin
-        assert_select 'a[href=?]', user_path(user), text: 'delete'
+        assert_select 'a[href=?]', user_path(user), text: '削除'
       end
     end
   end
@@ -64,6 +64,6 @@ class UsersNonAdminIndexTest < UsersIndex
   test "should not have delete links as non-admin" do
     log_in_as(@non_admin)
     get users_path
-    assert_select 'a', text: 'delete', count: 0
+    assert_select 'a', text: '削除', count: 0
   end
 end

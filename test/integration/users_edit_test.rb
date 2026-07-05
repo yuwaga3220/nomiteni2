@@ -16,7 +16,7 @@ class UsersEditTest < ActionDispatch::IntegrationTest
       }
     }
     assert_template 'users/edit'
-    assert_select 'div.alert-danger', text: 'The form contains 4 errors.'
+    assert_select 'div.alert-danger', text: '入力内容に4件のエラーがあります。'
   end
 
   test "successful edit" do
