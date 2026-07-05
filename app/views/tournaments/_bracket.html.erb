@@ -37,29 +37,32 @@
               <div style="width: 190px;">
                 <% p1 = match.participant1
                    p2 = match.participant2
-                   p1_class = p1.present? && match.winner == p1 ? 'btn-success' : 'btn-default'
-                   p2_class = p2.present? && match.winner == p2 ? 'btn-success' : 'btn-default' %>
-                <% if editable %>
-                  <%= button_to p1&.name || "未定",
-                        set_winner_tournament_match_path(@tournament, match),
-                        params: { slot: 1 },
-                        method: :patch,
-                        form: { style: "display: block; margin: 0;" },
-                        class: "btn btn-sm #{p1_class}",
-                        style: "width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em; cursor: #{p1.nil? ? 'default' : 'pointer'};" %>
-                  <%= button_to p2&.name || "未定",
-                        set_winner_tournament_match_path(@tournament, match),
-                        params: { slot: 2 },
-                        method: :patch,
-                        form: { style: "display: block; margin: 0;" },
-                        class: "btn btn-sm #{p2_class}",
-                        style: "width: 100%; border-radius: 0 0 4px 4px; margin-top: -1px; padding: 10px 12px; font-size: 1em; cursor: #{p2.nil? ? 'default' : 'pointer'};" %>
-                <% else %>
-                  <div class="btn btn-sm <%= p1_class %>" style="width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em; cursor: default;">
-                    <%= p1&.name || "未定" %>
+                   p1_class = p1.present? && match.winner == p1 ? "bracket-slot-winner" : "bracket-slot"
+                   p2_class = p2.present? && match.winner == p2 ? "bracket-slot-winner" : "bracket-slot"
+                   p1_games = match.winner == p1 ? match.winner_games : (match.winner == p2 ? match.loser_games : nil)
+                   p2_games = match.winner == p2 ? match.winner_games : (match.winner == p1 ? match.loser_games : nil) %>
+                <% if editable && p1.present? && p2.present? %>
+                  <div data-controller="match-result-modal">
+                    <div class="btn btn-sm" style="width: 100%; padding: 0; cursor: pointer;" data-action="click->match-result-modal#open">
+                      <div class="<%= p1_class %>" style="border-radius: 4px 4px 0 0; padding: 10px 12px; font-size: 1em;">
+                        <%= p1.name %>
+                        <% if p1_games.present? %><span class="pull-right"><%= p1_games %></span><% end %>
+                      </div>
+                      <div class="<%= p2_class %>" style="border-radius: 0 0 4px 4px; margin-top: -1px; padding: 10px 12px; font-size: 1em;">
+                        <%= p2.name %>
+                        <% if p2_games.present? %><span class="pull-right"><%= p2_games %></span><% end %>
+                      </div>
+                    </div>
+                    <%= render "match_result_modal", match: match, p1: p1, p2: p2 %>
                   </div>
-                  <div class="btn btn-sm <%= p2_class %>" style="width: 100%; border-radius: 0 0 4px 4px; margin-top: -1px; padding: 10px 12px; font-size: 1em; cursor: default;">
+                <% else %>
+                  <div class="<%= p1_class %>" style="width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em; cursor: default;">
+                    <%= p1&.name || "未定" %>
+                    <% if p1_games.present? %><span class="pull-right"><%= p1_games %></span><% end %>
+                  </div>
+                  <div class="<%= p2_class %>" style="width: 100%; border-radius: 0 0 4px 4px; margin-top: -1px; padding: 10px 12px; font-size: 1em; cursor: default;">
                     <%= p2&.name || "未定" %>
+                    <% if p2_games.present? %><span class="pull-right"><%= p2_games %></span><% end %>
                   </div>
                 <% end %>
               </div>

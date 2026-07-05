@@ -44,17 +44,24 @@ class MatchesController < ApplicationController
       redirect_to tournament_path(@tournament) and return
     end
     match = @tournament.matches.find(params[:id])
-    winner = case params[:slot].to_i
-    when 1 then match.participant1
-    when 2 then match.participant2
-    end
-    unless winner
-      flash[:danger] = "選手が見つかりません"
+    unless match.participant1 && match.participant2
+      flash[:danger] = "両方の選手が決まっていない試合には結果を入力できません"
       redirect_to tournament_path(@tournament) and return
     end
 
+    p1_games = params[:participant1_games].to_i
+    p2_games = params[:participant2_games].to_i
+
+    if p1_games == p2_games
+      flash[:danger] = "同点の結果は入力できません"
+      redirect_to tournament_path(@tournament) and return
+    end
+
+    winner, winner_games, loser_games =
+      p1_games > p2_games ? [ match.participant1, p1_games, p2_games ] : [ match.participant2, p2_games, p1_games ]
+
     Match.transaction do
-      match.update!(winner: winner)
+      match.update!(winner: winner, winner_games: winner_games, loser_games: loser_games)
       if match.next_match && match.next_slot
         next_match = match.next_match
         if match.next_slot == 1

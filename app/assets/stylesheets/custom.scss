@@ -413,3 +413,61 @@ h2 { color: $text-muted-dark; }
   border-color: $border-dark;
   color: $text-primary;
 }
+
+.pagination {
+  > li > a, > li > span {
+    background-color: #1a1a1a;
+    border-color: $border-dark;
+    color: $text-primary;
+    &:hover, &:focus { background-color: #252525; color: #ffffff; }
+  }
+  > .active > a, > .active > span {
+    &, &:hover, &:focus { background-color: #2a5a2a; border-color: #2a5a2a; color: #ffffff; }
+  }
+  > .disabled > a, > .disabled > span {
+    &, &:hover, &:focus { background-color: #1a1a1a; border-color: $border-dark; color: $text-muted-dark; }
+  }
+}
+
+/* bracket */
+
+.bracket-slot {
+  background-color: #1a1a1a;
+  border: 1px solid $border-dark;
+  color: $text-primary;
+  text-align: center;
+}
+
+.bracket-slot-winner {
+  background-color: #1a3a1a;
+  border: 1px solid #2a5a2a;
+  color: #7dd87d;
+  text-align: center;
+}
+
+/* modal (Bootstrap 3 modal has no JS dependency here, so dark theme is applied purely via CSS) */
+
+.modal-content {
+  background-color: #1a1a1a;
+  border-color: $border-dark;
+  color: $text-primary;
+}
+
+.modal-header, .modal-footer {
+  border-color: $border-dark;
+}
+
+.modal-title {
+  color: $text-primary;
+}
+
+.modal .close {
+  color: $text-primary;
+  opacity: 0.7;
+  text-shadow: none;
+  &:hover { color: #ffffff; opacity: 1; }
+}
+
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.7);
+}

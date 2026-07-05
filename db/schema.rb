@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_27_084501) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_05_080135) do
   create_table "matches", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.integer "loser_games"
     t.integer "next_match_id"
     t.integer "next_slot"
     t.integer "participant1_id"
@@ -20,6 +21,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_27_084501) do
     t.integer "round", null: false
     t.integer "tournament_id", null: false
     t.datetime "updated_at", null: false
+    t.integer "winner_games"
     t.integer "winner_id"
     t.index ["next_match_id"], name: "index_matches_on_next_match_id"
     t.index ["participant1_id"], name: "index_matches_on_participant1_id"
