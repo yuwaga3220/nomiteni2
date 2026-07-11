@@ -18,11 +18,11 @@
     <% end %>
   </span>
   <% if current_user?(tournament.user) %>
-    <%= link_to "試合を管理する", tournament%>
+    <%= link_to "トーナメント管理", tournament%>
   <% else %>
-    <%= link_to "確認する", tournament%>
+    <%= link_to "トーナメント", tournament%>
   <% end %>
-  <%= link_to "試合結果を予想する", new_tournament_prediction_path(tournament) %>
+  <%= link_to "試合結果を予想（ピッケム）", new_tournament_prediction_path(tournament) %>
   <br>
   <span class="user">主催者：<%= link_to tournament.user.name, tournament.user %></span>
   <span class="timestamp">
