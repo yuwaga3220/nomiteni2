@@ -17,8 +17,8 @@ class TournamentsInterfaceTest < TournamentsInterface
     assert_no_difference "Tournament.count" do
       post tournaments_path, params: { tournament: { title: "" } }
     end
+    assert_template "tournaments/new"
     assert_select "div#error_explanation"
-    assert_select "a[href=?]", "/?page=2"
   end
 
   test "should create a tournament on valid submission" do
@@ -70,12 +70,5 @@ class TournamentShowTest < TournamentsInterface
     assert_response :success
     assert_select "title", full_title(tournament.title)
     assert_match tournament.title, response.body
-  end
-end
-
-class TournamentSidebarTest < TournamentsInterface
-  test "should display the right tournament count" do
-    get root_path
-    assert_match "#{@user.tournaments.count} 大会", response.body
   end
 end

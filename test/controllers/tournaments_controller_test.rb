@@ -5,6 +5,17 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     @tournament = tournaments(:orange)
   end
 
+  test "should get new" do
+    log_in_as(users(:michael))
+    get new_tournament_path
+    assert_response :success
+  end
+
+  test "should redirect new when not logged in" do
+    get new_tournament_path
+    assert_redirected_to login_url
+  end
+
   test "should redirect create when not logged in" do
     assert_no_difference "Tournament.count" do
       post tournaments_path, params: { tournament: { title: "春季テニス大会" } }

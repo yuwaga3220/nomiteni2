@@ -1,13 +1,5 @@
 <div class="row">
-  <aside class="col-md-4">
-    <section class="user_info">
-      <%= render 'shared/user_info' %>
-    </section>
-    <section class="tournament_form">
-      <%= render 'tournaments/form', tournament: @tournament %>
-    </section>
-  </aside>
-  <div class="col-md-8">
+  <div class="col-md-12">
     <h3>大会一覧</h3>
     <% if @tournaments.any? %>
       <ol class="tournaments">

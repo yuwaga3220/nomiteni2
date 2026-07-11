@@ -1,9 +1,13 @@
 class TournamentsController < ApplicationController
-  before_action :logged_in_user, only: [ :show, :create, :destroy, :update_status ]
+  before_action :logged_in_user, only: [ :show, :new, :create, :destroy, :update_status ]
   before_action :correct_user, only: [ :destroy, :update_status ]
 
   def show
     @tournament = Tournament.find(params[:id])
+  end
+
+  def new
+    @tournament = current_user.tournaments.build
   end
 
   def create
@@ -12,8 +16,7 @@ class TournamentsController < ApplicationController
       flash[:success] = "大会を作成しました！"
       redirect_to root_url
     else
-      @tournaments = Tournament.all.paginate(page: params[:page])
-      render "static_pages/home", status: :unprocessable_entity
+      render "new", status: :unprocessable_entity
     end
   end
 

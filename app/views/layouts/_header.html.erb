@@ -12,7 +12,8 @@
       </div>
       <ul id="navbar-menu" class="nav navbar-nav navbar-right collaspe navbar-collaspe">
         <% if logged_in? %>
-          <li><%= link_to "ダッシュボード", root_path %></li>
+          <li><%= link_to "大会一覧", root_path %></li>
+          <li><%= link_to "大会を作成", new_tournament_path %></li>
         <% else %>
           <li><%= link_to "ホーム", root_path %></li>
         <% end %>
