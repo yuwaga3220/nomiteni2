@@ -1,7 +1,6 @@
 require "test_helper"
 
 class TournamentTest < ActiveSupport::TestCase
-
   def setup
     @user = users(:michael)
     # このコードは慣習的に正しくない
@@ -30,5 +29,4 @@ class TournamentTest < ActiveSupport::TestCase
   test "order should be most recent first" do
     assert_equal tournaments(:most_recent), Tournament.first
   end
-
 end

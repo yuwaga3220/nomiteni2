@@ -1,29 +1,27 @@
 require "test_helper"
 
 class UsersSignup < ActionDispatch::IntegrationTest
-
   def setup
     ActionMailer::Base.deliveries.clear
   end
 end
 
 class UsersSignupTest < UsersSignup
-
   test "invalid signup information" do
-    assert_no_difference 'User.count' do
+    assert_no_difference "User.count" do
       post users_path, params: { user: { name: "",
                                          email: "user@invalid",
                                          password: "foo",
                                          password_confirmation: "bar" } }
     end
     assert_response :unprocessable_entity
-    assert_template 'users/new'
-    assert_select 'div#error_explanation'
-    assert_select 'div.alert-danger'
+    assert_template "users/new"
+    assert_select "div#error_explanation"
+    assert_select "div.alert-danger"
   end
 
   test "valid signup information with account activation" do
-    assert_difference 'User.count', 1 do
+    assert_difference "User.count", 1 do
       post users_path, params: { user: { name:  "Example User",
                                          email: "user@example.com",
                                          password:              "password",
@@ -34,7 +32,6 @@ class UsersSignupTest < UsersSignup
 end
 
 class AccountActivationTest < UsersSignup
-
   def setup
     super
     post users_path, params: { user: { name:  "Example User",
@@ -59,7 +56,7 @@ class AccountActivationTest < UsersSignup
   end
 
   test "should not be able to log in with invalid email" do
-    get edit_account_activation_path(@user.activation_token, email: 'wrong')
+    get edit_account_activation_path(@user.activation_token, email: "wrong")
     assert_not is_logged_in?
   end
 
@@ -67,7 +64,7 @@ class AccountActivationTest < UsersSignup
     get edit_account_activation_path(@user.activation_token, email: @user.email)
     assert @user.reload.activated?
     follow_redirect!
-    assert_template 'users/show'
+    assert_template "users/show"
     assert is_logged_in?
   end
 end

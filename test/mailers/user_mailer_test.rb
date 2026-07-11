@@ -6,7 +6,7 @@ class UserMailerTest < ActionMailer::TestCase
     user.activation_token = User.new_token
     mail = UserMailer.account_activation(user)
     assert_equal "アカウントの有効化",      mail.subject
-    assert_equal [user.email],              mail.to
+    assert_equal [ user.email ],              mail.to
     assert_equal [ "yugotarou@icloud.com" ], mail.from
     assert_match user.name,                 mail.text_part.decoded
     assert_match user.activation_token,     mail.text_part.decoded
@@ -18,7 +18,7 @@ class UserMailerTest < ActionMailer::TestCase
     user.reset_token = User.new_token
     mail = UserMailer.password_reset(user)
     assert_equal "パスワードの再設定",           mail.subject
-    assert_equal [user.email],               mail.to
+    assert_equal [ user.email ],               mail.to
     assert_equal [ "yugotarou@icloud.com" ], mail.from
     assert_match user.reset_token,           mail.text_part.decoded
     assert_match CGI.escape(user.email),     mail.text_part.decoded

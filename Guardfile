@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # https://github.com/guard/guard-minitest
 
 guard :minitest, cmd: "bin/rails test" do

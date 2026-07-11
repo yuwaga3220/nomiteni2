@@ -10,7 +10,7 @@ class PredictionsController < ApplicationController
     @all_matches = @tournament.matches.includes(:participant1, :participant2).to_a
     @feeder_matches = @all_matches.each_with_object({}) do |m, h|
       next unless m.next_match_id
-      h[[m.next_match_id, m.next_slot]] = m
+      h[[ m.next_match_id, m.next_slot ]] = m
     end
   end
 

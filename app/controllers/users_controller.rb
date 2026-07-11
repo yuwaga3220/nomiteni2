@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
-  before_action :logged_in_user, only: [:index, :edit, :update, :destroy]
-  before_action :correct_user,   only: [:edit, :update]
+  before_action :logged_in_user, only: [ :index, :edit, :update, :destroy ]
+  before_action :correct_user,   only: [ :edit, :update ]
   before_action :admin_user,     only: :destroy
 
   def index
@@ -24,7 +24,7 @@ class UsersController < ApplicationController
       flash[:info] = "アカウント有効化のメールをご確認ください。"
       redirect_to root_url
     else
-      render 'new', status: :unprocessable_entity
+      render "new", status: :unprocessable_entity
     end
   end
 
@@ -38,7 +38,7 @@ class UsersController < ApplicationController
       flash[:success] = "プロフィールを更新しました"
       redirect_to @user
     else
-      render 'edit', status: :unprocessable_entity
+      render "edit", status: :unprocessable_entity
     end
   end
 
@@ -52,9 +52,9 @@ class UsersController < ApplicationController
 
   def user_params
     params.require(:user).permit(
-      :name, 
-      :email, 
-      :password, 
+      :name,
+      :email,
+      :password,
       :password_confirmation
     )
   end

@@ -7,7 +7,7 @@ class CreatePlayers < ActiveRecord::Migration[8.1]
       t.integer :seed
       t.timestamps
     end
-    add_index :players, [:tournament_id, :name], unique: true
+    add_index :players, [ :tournament_id, :name ], unique: true
   end
 
   def down
