@@ -11,8 +11,8 @@ class UsersProfileTest < ActionDispatch::IntegrationTest
     get user_path(@user)
     assert_template "users/show"
     assert_select "title", full_title(@user.name)
-    assert_select "h1", text: @user.name
-    assert_select "h1>img.gravatar"
+    assert_select "h2", text: @user.name
+    assert_select "h2>img.gravatar"
     assert_match @user.tournaments.count.to_s, response.body
     assert_select "div.pagination"
     @user.tournaments.paginate(page: 1).each do |tournament|

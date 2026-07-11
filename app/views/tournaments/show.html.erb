@@ -1,6 +1,6 @@
 <% provide(:title, @tournament.title) %>
 <div class="tournament">
-  <h1><%= @tournament.title %></h1>
+  <h2><%= @tournament.title %></h2>
   <% if @tournament.held_on.present? %>
     <p>開催日: <%= @tournament.held_on.strftime("%Y年%m月%d日") %></p>
   <% end %>
