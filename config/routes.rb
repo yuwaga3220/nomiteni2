@@ -22,6 +22,7 @@ Rails.application.routes.draw do
       end
       member do
         patch :set_winner
+        patch :update_status
       end
     end
   end

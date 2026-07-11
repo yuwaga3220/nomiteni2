@@ -34,8 +34,11 @@
           <% matches.each_with_index do |match, i| %>
             <% margin_top = i == 0 ? 0 : spacing - match_height %>
             <div style="margin-top: <%= margin_top %>px;">
-              <div style="width: 190px;">
-                <% p1 = match.participant1
+              <div style="width: 190px; position: relative;">
+                <% status_labels = { "pending" => "準備中", "in_progress" => "試合中", "finished" => "終了" }
+                   show_meta = match.court.present? || !match.pending?
+                   match_meta = [ match.court.presence, status_labels[match.status] ].compact.join(" ・ ")
+                   p1 = match.participant1
                    p2 = match.participant2
                    p1_class = p1.present? && match.winner == p1 ? "bracket-slot-winner" : "bracket-slot"
                    p2_class = p2.present? && match.winner == p2 ? "bracket-slot-winner" : "bracket-slot"
@@ -43,12 +46,12 @@
                    p2_games = match.winner == p2 ? match.winner_games : (match.winner == p1 ? match.loser_games : nil) %>
                 <% if editable && p1.present? && p2.present? %>
                   <div data-controller="match-result-modal">
-                    <div class="btn btn-sm" style="width: 100%; padding: 0; cursor: pointer;" data-action="click->match-result-modal#open">
-                      <div class="<%= p1_class %>" style="border-radius: 4px 4px 0 0; padding: 10px 12px; font-size: 1em;">
+                    <div class="btn btn-sm" style="width: 100%; padding: 0; border: 0; cursor: pointer;" data-action="click->match-result-modal#open">
+                      <div class="<%= p1_class %>" style="box-sizing: border-box; height: 42px; border-radius: 4px 4px 0 0; padding: 10px 12px; font-size: 1em; overflow: hidden;">
                         <%= p1.name %>
                         <% if p1_games.present? %><span class="pull-right"><%= p1_games %></span><% end %>
                       </div>
-                      <div class="<%= p2_class %>" style="border-radius: 0 0 4px 4px; margin-top: -1px; padding: 10px 12px; font-size: 1em;">
+                      <div class="<%= p2_class %>" style="box-sizing: border-box; height: 42px; border-radius: 0 0 4px 4px; padding: 10px 12px; font-size: 1em; overflow: hidden;">
                         <%= p2.name %>
                         <% if p2_games.present? %><span class="pull-right"><%= p2_games %></span><% end %>
                       </div>
@@ -56,13 +59,18 @@
                     <%= render "match_result_modal", match: match, p1: p1, p2: p2 %>
                   </div>
                 <% else %>
-                  <div class="<%= p1_class %>" style="width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em; cursor: default;">
+                  <div class="<%= p1_class %>" style="box-sizing: border-box; height: 42px; width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em; cursor: default; overflow: hidden;">
                     <%= p1&.name || "未定" %>
                     <% if p1_games.present? %><span class="pull-right"><%= p1_games %></span><% end %>
                   </div>
-                  <div class="<%= p2_class %>" style="width: 100%; border-radius: 0 0 4px 4px; margin-top: -1px; padding: 10px 12px; font-size: 1em; cursor: default;">
+                  <div class="<%= p2_class %>" style="box-sizing: border-box; height: 42px; width: 100%; border-radius: 0 0 4px 4px; padding: 10px 12px; font-size: 1em; cursor: default; overflow: hidden;">
                     <%= p2&.name || "未定" %>
                     <% if p2_games.present? %><span class="pull-right"><%= p2_games %></span><% end %>
+                  </div>
+                <% end %>
+                <% if show_meta %>
+                  <div style="position: absolute; top: 100%; left: 0; font-size: 0.7em; color: <%= match.finished? ? '#666' : '#6ab0f5' %>; white-space: nowrap;">
+                    <%= match_meta %>
                   </div>
                 <% end %>
               </div>

@@ -61,7 +61,7 @@ class MatchesController < ApplicationController
       p1_games > p2_games ? [ match.participant1, p1_games, p2_games ] : [ match.participant2, p2_games, p1_games ]
 
     Match.transaction do
-      match.update!(winner: winner, winner_games: winner_games, loser_games: loser_games)
+      match.update!(winner: winner, winner_games: winner_games, loser_games: loser_games, status: :finished)
       if match.next_match && match.next_slot
         next_match = match.next_match
         if match.next_slot == 1
@@ -71,6 +71,20 @@ class MatchesController < ApplicationController
         end
       end
     end
+    redirect_to tournament_path(@tournament)
+  end
+
+  def update_status
+    if @tournament.before?
+      flash[:danger] = "開催前は試合状況を更新できません"
+      redirect_to tournament_path(@tournament) and return
+    end
+    match = @tournament.matches.find(params[:id])
+    unless Match.statuses.key?(params[:status])
+      flash[:danger] = "不正な試合状況です"
+      redirect_to tournament_path(@tournament) and return
+    end
+    match.update!(court: params[:court], status: params[:status])
     redirect_to tournament_path(@tournament)
   end
 

@@ -1,11 +1,30 @@
 <div data-match-result-modal-target="backdrop" class="modal-backdrop" style="display: none;" data-action="click->match-result-modal#close"></div>
-<div data-match-result-modal-target="modal" class="modal" style="display: none;" id="match-result-modal-<%= match.id %>">
+<div data-match-result-modal-target="modal" class="modal" style="display: none;" id="match-result-modal-<%= match.id %>" data-action="click->match-result-modal#closeIfOutside">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-action="click->match-result-modal#close">&times;</button>
         <h4 class="modal-title"><%= p1.name %> vs <%= p2.name %></h4>
       </div>
+      <%= form_with url: update_status_tournament_match_path(@tournament, match), method: :patch do %>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>コート名</label>
+            <%= text_field_tag "court", match.court, class: "form-control" %>
+          </div>
+          <div class="form-group">
+            <label>試合状況</label>
+            <%= select_tag "status",
+                  options_for_select(
+                    [ [ "準備中", "pending" ], [ "試合中", "in_progress" ], [ "終了", "finished" ] ],
+                    match.status),
+                  class: "form-control" %>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <%= submit_tag "コート・状況を更新", class: "btn btn-default" %>
+        </div>
+      <% end %>
       <%= form_with url: set_winner_tournament_match_path(@tournament, match), method: :patch do %>
         <div class="modal-body">
           <div class="form-group">

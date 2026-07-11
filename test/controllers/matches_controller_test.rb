@@ -132,6 +132,7 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_equal @alice, match.winner
     assert_equal 6, match.winner_games
     assert_equal 3, match.loser_games
+    assert match.finished?
   end
 
   test "should set participant2 as winner when their score is higher" do
@@ -192,6 +193,54 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     log_in_as(users(:archer))
     patch set_winner_tournament_match_path(@tournament, match),
           params: { participant1_games: 6, participant2_games: 3 }
+    assert_redirected_to root_url
+  end
+
+  test "should update court and status" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    log_in_as(users(:michael))
+    patch update_status_tournament_match_path(@tournament, match),
+          params: { court: "コートA", status: "in_progress" }
+    assert_redirected_to tournament_path(@tournament)
+    match.reload
+    assert_equal "コートA", match.court
+    assert match.in_progress?
+  end
+
+  test "should not update status before tournament starts" do
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    log_in_as(users(:michael))
+    patch update_status_tournament_match_path(@tournament, match),
+          params: { court: "コートA", status: "in_progress" }
+    assert_redirected_to tournament_path(@tournament)
+    assert_not flash[:danger].nil?
+    assert match.reload.pending?
+  end
+
+  test "should reject invalid status value" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    log_in_as(users(:michael))
+    patch update_status_tournament_match_path(@tournament, match),
+          params: { court: "コートA", status: "bogus" }
+    assert_redirected_to tournament_path(@tournament)
+    assert_not flash[:danger].nil?
+    assert match.reload.pending?
+  end
+
+  test "should redirect update_status when not logged in" do
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    patch update_status_tournament_match_path(@tournament, match),
+          params: { court: "コートA", status: "in_progress" }
+    assert_redirected_to login_url
+  end
+
+  test "should redirect update_status when wrong user" do
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    log_in_as(users(:archer))
+    patch update_status_tournament_match_path(@tournament, match),
+          params: { court: "コートA", status: "in_progress" }
     assert_redirected_to root_url
   end
 end

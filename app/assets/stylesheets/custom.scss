@@ -447,6 +447,15 @@ h2 { color: $text-muted-dark; }
 
 /* modal (Bootstrap 3 modal has no JS dependency here, so dark theme is applied purely via CSS) */
 
+.modal {
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-dialog {
+  margin: 0;
+}
+
 .modal-content {
   background-color: #1a1a1a;
   border-color: $border-dark;
