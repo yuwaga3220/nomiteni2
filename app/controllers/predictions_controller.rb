@@ -12,6 +12,7 @@ class PredictionsController < ApplicationController
       next unless m.next_match_id
       h[[ m.next_match_id, m.next_slot ]] = m
     end
+    @ranking = @tournament.ranking unless @tournament.before?
   end
 
   def create

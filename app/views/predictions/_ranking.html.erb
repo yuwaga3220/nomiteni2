@@ -1,0 +1,22 @@
+<h4>
+  ランキング
+  <% if @tournament.during? %>
+    <small class="text-muted">（集計中）</small>
+  <% elsif @tournament.after? %>
+    <small class="text-muted">（確定）</small>
+  <% end %>
+</h4>
+<% if @tournament.before? %>
+  <p class="text-muted">集計前です。大会が始まるとランキングが表示されます。</p>
+<% elsif @ranking.blank? %>
+  <p class="text-muted">まだ予想している人がいません。</p>
+<% else %>
+  <ol class="list-group">
+    <% @ranking.each do |user| %>
+      <li class="list-group-item">
+        <%= user.name %>
+        <span class="pull-right"><%= user.total_points.to_i %>pt</span>
+      </li>
+    <% end %>
+  </ol>
+<% end %>

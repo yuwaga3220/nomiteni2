@@ -7,4 +7,13 @@ class Tournament < ApplicationRecord
   validates :user_id, presence: true
   validates :title, presence: true, length: { maximum: 100 }
   validates :venue, length: { maximum: 100 }, allow_blank: true
+
+  # 予想を1件以上行っているユーザーを、獲得ポイントの合計が多い順に返す
+  def ranking
+    User.joins(:predictions)
+        .where(predictions: { match_id: matches.select(:id) })
+        .group("users.id")
+        .select("users.*, SUM(COALESCE(predictions.points, 0)) AS total_points")
+        .order(Arel.sql("total_points DESC"))
+  end
 end

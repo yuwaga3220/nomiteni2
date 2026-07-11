@@ -71,6 +71,10 @@ class MatchesController < ApplicationController
           next_match.update!(participant2: winner)
         end
       end
+      match.predictions.each do |prediction|
+        points = prediction.predicted_participant_id == winner.id ? 2**(match.round - 1) : 0
+        prediction.update!(points: points)
+      end
     end
     redirect_to tournament_path(@tournament)
   end

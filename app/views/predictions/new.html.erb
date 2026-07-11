@@ -1,3 +1,10 @@
 <% provide(:title, "試合結果を予想") %>
 <h2>試合結果を予想 — <%= @tournament.title %></h2>
-<%= render "tournaments/prediction_bracket" %>
+<div class="row">
+  <div class="col-md-9">
+    <%= render "tournaments/prediction_bracket" %>
+  </div>
+  <div class="col-md-3">
+    <%= render "ranking" %>
+  </div>
+</div>
