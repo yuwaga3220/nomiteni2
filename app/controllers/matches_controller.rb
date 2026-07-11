@@ -3,7 +3,8 @@ class MatchesController < ApplicationController
   before_action :correct_tournament_user
 
   def create
-    positions = params[:positions].permit!.to_h
+    allowed_keys = @tournament.participants.pluck(:id).map(&:to_s)
+    positions = params[:positions].permit(*allowed_keys).to_h
     count = @tournament.participants.count
 
     blank_names = positions.select { |_, position| position.blank? }
