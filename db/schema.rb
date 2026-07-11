@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_05_121532) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_11_083626) do
   create_table "matches", force: :cascade do |t|
     t.string "court"
     t.datetime "created_at", null: false
@@ -44,6 +44,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_05_121532) do
   create_table "predictions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "match_id", null: false
+    t.integer "points"
     t.integer "predicted_participant_id", null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false

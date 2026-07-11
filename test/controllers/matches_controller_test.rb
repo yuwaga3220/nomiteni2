@@ -181,6 +181,18 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_equal @alice, final.reload.participant1
   end
 
+  test "should award points based on 2^(round-1) for correct predictions" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 3, participant1: @alice, participant2: @bob)
+    correct = Prediction.create!(user: users(:archer), match: match, predicted_participant: @alice)
+    wrong = Prediction.create!(user: users(:lana), match: match, predicted_participant: @bob)
+    log_in_as(users(:michael))
+    patch set_winner_tournament_match_path(@tournament, match),
+          params: { participant1_games: 6, participant2_games: 3 }
+    assert_equal 4, correct.reload.points
+    assert_equal 0, wrong.reload.points
+  end
+
   test "should redirect set_winner when not logged in" do
     match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
     patch set_winner_tournament_match_path(@tournament, match),
