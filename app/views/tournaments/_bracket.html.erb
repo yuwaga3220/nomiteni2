@@ -16,18 +16,19 @@
                                           .group_by(&:round).sort
        n_rounds       = grouped.size
        total_height   = (2 ** (n_rounds - 1) - 1) * unit + match_height %>
-    <div style="display: flex;">
-      <% grouped.each_with_index do |(round, _), i| %>
-        <div style="min-width: <%= col_width %>px;">
-          <h4>Round <%= round %></h4>
-        </div>
-        <% unless i == n_rounds - 1 %>
-          <div style="width: <%= connector_w %>px;"></div>
+    <div style="overflow-x: auto; max-width: 100%;">
+      <div style="display: flex; width: max-content;">
+        <% grouped.each_with_index do |(round, _), i| %>
+          <div style="min-width: <%= col_width %>px;">
+            <h4>Round <%= round %></h4>
+          </div>
+          <% unless i == n_rounds - 1 %>
+            <div style="width: <%= connector_w %>px;"></div>
+          <% end %>
         <% end %>
-      <% end %>
-    </div>
-    <div class="bracket" style="display: flex; align-items: flex-start;">
-      <% grouped.each_with_index do |(round, matches), col_idx| %>
+      </div>
+      <div class="bracket" style="display: flex; align-items: flex-start; width: max-content;">
+        <% grouped.each_with_index do |(round, matches), col_idx| %>
         <% spacing     = unit * (2 ** (round - 1))
            round_offset = unit / 2 * (2 ** (round - 1) - 1) %>
         <div class="bracket-round" style="min-width: <%= col_width %>px; padding-top: <%= round_offset %>px;">
@@ -92,6 +93,7 @@
           </svg>
         <% end %>
       <% end %>
+      </div>
     </div>
   </div>
 </div>
