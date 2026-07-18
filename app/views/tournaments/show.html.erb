@@ -1,4 +1,5 @@
 <% provide(:title, @tournament.title) %>
+<%= link_to "← 大会一覧へ戻る", root_path %>
 <div class="tournament">
   <h2><%= @tournament.title %></h2>
   <% if @tournament.held_on.present? %>

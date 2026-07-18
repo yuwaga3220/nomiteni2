@@ -12,6 +12,10 @@ $text-primary:   #e0e0e0;
 $text-muted-dark: #888888;
 $border-dark:    #333333;
 
+/* accent color (蛍光ピンク) */
+$accent-pink:       #ff2fb0;
+$accent-pink-light: #ff5cc3;
+
 @mixin box_sizing {
   -moz-box-sizing:    border-box;
   -webkit-box-sizing: border-box;
@@ -214,7 +218,7 @@ aside {
     }
     &:hover {
       text-decoration: none;
-      color: blue;
+      color: $accent-pink;
     }
   }
   strong {
@@ -384,7 +388,7 @@ input, textarea {
   border-color: $border-dark;
 }
 
-a { color: #6ab0f5; &:hover { color: #9fcfff; } }
+a { color: $accent-pink; &:hover { color: $accent-pink-light; } }
 
 h1, h2, h3, h4, h5, h6 { color: $text-primary; }
 
@@ -400,6 +404,20 @@ h2 { color: $text-muted-dark; }
   border-color: #444444;
   color: $text-primary;
   &:hover { background-color: #383838; color: #ffffff; }
+}
+
+.btn-warning {
+  background-color: $accent-pink;
+  border-color: $accent-pink;
+  color: #ffffff;
+  &:hover, &:focus { background-color: $accent-pink-light; border-color: $accent-pink-light; color: #ffffff; }
+}
+
+.btn-primary {
+  background-color: $accent-pink;
+  border-color: $accent-pink;
+  color: #ffffff;
+  &:hover, &:focus { background-color: $accent-pink-light; border-color: $accent-pink-light; color: #ffffff; }
 }
 
 .status-toggle-heading {
@@ -432,12 +450,12 @@ h2 { color: $text-muted-dark; }
     &:hover { background-color: #383838; color: $text-primary; }
   }
   .status-toggle-input:checked + .status-toggle-label {
-    background-color: #6ab0f5;
-    color: #111111;
+    background-color: $accent-pink;
+    color: #ffffff;
     font-weight: bold;
   }
   .status-toggle-input:focus + .status-toggle-label {
-    outline: 2px solid #6ab0f5;
+    outline: 2px solid $accent-pink;
     outline-offset: -2px;
   }
 }
