@@ -8,92 +8,73 @@
               class: "btn btn-xs btn-danger" %>
       <% end %>
     </h3>
-    <% unit           = 100
-       match_height   = 84
-       connector_w    = 40
-       col_width      = 220
-       grouped        = @tournament.matches.includes(:participant1, :participant2, :winner)
-                                          .group_by(&:round).sort
-       n_rounds       = grouped.size
-       total_height   = (2 ** (n_rounds - 1) - 1) * unit + match_height %>
-    <div style="overflow-x: auto; max-width: 100%;">
-      <div style="display: flex; width: max-content;">
-        <% grouped.each_with_index do |(round, _), i| %>
-          <div style="min-width: <%= col_width %>px;">
-            <h4>Round <%= round %></h4>
-          </div>
-          <% unless i == n_rounds - 1 %>
-            <div style="width: <%= connector_w %>px;"></div>
-          <% end %>
-        <% end %>
-      </div>
-      <div class="bracket" style="display: flex; align-items: flex-start; width: max-content;">
-        <% grouped.each_with_index do |(round, matches), col_idx| %>
-        <% spacing     = unit * (2 ** (round - 1))
-           round_offset = unit / 2 * (2 ** (round - 1) - 1) %>
-        <div class="bracket-round" style="min-width: <%= col_width %>px; padding-top: <%= round_offset %>px;">
-          <% matches.each_with_index do |match, i| %>
-            <% margin_top = i == 0 ? 0 : spacing - match_height %>
-            <div style="margin-top: <%= margin_top %>px;">
-              <div style="width: 190px; position: relative;">
-                <% status_labels = { "pending" => "準備中", "in_progress" => "試合中", "finished" => "終了" }
-                   show_meta = match.court.present? || !match.pending?
-                   match_meta = [ match.court.presence, status_labels[match.status] ].compact.join(" ・ ")
-                   p1 = match.participant1
-                   p2 = match.participant2
-                   p1_class = p1.present? && match.winner == p1 ? "bracket-slot-winner" : "bracket-slot"
-                   p2_class = p2.present? && match.winner == p2 ? "bracket-slot-winner" : "bracket-slot"
-                   p1_games = match.winner == p1 ? match.winner_games : (match.winner == p2 ? match.loser_games : nil)
-                   p2_games = match.winner == p2 ? match.winner_games : (match.winner == p1 ? match.loser_games : nil) %>
-                <% if editable && p1.present? && p2.present? %>
-                  <div data-controller="match-result-modal">
-                    <div class="btn btn-sm" style="width: 100%; padding: 0; border: 0; cursor: pointer;" data-action="click->match-result-modal#open">
-                      <div class="<%= p1_class %>" style="box-sizing: border-box; height: 42px; border-radius: 4px 4px 0 0; padding: 10px 12px; font-size: 1em; overflow: hidden;">
-                        <%= p1.name %>
-                        <% if p1_games.present? %><span class="pull-right"><%= p1_games %></span><% end %>
-                      </div>
-                      <div class="<%= p2_class %>" style="box-sizing: border-box; height: 42px; border-radius: 0 0 4px 4px; padding: 10px 12px; font-size: 1em; overflow: hidden;">
-                        <%= p2.name %>
-                        <% if p2_games.present? %><span class="pull-right"><%= p2_games %></span><% end %>
-                      </div>
-                    </div>
-                    <%= render "match_result_modal", match: match, p1: p1, p2: p2 %>
-                  </div>
-                <% else %>
-                  <div class="<%= p1_class %>" style="box-sizing: border-box; height: 42px; width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em; cursor: default; overflow: hidden;">
-                    <%= p1&.name || "未定" %>
+    <% grouped = @tournament.matches.includes(:participant1, :participant2, :winner)
+                                     .group_by(&:round).sort
+       bracket_data = {
+         rounds: grouped.map { |round, _| { name: "Round #{round}" } },
+         matches: grouped.flat_map { |round, matches|
+           matches.each_with_index.map { |_match, i| { roundIndex: round - 1, order: i } }
+         }
+       } %>
+    <div class="bracket-match-templates" style="display: none;">
+      <% grouped.each do |round, matches| %>
+        <% matches.each_with_index do |match, i| %>
+          <div id="bracket-match-<%= round - 1 %>-<%= i %>">
+            <div style="width: 190px; position: relative;">
+              <% status_labels = { "pending" => "準備中", "in_progress" => "試合中", "finished" => "終了" }
+                 show_meta = match.court.present? || !match.pending?
+                 match_meta = [ match.court.presence, status_labels[match.status] ].compact.join(" ・ ")
+                 p1 = match.participant1
+                 p2 = match.participant2
+                 p1_class = p1.present? && match.winner == p1 ? "bracket-slot-winner" : "bracket-slot"
+                 p2_class = p2.present? && match.winner == p2 ? "bracket-slot-winner" : "bracket-slot"
+                 p1_games = match.winner == p1 ? match.winner_games : (match.winner == p2 ? match.loser_games : nil)
+                 p2_games = match.winner == p2 ? match.winner_games : (match.winner == p1 ? match.loser_games : nil) %>
+              <% if editable && p1.present? && p2.present? %>
+                <div class="btn btn-sm" style="width: 100%; padding: 0; border: 0; cursor: pointer;"
+                     data-controller="bracket-match-trigger"
+                     data-bracket-match-trigger-modal-id-value="match-result-modal-<%= match.id %>"
+                     data-action="click->bracket-match-trigger#open">
+                  <div class="<%= p1_class %>" style="box-sizing: border-box; height: 42px; border-radius: 4px 4px 0 0; padding: 10px 12px; font-size: 1em; overflow: hidden;">
+                    <%= p1.name %>
                     <% if p1_games.present? %><span class="pull-right"><%= p1_games %></span><% end %>
                   </div>
-                  <div class="<%= p2_class %>" style="box-sizing: border-box; height: 42px; width: 100%; border-radius: 0 0 4px 4px; padding: 10px 12px; font-size: 1em; cursor: default; overflow: hidden;">
-                    <%= p2&.name || "未定" %>
+                  <div class="<%= p2_class %>" style="box-sizing: border-box; height: 42px; border-radius: 0 0 4px 4px; padding: 10px 12px; font-size: 1em; overflow: hidden;">
+                    <%= p2.name %>
                     <% if p2_games.present? %><span class="pull-right"><%= p2_games %></span><% end %>
                   </div>
-                <% end %>
-                <% if show_meta %>
-                  <div style="position: absolute; top: 100%; left: 0; font-size: 0.7em; color: <%= match.finished? ? '#666' : '#6ab0f5' %>; white-space: nowrap;">
-                    <%= match_meta %>
-                  </div>
-                <% end %>
-              </div>
+                </div>
+              <% else %>
+                <div class="<%= p1_class %>" style="box-sizing: border-box; height: 42px; width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em; cursor: default; overflow: hidden;">
+                  <%= p1&.name || "未定" %>
+                  <% if p1_games.present? %><span class="pull-right"><%= p1_games %></span><% end %>
+                </div>
+                <div class="<%= p2_class %>" style="box-sizing: border-box; height: 42px; width: 100%; border-radius: 0 0 4px 4px; padding: 10px 12px; font-size: 1em; cursor: default; overflow: hidden;">
+                  <%= p2&.name || "未定" %>
+                  <% if p2_games.present? %><span class="pull-right"><%= p2_games %></span><% end %>
+                </div>
+              <% end %>
+              <% if show_meta %>
+                <div style="position: absolute; top: 100%; left: 0; font-size: 0.7em; color: <%= match.finished? ? '#666' : '#6ab0f5' %>; white-space: nowrap;">
+                  <%= match_meta %>
+                </div>
+              <% end %>
             </div>
-          <% end %>
-        </div>
-        <% unless col_idx == n_rounds - 1 %>
-          <svg width="<%= connector_w %>" height="<%= total_height %>" style="flex-shrink: 0; overflow: visible;">
-            <% matches.each_slice(2).with_index do |(m1, m2), pair_idx| %>
-              <% y_top = round_offset + pair_idx * 2 * spacing + match_height / 2
-                 y_bot = round_offset + (pair_idx * 2 + 1) * spacing + match_height / 2
-                 y_mid = (y_top + y_bot) / 2
-                 x_mid = connector_w / 2 %>
-              <line x1="<%= -(col_width - 190) %>" y1="<%= y_top %>" x2="<%= x_mid %>" y2="<%= y_top %>" stroke="#666" stroke-width="1"/>
-              <line x1="<%= -(col_width - 190) %>" y1="<%= y_bot %>" x2="<%= x_mid %>" y2="<%= y_bot %>" stroke="#666" stroke-width="1"/>
-              <line x1="<%= x_mid %>" y1="<%= y_top %>" x2="<%= x_mid %>" y2="<%= y_bot %>" stroke="#666" stroke-width="1"/>
-              <line x1="<%= x_mid %>" y1="<%= y_mid %>" x2="<%= connector_w %>" y2="<%= y_mid %>" stroke="#666" stroke-width="1"/>
-            <% end %>
-          </svg>
+          </div>
         <% end %>
       <% end %>
-      </div>
     </div>
+    <div class="bracket-wrapper" data-controller="bracket" data-bracket-data-value="<%= bracket_data.to_json %>"></div>
+    <% if editable %>
+      <% grouped.each do |_round, matches| %>
+        <% matches.each do |match| %>
+          <% p1 = match.participant1
+             p2 = match.participant2 %>
+          <% if p1.present? && p2.present? %>
+            <%= render "match_result_modal", match: match, p1: p1, p2: p2 %>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
   </div>
 </div>

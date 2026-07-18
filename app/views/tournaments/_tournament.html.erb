@@ -7,12 +7,12 @@
   <% end %>
   <br>
   <% if current_user?(tournament.user) %>
-    <%= link_to "トーナメント管理", tournament%>
+    <%= link_to "管理画面", tournament%>
   <% else %>
     <%= link_to "トーナメント", tournament%>
   <% end %>
-  /
-  <%= link_to "試合結果を予想（ピッケム）", new_tournament_prediction_path(tournament) %>
+  or
+  <%= link_to "ピッケム", new_tournament_prediction_path(tournament) %>
   <br>
   <span class="timestamp">
     <% if current_user?(tournament.user) %>

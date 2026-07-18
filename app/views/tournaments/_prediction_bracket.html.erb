@@ -1,80 +1,50 @@
-<% unit           = 100
-   match_height   = 84
-   connector_w    = 40
-   col_width      = 220
-   grouped        = @all_matches.group_by(&:round).sort
-   n_rounds       = grouped.size
-   total_height   = (2 ** (n_rounds - 1) - 1) * unit + match_height %>
-<div style="overflow-x: auto; max-width: 100%;">
-  <div style="display: flex; width: max-content;">
-    <% grouped.each_with_index do |(round, _), i| %>
-      <div style="min-width: <%= col_width %>px;">
-        <h4>Round <%= round %></h4>
-      </div>
-      <% unless i == n_rounds - 1 %>
-        <div style="width: <%= connector_w %>px;"></div>
-      <% end %>
-    <% end %>
-  </div>
-  <div class="bracket" style="display: flex; align-items: flex-start; width: max-content;">
-    <% grouped.each_with_index do |(round, matches), col_idx| %>
-    <% spacing      = unit * (2 ** (round - 1))
-       round_offset = unit / 2 * (2 ** (round - 1) - 1) %>
-    <div class="bracket-round" style="min-width: <%= col_width %>px; padding-top: <%= round_offset %>px;">
-      <% matches.each_with_index do |match, i| %>
-        <% margin_top = i == 0 ? 0 : spacing - match_height
-           if round == 1
-             p1 = match.participant1
-             p2 = match.participant2
-           else
-              # 前のラウンドの試合を取得
-             feeder1 = @feeder_matches[[match.id, 1]]
-             feeder2 = @feeder_matches[[match.id, 2]]
-             # 前のラウンドの試合の予想勝者を取得
-             p1 = @existing_predictions[feeder1&.id]&.predicted_participant
-             p2 = @existing_predictions[feeder2&.id]&.predicted_participant
-           end
-           # その試合の予想を取得
-           prediction  = @existing_predictions[match.id]
-           # 予想が選択されているかどうかを判定
-           p1_selected = p1.present? && prediction&.predicted_participant_id == p1.id
-           p2_selected = p2.present? && prediction&.predicted_participant_id == p2.id %>
-        <div style="margin-top: <%= margin_top %>px;">
-          <div style="width: 190px;">
-            <%= button_to p1&.name || "未定",
-                  tournament_prediction_path(@tournament),
-                  params: { match_id: match.id, participant_id: p1&.id },
-                  method: :post,
-                  form: { style: "display: block; margin: 0;" },
-                  disabled: p1.nil? || !@tournament.before?,
-                  class: "btn btn-sm #{p1_selected ? 'btn-warning' : 'btn-default'}",
-                  style: "width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em; cursor: #{p1.nil? || !@tournament.before? ? 'default' : 'pointer'};" %>
-            <%= button_to p2&.name || "未定",
-                  tournament_prediction_path(@tournament),
-                  params: { match_id: match.id, participant_id: p2&.id },
-                  method: :post,
-                  form: { style: "display: block; margin: 0;" },
-                  disabled: p2.nil? || !@tournament.before?,
-                  class: "btn btn-sm #{p2_selected ? 'btn-warning' : 'btn-default'}",
-                  style: "width: 100%; border-radius: 0 0 4px 4px; margin-top: -1px; padding: 10px 12px; font-size: 1em; cursor: #{p2.nil? || !@tournament.before? ? 'default' : 'pointer'};" %>
-          </div>
+<% grouped = @all_matches.group_by(&:round).sort
+   bracket_data = {
+     rounds: grouped.map { |round, _| { name: "Round #{round}" } },
+     matches: grouped.flat_map { |round, matches|
+       matches.each_with_index.map { |_match, i| { roundIndex: round - 1, order: i } }
+     }
+   } %>
+<div class="bracket-match-templates" style="display: none;">
+  <% grouped.each do |round, matches| %>
+    <% matches.each_with_index do |match, i| %>
+      <% if round == 1
+           p1 = match.participant1
+           p2 = match.participant2
+         else
+            # 前のラウンドの試合を取得
+           feeder1 = @feeder_matches[[match.id, 1]]
+           feeder2 = @feeder_matches[[match.id, 2]]
+           # 前のラウンドの試合の予想勝者を取得
+           p1 = @existing_predictions[feeder1&.id]&.predicted_participant
+           p2 = @existing_predictions[feeder2&.id]&.predicted_participant
+         end
+         # その試合の予想を取得
+         prediction  = @existing_predictions[match.id]
+         # 予想が選択されているかどうかを判定
+         p1_selected = p1.present? && prediction&.predicted_participant_id == p1.id
+         p2_selected = p2.present? && prediction&.predicted_participant_id == p2.id %>
+      <div id="bracket-match-<%= round - 1 %>-<%= i %>">
+        <div style="width: 190px;">
+          <%= button_to p1&.name || "未定",
+                tournament_prediction_path(@tournament),
+                params: { match_id: match.id, participant_id: p1&.id },
+                method: :post,
+                form: { style: "display: block; margin: 0;" },
+                disabled: p1.nil? || !@tournament.before?,
+                class: "btn btn-sm #{p1_selected ? 'btn-warning' : 'btn-default'}",
+                style: "width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em; cursor: #{p1.nil? || !@tournament.before? ? 'default' : 'pointer'};" %>
+          <%= button_to p2&.name || "未定",
+                tournament_prediction_path(@tournament),
+                params: { match_id: match.id, participant_id: p2&.id },
+                method: :post,
+                form: { style: "display: block; margin: 0;" },
+                disabled: p2.nil? || !@tournament.before?,
+                class: "btn btn-sm #{p2_selected ? 'btn-warning' : 'btn-default'}",
+                style: "width: 100%; border-radius: 0 0 4px 4px; margin-top: -1px; padding: 10px 12px; font-size: 1em; cursor: #{p2.nil? || !@tournament.before? ? 'default' : 'pointer'};" %>
         </div>
-      <% end %>
-    </div>
-    <% unless col_idx == n_rounds - 1 %>
-      <svg width="<%= connector_w %>" height="<%= total_height %>" style="flex-shrink: 0; overflow: visible;">
-        <% matches.each_slice(2).with_index do |(m1, m2), pair_idx| %>
-          <% y_top = round_offset + pair_idx * 2 * spacing + match_height / 2
-             y_bot = round_offset + (pair_idx * 2 + 1) * spacing + match_height / 2
-             y_mid = (y_top + y_bot) / 2
-             x_mid = connector_w / 2 %>
-          <line x1="<%= -(col_width - 190) %>" y1="<%= y_top %>" x2="<%= x_mid %>" y2="<%= y_top %>" stroke="#666" stroke-width="1"/>
-          <line x1="<%= -(col_width - 190) %>" y1="<%= y_bot %>" x2="<%= x_mid %>" y2="<%= y_bot %>" stroke="#666" stroke-width="1"/>
-          <line x1="<%= x_mid %>" y1="<%= y_top %>" x2="<%= x_mid %>" y2="<%= y_bot %>" stroke="#666" stroke-width="1"/>
-          <line x1="<%= x_mid %>" y1="<%= y_mid %>" x2="<%= connector_w %>" y2="<%= y_mid %>" stroke="#666" stroke-width="1"/>
-        <% end %>
-      </svg>
+      </div>
     <% end %>
   <% end %>
-  </div>
 </div>
+<div class="bracket-wrapper" data-controller="bracket" data-bracket-data-value="<%= bracket_data.to_json %>"></div>

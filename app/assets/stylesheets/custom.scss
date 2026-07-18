@@ -474,6 +474,11 @@ h2 { color: $text-muted-dark; }
 
 /* bracket */
 
+.bracket-wrapper {
+  height: 60vh;
+  min-height: 400px;
+}
+
 .bracket-slot {
   background-color: #1a1a1a;
   border: 1px solid $border-dark;
