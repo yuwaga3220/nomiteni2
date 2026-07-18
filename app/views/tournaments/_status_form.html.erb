@@ -1,19 +1,25 @@
 <% status_onchange = "if(confirm('本当にトーナメントステータスを更新しますか？'))
                       { this.form.requestSubmit(); } else { this.form.reset(); }" %>
+<p class="status-toggle-heading">ステータス</p>
 <%= form_with url: update_status_tournament_path(tournament), method: :patch do |f| %>
-  <%= f.radio_button :status, "before",
-    id: "status_before",
-    checked: tournament.before?,
-    onchange: status_onchange %>
-  <%= label_tag "status_before", "開催前" %>
-  <%= f.radio_button :status, "during",
-    id: "status_during",
-    checked: tournament.during?,
-    onchange: status_onchange %>
-  <%= label_tag "status_during", "開催中" %>
-  <%= f.radio_button :status, "after",
-    id: "status_after",
-    checked: tournament.after?,
-    onchange: status_onchange %>
-  <%= label_tag "status_after", "開催後" %>
+  <div class="status-toggle">
+    <%= f.radio_button :status, "before",
+      id: "status_before",
+      checked: tournament.before?,
+      onchange: status_onchange,
+      class: "status-toggle-input" %>
+    <%= label_tag "status_before", "開催前", class: "status-toggle-label" %>
+    <%= f.radio_button :status, "during",
+      id: "status_during",
+      checked: tournament.during?,
+      onchange: status_onchange,
+      class: "status-toggle-input" %>
+    <%= label_tag "status_during", "開催中", class: "status-toggle-label" %>
+    <%= f.radio_button :status, "after",
+      id: "status_after",
+      checked: tournament.after?,
+      onchange: status_onchange,
+      class: "status-toggle-input" %>
+    <%= label_tag "status_after", "開催後", class: "status-toggle-label" %>
+  </div>
 <% end %>

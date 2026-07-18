@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col-md-12">
     <h3>
-      トーナメントツリー
+      トーナメント
       <% if current_user?(@tournament.user) %>
         <%= link_to "削除", destroy_all_tournament_matches_path(@tournament),
               data: { "turbo-method": :delete, "turbo-confirm": "トーナメントツリーを削除しますか？" },
