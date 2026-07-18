@@ -371,7 +371,7 @@ span.image {
   }
 }
 
-input, textarea {
+input:not([type="submit"]):not([type="button"]), textarea {
   background-color: #1a1a1a !important;
   color: $text-primary !important;
   border-color: $border-dark !important;
