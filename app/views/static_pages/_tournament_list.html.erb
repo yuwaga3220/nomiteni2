@@ -2,9 +2,13 @@
   <div class="col-md-12">
     <h3>大会一覧</h3>
     <% if @tournaments.any? %>
-      <ol class="tournaments">
-        <%= render @tournaments %>
-      </ol>
+      <% status_labels = { "before" => "開催前", "during" => "開催中", "after" => "開催後" } %>
+      <% @tournaments.group_by(&:status).each do |status, tournaments| %>
+        <h2><%= status_labels[status] %></h2>
+        <ol class="tournaments">
+          <%= render tournaments %>
+        </ol>
+      <% end %>
       <%= will_paginate @tournaments, params: { controller: :static_pages, action: :home } %>
     <% end %>
   </div>

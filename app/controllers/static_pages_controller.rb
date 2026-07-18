@@ -1,7 +1,8 @@
 class StaticPagesController < ApplicationController
   def home
     if logged_in?
-      @tournaments = Tournament.all.paginate(page: params[:page])
+      status_order = Arel.sql("CASE status WHEN 1 THEN 0 WHEN 0 THEN 1 WHEN 2 THEN 2 END")
+      @tournaments = Tournament.reorder(status_order, created_at: :desc).paginate(page: params[:page])
     end
   end
 
