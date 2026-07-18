@@ -1,6 +1,7 @@
 <% provide(:title, "試合結果を予想") %>
 <%= link_to "← 大会一覧へ戻る", root_path %>
-<h2>試合結果を予想 — <%= @tournament.title %></h2>
+<h2>Pick'Ems — <%= @tournament.title %></h2>
+<%= render "tournaments/tournament_info", tournament: @tournament %>
 <div class="row">
   <div class="col-md-9">
     <%= render "tournaments/prediction_bracket" %>

@@ -1,23 +1,7 @@
 <% provide(:title, @tournament.title) %>
 <%= link_to "← 大会一覧へ戻る", root_path %>
-<div class="tournament">
-  <h2><%= @tournament.title %></h2>
-  <% if @tournament.held_on.present? %>
-    <p>開催日: <%= @tournament.held_on.strftime("%Y年%m月%d日") %></p>
-  <% end %>
-  <% if @tournament.venue.present? %>
-    <p>場所: <%= @tournament.venue %></p>
-  <% end %>
-  <% if @tournament.description.present? %>
-    <p><%= @tournament.description %></p>
-  <% end %>
-  <% if current_user?(@tournament.user) %>
-    <%= render "status_form", tournament: @tournament %>
-  <% else %>
-    <% status_labels = { "before" => "開催前", "during" => "開催中", "after" => "開催後" } %>
-    <p>ステータス: <strong><%= status_labels[@tournament.status] %></strong></p>
-  <% end %>
-</div>
+<h2>トーナメント - <%= @tournament.title %></h2>
+<%= render "tournament_info", tournament: @tournament %>
 
 <% unless @tournament.matches.any? %>
   <div class="row">

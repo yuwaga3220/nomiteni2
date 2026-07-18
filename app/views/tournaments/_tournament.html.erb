@@ -14,7 +14,7 @@
   or
   <%= link_to "ピッケム", new_tournament_prediction_path(tournament) %>
   <br>
-  <span class="timestamp">
+  <span class="timestamp pull-right">
     <% if current_user?(tournament.user) %>
       <%= link_to "削除", tournament, data: { "turbo-method": :delete,
                                              "turbo-confirm": "本当に削除しますか？" } %>

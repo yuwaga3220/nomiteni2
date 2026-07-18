@@ -1,13 +1,8 @@
-<div class="center jumbotron">
-    <h3>Hit'Emsへようこそ！</h3>
-
-    <h2>
-      試合結果をすぐに確認する！
-      ピッケムを楽しむ！
-    </h2>
-
+<div class="text-center">
+  <div class="signup-cta">
     <%= link_to "アカウントを作成する", signup_path, class: "btn btn-lg btn-primary" %>
+    <p class="text-center login-hint">
+      アカウントをお持ちの方は<%= link_to "こちら", login_path, class: "login-hint-link" %>
+    </p>
   </div>
-
-  <%= link_to image_tag("rails.svg", alt: "Railsロゴ",
-                        width: "200"), "https://rubyonrails.org/" %>
+</div>

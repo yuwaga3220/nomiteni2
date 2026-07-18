@@ -89,7 +89,7 @@ class PasswordUpdateTest < PasswordResetForm
                             password_confirmation: "foobazbar" } }
     assert is_logged_in?
     assert_not flash.empty?
-    assert_redirected_to @reset_user
+    assert_redirected_to root_url
   end
 end
 

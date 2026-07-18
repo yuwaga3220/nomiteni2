@@ -1,0 +1,17 @@
+<div class="tournament">
+  <% if tournament.held_on.present? %>
+    <p>開催日: <%= tournament.held_on.strftime("%Y年%m月%d日") %></p>
+  <% end %>
+  <% if tournament.venue.present? %>
+    <p>場所: <%= tournament.venue %></p>
+  <% end %>
+  <% if tournament.description.present? %>
+    <p><%= tournament.description %></p>
+  <% end %>
+  <% if current_user?(tournament.user) %>
+    <%= render "tournaments/status_form", tournament: tournament %>
+  <% else %>
+    <% status_labels = { "before" => "開催前", "during" => "開催中", "after" => "開催後" } %>
+    <p>ステータス: <strong><%= status_labels[tournament.status] %></strong></p>
+  <% end %>
+</div>

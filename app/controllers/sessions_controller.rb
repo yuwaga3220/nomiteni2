@@ -10,7 +10,7 @@ class SessionsController < ApplicationController
         reset_session
         params[:session][:remember_me] == "1" ? remember(@user) : forget(@user)
         log_in @user
-        redirect_to forwarding_url || @user
+        redirect_to forwarding_url || root_url
       else
         message = "アカウントがまだ有効化されていません。"
         message += "メールに記載された有効化リンクをご確認ください"

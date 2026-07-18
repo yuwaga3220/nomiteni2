@@ -406,6 +406,23 @@ h2 { color: $text-muted-dark; }
   &:hover { background-color: #383838; color: #ffffff; }
 }
 
+.signup-cta {
+  display: inline-block;
+}
+
+.login-hint {
+  margin-top: 4px;
+  margin-bottom: 0;
+  font-size: 0.8em;
+  color: $text-muted-dark;
+}
+
+.login-hint-link {
+  color: $text-muted-dark;
+  text-decoration: underline;
+  &:hover { color: $text-primary; }
+}
+
 .btn-warning {
   background-color: $accent-pink;
   border-color: $accent-pink;
