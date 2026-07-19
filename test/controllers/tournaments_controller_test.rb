@@ -40,4 +40,30 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :see_other
     assert_redirected_to root_url
   end
+
+  test "should not update status to after when a match is not finished" do
+    @tournament.update!(status: :during)
+    @tournament.matches.create!(round: 1, participant1: participants(:alice), participant2: participants(:bob))
+    log_in_as(users(:michael))
+    patch update_status_tournament_path(@tournament), params: { status: "after" }
+    assert_redirected_to tournament_path(@tournament)
+    assert_not flash.empty?
+    assert_equal "during", @tournament.reload.status
+  end
+
+  test "should not update status to after when there are no matches" do
+    @tournament.update!(status: :during)
+    log_in_as(users(:michael))
+    patch update_status_tournament_path(@tournament), params: { status: "after" }
+    assert_equal "during", @tournament.reload.status
+  end
+
+  test "should update status to after when all matches are finished" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: participants(:alice), participant2: participants(:bob))
+    match.update!(winner: participants(:alice), winner_games: 6, loser_games: 3, status: :finished)
+    log_in_as(users(:michael))
+    patch update_status_tournament_path(@tournament), params: { status: "after" }
+    assert_equal "after", @tournament.reload.status
+  end
 end

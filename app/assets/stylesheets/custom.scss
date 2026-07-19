@@ -512,6 +512,14 @@ h2 { color: $text-muted-dark; }
 .bracket-wrapper {
   height: 60vh;
   min-height: 400px;
+
+  .matches-scroller {
+    overflow-x: auto !important;
+  }
+
+  .round-titles-wrapper {
+    overflow-x: hidden !important;
+  }
 }
 
 .bracket-slot {

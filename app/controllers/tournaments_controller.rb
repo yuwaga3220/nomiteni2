@@ -21,6 +21,11 @@ class TournamentsController < ApplicationController
   end
 
   def update_status
+    if params[:status] == "after" && !(@tournament.matches.exists? && @tournament.matches.all?(&:finished?))
+      flash[:danger] = "すべての試合が終了していないため、開催後にできません"
+      redirect_to tournament_path(@tournament) and return
+    end
+
     if Tournament.statuses.key?(params[:status])
       Match.transaction do
         @tournament.update!(status: params[:status])
