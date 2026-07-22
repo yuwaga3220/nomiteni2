@@ -1,7 +1,6 @@
 <div class="row">
   <div class="col-md-12">
     <h3>
-      トーナメント
       <% if current_user?(@tournament.user) %>
         <%= link_to "削除", destroy_all_tournament_matches_path(@tournament),
               data: { "turbo-method": :delete, "turbo-confirm": "トーナメントツリーを削除しますか？" },
@@ -55,7 +54,7 @@
                 </div>
               <% end %>
               <% if show_meta %>
-                <div style="position: absolute; top: 100%; left: 0; font-size: 0.7em; color: <%= match.finished? ? '#666' : '#ff2fb0' %>; white-space: nowrap;">
+                <div style="position: absolute; top: 100%; left: 0; font-size: 0.7em; color: <%= match.finished? ? '#666' : '#623fbc' %>; white-space: nowrap;">
                   <%= match_meta %>
                 </div>
               <% end %>

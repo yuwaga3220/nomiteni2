@@ -11,9 +11,9 @@
   <div class="col-md-8">
     <% if @user.tournaments.any? %>
       <h3>作成した大会 (<%= @user.tournaments.count %>)</h3>
-      <ol class="tournaments">
+      <div class="row">
         <%= render @tournaments %>
-      </ol>
+      </div>
       <%= will_paginate @tournaments %>
     <% end %>
     

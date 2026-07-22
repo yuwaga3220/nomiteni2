@@ -96,4 +96,20 @@ class UserTest < ActiveSupport::TestCase
       @user.destroy
     end
   end
+
+  test "score should be prediction count times ten" do
+    tournament = tournaments(:orange)
+    match = tournament.matches.create!(round: 1, participant1: participants(:alice), participant2: participants(:bob))
+    users(:michael).predictions.create!(match: match, predicted_participant: participants(:alice))
+    assert_equal 10, users(:michael).score
+  end
+
+  test "score_percentile should reflect rank among all activated users" do
+    tournament = tournaments(:orange)
+    match = tournament.matches.create!(round: 1, participant1: participants(:alice), participant2: participants(:bob))
+    users(:michael).predictions.create!(match: match, predicted_participant: participants(:alice))
+    total_activated = User.where(activated: true).count
+    expected_percentile = ((1.0 / total_activated) * 100).round
+    assert_equal expected_percentile, users(:michael).score_percentile
+  end
 end

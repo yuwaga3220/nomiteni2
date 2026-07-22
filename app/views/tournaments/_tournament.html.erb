@@ -1,23 +1,24 @@
-<li id="tournament-<%= tournament.id %>">
-  <span class="content">
-    <h3><%= tournament.title %></h3>
-  </span>
-  <% if tournament.held_on.present? %>
-    <span class="held-on"><%= tournament.held_on.strftime("%Y/%m/%d") %></span>
-  <% end %>
-  <br>
-  <% if current_user?(tournament.user) %>
-    <%= link_to "管理画面", tournament%>
-  <% else %>
-    <%= link_to "トーナメント", tournament%>
-  <% end %>
-  or
-  <%= link_to "ピッケム", new_tournament_prediction_path(tournament) %>
-  <br>
-  <span class="timestamp pull-right">
-    <% if current_user?(tournament.user) %>
-      <%= link_to "削除", tournament, data: { "turbo-method": :delete,
-                                             "turbo-confirm": "本当に削除しますか？" } %>
-    <% end %>
-  </span>
-</li>
+<div class="col-sm-6 col-md-4">
+  <div class="panel panel-default tournament-card" id="tournament-<%= tournament.id %>">
+    <div class="panel-body">
+      <h4 class="tournament-card-title"><%= tournament.title %></h4>
+      <% if tournament.held_on.present? %>
+        <p class="held-on" style="text-align: center;"><%= tournament.held_on.strftime("%Y/%m/%d") %></p>
+      <% end %>
+      <p class="text-center">
+        <% if current_user?(tournament.user) %>
+          <%= link_to "管理画面", tournament, class: "btn btn-lavender btn-sm" %>
+        <% else %>
+          <%= link_to "試合状況", tournament, class: "btn btn-lavender btn-sm" %>
+        <% end %>
+        <%= link_to "PICK'EMS（予想）", new_tournament_prediction_path(tournament), class: "btn btn-lavender btn-sm" %>
+      </p>
+      <% if current_user?(tournament.user) %>
+        <p class="timestamp text-center">
+          <%= link_to "削除", tournament, data: { "turbo-method": :delete,
+                                                 "turbo-confirm": "本当に削除しますか？" } %>
+        </p>
+      <% end %>
+    </div>
+  </div>
+</div>

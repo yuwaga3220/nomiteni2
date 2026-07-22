@@ -72,6 +72,23 @@ class User < ApplicationRecord
     reset_sent_at < 2.hours.ago
   end
 
+  # 予想した試合数に応じたスコア
+  def score
+    predictions.count * 10
+  end
+
+  # 全ユーザーのうち、スコア上位何%に入っているか
+  def score_percentile
+    scores = User.where(activated: true)
+                 .left_joins(:predictions)
+                 .group("users.id")
+                 .count("predictions.id")
+                 .values
+                 .map { |count| count * 10 }
+    rank = scores.count { |s| s > score } + 1
+    ((rank.to_f / scores.size) * 100).round
+  end
+
   private
 
   def downcase_email

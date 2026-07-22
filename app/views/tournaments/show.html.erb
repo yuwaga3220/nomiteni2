@@ -1,6 +1,6 @@
 <% provide(:title, @tournament.title) %>
-<%= link_to "← 大会一覧へ戻る", root_path %>
-<h2>トーナメント - <%= @tournament.title %></h2>
+<%= link_to "← ホームへ戻る", root_path %>
+<h2>試合状況 - <%= @tournament.title %></h2>
 <%= render "tournament_info", tournament: @tournament %>
 
 <% unless @tournament.matches.any? %>

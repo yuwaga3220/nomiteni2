@@ -12,9 +12,9 @@ $text-primary:   #e0e0e0;
 $text-muted-dark: #888888;
 $border-dark:    #333333;
 
-/* accent color (蛍光ピンク) */
-$accent-pink:       #ff2fb0;
-$accent-pink-light: #ff5cc3;
+/* accent color (紫) */
+$accent-purple:       #442c81;
+$accent-purple-light: #623fbc;
 
 @mixin box_sizing {
   -moz-box-sizing:    border-box;
@@ -42,6 +42,9 @@ textarea {
   text-align: center;
   h1 {
     margin-bottom: 10px;
+  }
+  h2 {
+    margin-bottom: 0;
   }
 }
 
@@ -218,7 +221,7 @@ aside {
     }
     &:hover {
       text-decoration: none;
-      color: $accent-pink;
+      color: $accent-purple;
     }
   }
   strong {
@@ -295,33 +298,48 @@ input {
   }
 }
 
+/* profile summary */
+
+.profile-summary {
+  margin-top: 20px;
+  overflow: auto;
+  .gravatar {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+.profile-summary-info {
+  overflow: hidden;
+  h3 {
+    margin: 0;
+  }
+}
+
 /* tournaments */
 
-.tournaments {
-  list-style: none;
-  padding: 0;
-  li {
-    padding: 10px 0;
-    border-top: 1px solid #e8e8e8;
+.tournament-card {
+  margin-bottom: 20px;
+  .panel-body {
+    padding: 25px;
   }
-  .user {
-    margin-top: 5em;
-    padding-top: 0;
-  }
-  .content {
-    display: block;
-    img {
-      display: block;
-      padding: 5px 0;
-    }
-  }
-  .timestamp {
-    color: $gray-light;
-    display: block;
-  }
-  .held-on {
-    color: $gray-light;
-  }
+}
+
+.tournament-card-title {
+  text-align: center;
+  font-size: 1.5em;
+  margin-top: 0;
+}
+
+.timestamp {
+  color: $gray-light;
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+.held-on {
+  color: $gray-light;
 }
 
 aside {
@@ -388,7 +406,7 @@ input:not([type="submit"]):not([type="button"]), textarea {
   border-color: $border-dark;
 }
 
-a { color: $accent-pink; &:hover { color: $accent-pink-light; } }
+a { color: $accent-purple; &:hover { color: $accent-purple-light; } }
 
 h1, h2, h3, h4, h5, h6 { color: $text-primary; }
 
@@ -404,6 +422,13 @@ h2 { color: $text-muted-dark; }
   border-color: #444444;
   color: $text-primary;
   &:hover { background-color: #383838; color: #ffffff; }
+}
+
+.btn-lavender {
+  background-color: $accent-purple;
+  border-color: $accent-purple;
+  color: #ffffff;
+  &:hover, &:focus { background-color: $accent-purple-light; border-color: $accent-purple-light; color: #ffffff; }
 }
 
 .signup-cta {
@@ -424,17 +449,17 @@ h2 { color: $text-muted-dark; }
 }
 
 .btn-warning {
-  background-color: $accent-pink;
-  border-color: $accent-pink;
+  background-color: $accent-purple;
+  border-color: $accent-purple;
   color: #ffffff;
-  &:hover, &:focus { background-color: $accent-pink-light; border-color: $accent-pink-light; color: #ffffff; }
+  &:hover, &:focus { background-color: $accent-purple-light; border-color: $accent-purple-light; color: #ffffff; }
 }
 
 .btn-primary {
-  background-color: $accent-pink;
-  border-color: $accent-pink;
+  background-color: $accent-purple;
+  border-color: $accent-purple;
   color: #ffffff;
-  &:hover, &:focus { background-color: $accent-pink-light; border-color: $accent-pink-light; color: #ffffff; }
+  &:hover, &:focus { background-color: $accent-purple-light; border-color: $accent-purple-light; color: #ffffff; }
 }
 
 .status-toggle-heading {
@@ -467,19 +492,26 @@ h2 { color: $text-muted-dark; }
     &:hover { background-color: #383838; color: $text-primary; }
   }
   .status-toggle-input:checked + .status-toggle-label {
-    background-color: $accent-pink;
+    background-color: $accent-purple;
     color: #ffffff;
     font-weight: bold;
   }
   .status-toggle-input:focus + .status-toggle-label {
-    outline: 2px solid $accent-pink;
+    outline: 2px solid $accent-purple;
     outline-offset: -2px;
   }
 }
 
 .jumbotron {
-  background-color: #1a1a1a;
+  background-color: #1b0125;
   color: $text-primary;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  margin-top: -9px;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  padding-left: calc(50vw - 50%);
+  padding-right: calc(50vw - 50%);
 }
 
 .container, .container-fluid {
