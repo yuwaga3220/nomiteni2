@@ -7,7 +7,7 @@ $gray-medium-light: #eaeaea;
 
 /* dark theme colors */
 $bg-dark:        #111111;
-$bg-navbar:      #1e1e1e;
+$bg-navbar:      #111111;
 $text-primary:   #e0e0e0;
 $text-muted-dark: #888888;
 $border-dark:    #333333;
@@ -302,21 +302,78 @@ input {
 
 .profile-summary {
   margin-top: 20px;
-  overflow: auto;
-  .gravatar {
-    margin-left: 0;
-    margin-right: 0;
-  }
+  text-align: center;
 }
 
-.profile-summary-info {
-  overflow: hidden;
+.profile-summary-header {
+  display: flex;
+  align-items: center;
+  .gravatar {
+    margin: 0 15px 0 0;
+    float: none;
+  }
   h3 {
     margin: 0;
   }
 }
 
+.profile-summary-name {
+  color: #ffffff;
+  &:hover { color: #ffffff; }
+}
+
+.profile-summary-score {
+  display: inline-flex;
+  gap: 32px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  padding: 24px 36px;
+  border: 1px solid $border-dark;
+  background-color: #000000;
+}
+
+.profile-summary-stat {
+  text-align: center;
+}
+
+.profile-summary-stat-value {
+  font-weight: bold;
+  font-size: 1.8em;
+  color: #ffffff;
+}
+
+.profile-summary-stat-label {
+  margin-top: 2px;
+  font-size: 0.8em;
+  color: $text-muted-dark;
+}
+
 /* tournaments */
+
+.tournament-meta {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 15px;
+}
+
+.tournament-meta-label {
+  font-size: 0.8em;
+  color: $text-muted-dark;
+}
+
+.tournament-meta-value {
+  font-weight: bold;
+  color: $text-primary;
+}
+
+.tournament-description {
+  color: $text-primary;
+}
+
+.tournament-status-value {
+  font-weight: bold;
+  color: $text-primary;
+}
 
 .tournament-card {
   margin-bottom: 20px;
@@ -465,6 +522,7 @@ h2 { color: $text-muted-dark; }
 .status-toggle-heading {
   margin-bottom: 5px;
   color: $text-muted-dark;
+  font-size: 0.8em;
 }
 
 .status-toggle {
@@ -503,7 +561,7 @@ h2 { color: $text-muted-dark; }
 }
 
 .jumbotron {
-  background-color: #1b0125;
+  background-color: #110027;
   color: $text-primary;
   padding-top: 20px;
   padding-bottom: 20px;
