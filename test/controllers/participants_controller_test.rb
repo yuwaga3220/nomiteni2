@@ -35,4 +35,14 @@ class ParticipantsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to root_url
   end
+
+  test "should not destroy participant when tournament is not before" do
+    @tournament.update!(status: :during)
+    log_in_as(users(:michael))
+    assert_no_difference "Participant.count" do
+      delete tournament_participant_path(@tournament, @participant)
+    end
+    assert_redirected_to tournament_path(@tournament)
+    assert_not flash.empty?
+  end
 end

@@ -13,6 +13,10 @@ class ParticipantsController < ApplicationController
   end
 
   def destroy
+    unless @tournament.before?
+      flash[:danger] = "開催前以外は参加者を削除できません"
+      redirect_to tournament_path(@tournament) and return
+    end
     @participant = @tournament.participants.find(params[:id])
     @participant.destroy
     flash[:success] = "参加者を削除しました"

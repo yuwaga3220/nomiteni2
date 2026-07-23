@@ -11,10 +11,12 @@
                     placeholder: "#", min: 1, max: @tournament.participants.count,
                     class: "form-control input-sm", style: "width: 60px; display: inline-block" %>
               <%= participant.name %>
-              <%= link_to "削除",
-                    tournament_participant_path(@tournament, participant),
-                    data: { "turbo-method": :delete, "turbo-confirm": "削除しますか？" },
-                    class: "btn btn-xs btn-danger pull-right" %>
+              <% if @tournament.before? %>
+                <%= link_to "削除",
+                      tournament_participant_path(@tournament, participant),
+                      data: { "turbo-method": :delete, "turbo-confirm": "削除しますか？" },
+                      class: "btn btn-xs btn-danger pull-right" %>
+              <% end %>
             </li>
           <% end %>
         </ul>
