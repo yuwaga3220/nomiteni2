@@ -662,6 +662,19 @@ h2 { color: $text-muted-dark; }
   font-style: italic;
 }
 
+// Bracketryの .bracket-root * リセットに勝つため !important が必要（.bracket-slot-score と同じ理由）
+.bracket-match-live {
+  border-radius: 4px !important;
+  animation: bracket-live-pulse 1.0s ease-in-out infinite;
+}
+
+// CSSアニメーションは通常宣言より優先度が高いため、!important無しでも
+// Bracketryの .bracket-root * { box-shadow: none; } には勝てる
+@keyframes bracket-live-pulse {
+  0%, 100% { box-shadow: 0 0 0 2px #9b6dff; }
+  50%      { box-shadow: 0 0 0 2px #9b6dff, 0 0 10px 2px rgba(155, 109, 255, 0.6); }
+}
+
 // Bracketryが実行時に .bracket-root * { border: none; margin: 0; padding: 0; } という
 // リセットCSSを後から<head>に挿入するため、同じ詳細度だとそちらに上書きされてしまう。
 // !importantで確実にこちらを優先させる。

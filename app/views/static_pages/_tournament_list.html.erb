@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col-md-12">
     <% if @tournaments.any? %>
-      <% status_labels = { "before" => "開催前", "during" => "開催中", "after" => "開催後" } %>
+      <% status_labels = { "before" => "開催前（予想受付中）", "during" => "開催中", "after" => "開催後" } %>
       <% @tournaments.group_by(&:status).each do |status, tournaments| %>
         <h2><%= status_labels[status] %></h2>
         <div class="row">

@@ -20,7 +20,7 @@
       <% grouped.each do |round, matches| %>
         <% matches.each_with_index do |match, i| %>
           <div id="bracket-match-<%= round - 1 %>-<%= i %>">
-            <div style="width: 190px; position: relative;">
+            <div class="<%= 'bracket-match-live' if match.in_progress? %>" style="width: 190px; position: relative;">
               <% status_labels = { "pending" => "予備", "in_progress" => "試合中", "finished" => "終了" }
                  show_meta = match.court.present? || !match.pending?
                  match_meta = [ status_labels[match.status], (match.court.presence unless match.finished?) ].compact.join(" ・ ")
@@ -55,7 +55,14 @@
                 </div>
               <% end %>
               <% if show_meta %>
-                <div style="position: absolute; top: 100%; left: 0; font-size: 0.7em; color: <%= match.finished? ? '#666' : '#623fbc' %>; white-space: nowrap;">
+                <% meta_color = if match.finished?
+                     "#666"
+                   elsif match.in_progress?
+                     "#9b6dff"
+                   else
+                     "#888"
+                   end %>
+                <div style="position: absolute; top: 100%; left: 0; font-size: 0.7em; color: <%= meta_color %>; white-space: nowrap; <%= 'font-weight: bold;' if match.in_progress? %>">
                   <%= match_meta %>
                 </div>
               <% end %>
