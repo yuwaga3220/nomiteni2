@@ -10,6 +10,9 @@ class UsersController < ApplicationController
   def show
     @user = User.find(params[:id])
     @tournaments = @user.tournaments.paginate(page: params[:page])
+    @predicted_tournaments = Tournament.joins(matches: :predictions)
+                                        .where(predictions: { user_id: @user.id })
+                                        .distinct
     redirect_to root_url and return unless @user.activated?
   end
 

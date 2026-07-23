@@ -17,7 +17,7 @@
               <label>試合状況</label>
               <%= select_tag "status",
                     options_for_select(
-                      [ [ "準備中", "pending" ], [ "試合中", "in_progress" ], [ "終了", "finished" ] ],
+                      [ [ "予備", "pending" ], [ "試合中", "in_progress" ], [ "終了", "finished" ] ],
                       match.status),
                     class: "form-control" %>
             </div>

@@ -6,7 +6,9 @@
                                 .where.not(court: [ nil, "" ])
                                 .order(:court) %>
 <% if in_progress_matches.any? %>
-  <h3 class="bracket-heading">コート使用状況</h3>
+  <h3 class="bracket-heading">コート状況</h3>
+    <p class="bracket-heading">試合中</p>
+
   <ul class="list-group court-status-list">
     <% in_progress_matches.each do |match| %>
       <li class="list-group-item">
@@ -17,7 +19,7 @@
   </ul>
 <% end %>
 <% if pending_matches.any? %>
-  <h3 class="bracket-heading">準備中のコート</h3>
+  <p class="bracket-heading">予備</p>
   <ul class="list-group court-status-list">
     <% pending_matches.each do |match| %>
       <li class="list-group-item">

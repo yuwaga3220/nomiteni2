@@ -5,15 +5,6 @@
     <h3><%= link_to user.name, user, class: "profile-summary-name" %></h3>
   </div>
   <% if current_tournament.present? %>
-    <div class="profile-summary-score">
-      <div class="profile-summary-stat">
-        <div class="profile-summary-stat-value"><%= user.score(current_tournament) %>pt</div>
-        <div class="profile-summary-stat-label">スコア</div>
-      </div>
-      <div class="profile-summary-stat">
-        <div class="profile-summary-stat-value">Top <%= user.score_percentile(current_tournament) %>%</div>
-        <div class="profile-summary-stat-label">グローバルランク</div>
-      </div>
-    </div>
+    <%= render "users/profile_stats", user: user, tournament: current_tournament %>
   <% end %>
 </div>

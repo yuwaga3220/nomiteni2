@@ -16,6 +16,17 @@
       </div>
       <%= will_paginate @tournaments %>
     <% end %>
-    
+
+    <% if @predicted_tournaments.any? %>
+      <h3>過去の予想 (<%= @predicted_tournaments.count %>)</h3>
+      <ul class="list-group profile-tournament-stats-list">
+        <% @predicted_tournaments.each do |tournament| %>
+          <li class="list-group-item">
+            <%= link_to tournament.title, tournament %>
+            <%= render "users/profile_stats", user: @user, tournament: tournament %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
   </div>
 </div>

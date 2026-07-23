@@ -21,7 +21,7 @@
         <% matches.each_with_index do |match, i| %>
           <div id="bracket-match-<%= round - 1 %>-<%= i %>">
             <div style="width: 190px; position: relative;">
-              <% status_labels = { "pending" => "準備中", "in_progress" => "試合中", "finished" => "終了" }
+              <% status_labels = { "pending" => "予備", "in_progress" => "試合中", "finished" => "終了" }
                  show_meta = match.court.present? || !match.pending?
                  match_meta = [ status_labels[match.status], (match.court.presence unless match.finished?) ].compact.join(" ・ ")
                  p1 = match.participant1
