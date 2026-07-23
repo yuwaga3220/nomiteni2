@@ -241,6 +241,23 @@ aside {
 }
 /* forms */
 
+.field {
+  margin-bottom: 15px;
+  label {
+    display: block;
+    font-weight: bold;
+    color: $text-muted-dark;
+    margin-bottom: 5px;
+  }
+  input, textarea {
+    margin-bottom: 0;
+  }
+}
+
+.tournament-form-panel {
+  padding: 10px;
+}
+
 input, textarea {
   border: 1px solid #bbb;
   width: 100%;
