@@ -383,6 +383,29 @@ input {
   }
 }
 
+.tournament-card-with-image {
+  position: relative;
+  background-color: #1a1a1a;
+  overflow: hidden;
+  &::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    background-image: inherit;
+    background-size: cover;
+    background-position: center;
+    filter: blur(4px);
+  }
+  .panel-body {
+    // モザイク背景の上にダークオーバーレイを重ねてテキストの可読性を確保する
+    background-color: rgba(17, 17, 17, 0.45);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  }
+}
+
 .tournament-card-title {
   text-align: center;
   font-size: 1.5em;

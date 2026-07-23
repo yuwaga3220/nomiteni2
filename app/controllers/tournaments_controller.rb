@@ -48,7 +48,7 @@ class TournamentsController < ApplicationController
   private
 
   def tournament_params
-    params.require(:tournament).permit(:title, :description, :held_on, :venue)
+    params.require(:tournament).permit(:title, :description, :held_on, :venue, :image)
   end
 
   def correct_user

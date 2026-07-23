@@ -1,5 +1,7 @@
 <div class="col-sm-6 col-md-4">
-  <div class="panel panel-default tournament-card" id="tournament-<%= tournament.id %>">
+  <div class="panel panel-default tournament-card <%= 'tournament-card-with-image' if tournament.image.attached? %>"
+       id="tournament-<%= tournament.id %>"
+       <% if tournament.image.attached? %>style="background-image: url(<%= url_for(tournament.image.variant(:mosaic)) %>);"<% end %>>
     <div class="panel-body">
       <% if tournament.held_on.present? %>
         <%= link_to google_calendar_url(tournament), target: "_blank", rel: "noopener",

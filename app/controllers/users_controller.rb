@@ -9,7 +9,7 @@ class UsersController < ApplicationController
 
   def show
     @user = User.find(params[:id])
-    @tournaments = @user.tournaments.paginate(page: params[:page])
+    @tournaments = @user.tournaments.with_attached_image.paginate(page: params[:page])
     @predicted_tournaments = Tournament.joins(matches: :predictions)
                                         .where(predictions: { user_id: @user.id })
                                         .distinct

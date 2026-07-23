@@ -13,5 +13,9 @@
   <div class="field">
     <%= f.text_field :venue, placeholder: "開催場所（任意）" %>
   </div>
+  <div class="field">
+    <%= f.label :image, "イメージ画像（任意）" %>
+    <%= f.file_field :image, accept: "image/png,image/jpeg,image/gif,image/webp" %>
+  </div>
   <%= f.submit "大会を作成", class: "btn btn-primary" %>
 <% end %>
