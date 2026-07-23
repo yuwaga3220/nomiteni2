@@ -13,9 +13,15 @@
 <% else %>
   <ol class="list-group">
     <% @ranking.each do |user| %>
+      <% decided = user.decided_predictions_count.to_i
+         hit_rate = decided.positive? ? (user.correct_predictions_count.to_f / decided * 100).round : nil %>
       <li class="list-group-item">
         <%= user.name %>
         <span class="pull-right"><%= user.total_points.to_i %>pt</span>
+        <% if hit_rate %>
+          <br>
+          <small class="text-muted">Hit rate <%= hit_rate %>%（<%= user.correct_predictions_count.to_i %>/<%= decided %>）</small>
+        <% end %>
       </li>
     <% end %>
   </ol>

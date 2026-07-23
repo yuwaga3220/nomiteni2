@@ -97,27 +97,34 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  test "score should be prediction count times ten for the given tournament" do
+  test "score should be ten points per correctly predicted match in the given tournament" do
     tournament = tournaments(:orange)
-    match = tournament.matches.create!(round: 1, participant1: participants(:alice), participant2: participants(:bob))
-    users(:michael).predictions.create!(match: match, predicted_participant: participants(:alice))
+    match = tournament.matches.create!(round: 1, participant1: participants(:alice), participant2: participants(:bob), winner: participants(:alice))
+    users(:michael).predictions.create!(match: match, predicted_participant: participants(:alice), points: 10)
     assert_equal 10, users(:michael).score(tournament)
+  end
+
+  test "score should not count wrong predictions" do
+    tournament = tournaments(:orange)
+    match = tournament.matches.create!(round: 1, participant1: participants(:alice), participant2: participants(:bob), winner: participants(:alice))
+    users(:michael).predictions.create!(match: match, predicted_participant: participants(:bob), points: 0)
+    assert_equal 0, users(:michael).score(tournament)
   end
 
   test "score should not count predictions made in a different tournament" do
     tournament = tournaments(:orange)
     other_tournament = tournaments(:ants)
-    match = tournament.matches.create!(round: 1, participant1: participants(:alice), participant2: participants(:bob))
-    other_match = other_tournament.matches.create!(round: 1, participant1: participants(:carol), participant2: participants(:dave))
-    users(:michael).predictions.create!(match: match, predicted_participant: participants(:alice))
-    users(:michael).predictions.create!(match: other_match, predicted_participant: participants(:carol))
+    match = tournament.matches.create!(round: 1, participant1: participants(:alice), participant2: participants(:bob), winner: participants(:alice))
+    other_match = other_tournament.matches.create!(round: 1, participant1: participants(:carol), participant2: participants(:dave), winner: participants(:carol))
+    users(:michael).predictions.create!(match: match, predicted_participant: participants(:alice), points: 10)
+    users(:michael).predictions.create!(match: other_match, predicted_participant: participants(:carol), points: 10)
     assert_equal 10, users(:michael).score(tournament)
   end
 
   test "score_percentile should reflect rank among all activated users for the given tournament" do
     tournament = tournaments(:orange)
-    match = tournament.matches.create!(round: 1, participant1: participants(:alice), participant2: participants(:bob))
-    users(:michael).predictions.create!(match: match, predicted_participant: participants(:alice))
+    match = tournament.matches.create!(round: 1, participant1: participants(:alice), participant2: participants(:bob), winner: participants(:alice))
+    users(:michael).predictions.create!(match: match, predicted_participant: participants(:alice), points: 10)
     total_activated = User.where(activated: true).count
     expected_percentile = ((1.0 / total_activated) * 100).round
     assert_equal expected_percentile, users(:michael).score_percentile(tournament)
@@ -126,11 +133,11 @@ class UserTest < ActiveSupport::TestCase
   test "score_percentile should not count a user's predictions from other tournaments" do
     tournament = tournaments(:orange)
     other_tournament = tournaments(:ants)
-    match = tournament.matches.create!(round: 1, participant1: participants(:alice), participant2: participants(:bob))
-    other_match = other_tournament.matches.create!(round: 1, participant1: participants(:carol), participant2: participants(:dave))
+    match = tournament.matches.create!(round: 1, participant1: participants(:alice), participant2: participants(:bob), winner: participants(:alice))
+    other_match = other_tournament.matches.create!(round: 1, participant1: participants(:carol), participant2: participants(:dave), winner: participants(:carol))
     # archerは別大会でしか予想していないので、この大会のランキングでは0点扱いになるはず
-    users(:archer).predictions.create!(match: other_match, predicted_participant: participants(:carol))
-    users(:michael).predictions.create!(match: match, predicted_participant: participants(:alice))
+    users(:archer).predictions.create!(match: other_match, predicted_participant: participants(:carol), points: 10)
+    users(:michael).predictions.create!(match: match, predicted_participant: participants(:alice), points: 10)
     total_activated = User.where(activated: true).count
     expected_percentile = ((1.0 / total_activated) * 100).round
     assert_equal expected_percentile, users(:michael).score_percentile(tournament)

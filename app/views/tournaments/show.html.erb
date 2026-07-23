@@ -1,5 +1,5 @@
 <% provide(:title, @tournament.title) %>
-<%= link_to "← ホームへ戻る", root_path %>
+<%= link_to "← ホームへ戻る", root_path, class: "home-link" %>
 <h1 style="margin-bottom: 5px;">TOURNAMENT</h1>
 <h2 style="margin-top: 0px;"><%= @tournament.title %></h2>
 <%= render "tournament_info", tournament: @tournament %>
@@ -11,5 +11,7 @@
   </div>
 <% end %>
 
-<%= render "bracket", 
+<%= render "bracket",
   editable: current_user?(@tournament.user) && @tournament.during? if @tournament.matches.any? %>
+
+<%= render "court_status", tournament: @tournament if @tournament.matches.any? %>

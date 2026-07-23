@@ -1,5 +1,5 @@
 <% provide(:title, "試合結果を予想") %>
-<%= link_to "← ホームへ戻る", root_path %>
+<%= link_to "← ホームへ戻る", root_path, class: "home-link" %>
 <h1 style="margin-bottom: 5px;">PICK'EMS</h1>
 <h2 style="margin-top: 0px;"> <%= @tournament.title %></h2>
 <%= render "users/profile_summary", user: current_user, current_tournament: @tournament %>

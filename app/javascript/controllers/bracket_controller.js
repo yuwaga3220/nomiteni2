@@ -17,7 +17,8 @@ export default class extends Controller {
       roundTitleColor: "#888888",
       roundTitlesBorderColor: "#333333",
       matchTextColor: "#e0e0e0",
-      connectionLinesColor: "#666666",
+      connectionLinesColor: "#4a4a4a",
+      highlightedConnectionLinesColor: "#623fbc",
       hoveredMatchBorderColor: "#623fbc",
       matchStatusBgColor: "#1a1a1a"
     })

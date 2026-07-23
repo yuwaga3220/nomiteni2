@@ -72,7 +72,7 @@ class MatchesController < ApplicationController
         end
       end
       match.predictions.each do |prediction|
-        points = prediction.predicted_participant_id == winner.id ? 2**(match.round - 1) : 0
+        points = prediction.predicted_participant_id == winner.id ? 10 : 0
         prediction.update!(points: points)
       end
     end

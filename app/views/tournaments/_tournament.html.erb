@@ -1,6 +1,12 @@
 <div class="col-sm-6 col-md-4">
   <div class="panel panel-default tournament-card" id="tournament-<%= tournament.id %>">
     <div class="panel-body">
+      <% if tournament.held_on.present? %>
+        <%= link_to google_calendar_url(tournament), target: "_blank", rel: "noopener",
+              class: "tournament-card-calendar-link", title: "Googleカレンダーに登録" do %>
+          <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
+        <% end %>
+      <% end %>
       <h4 class="tournament-card-title"><%= tournament.title %></h4>
       <% if tournament.held_on.present? || tournament.venue.present? %>
         <p class="held-on" style="text-align: center;">

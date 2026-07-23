@@ -72,16 +72,16 @@ class User < ApplicationRecord
     reset_sent_at < 2.hours.ago
   end
 
-  # その大会で予想した試合数に応じたスコア
+  # その大会で的中させた試合数に応じたスコア（的中1件につき10点）
   def score(tournament)
-    predictions.where(match: tournament.matches).count * 10
+    predictions.where(match: tournament.matches).sum(:points)
   end
 
   # その大会について、全ユーザーのうち、スコア上位何%に入っているか
   def score_percentile(tournament)
-    prediction_counts = Prediction.where(match: tournament.matches).group(:user_id).count
+    points_by_user = Prediction.where(match: tournament.matches).group(:user_id).sum(:points)
     activated_user_ids = User.where(activated: true).pluck(:id)
-    scores = activated_user_ids.map { |id| (prediction_counts[id] || 0) * 10 }
+    scores = activated_user_ids.map { |id| points_by_user[id] || 0 }
     my_score = score(tournament)
     rank = scores.count { |s| s > my_score } + 1
     ((rank.to_f / scores.size) * 100).round

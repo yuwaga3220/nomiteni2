@@ -1,10 +1,11 @@
 <div class="row">
   <div class="col-md-12">
-    <h3>
+    <h3 class="bracket-heading">
+      ドロー
       <% if current_user?(@tournament.user) %>
         <%= link_to "削除", destroy_all_tournament_matches_path(@tournament),
               data: { "turbo-method": :delete, "turbo-confirm": "トーナメントツリーを削除しますか？" },
-              class: "btn btn-xs btn-danger" %>
+              class: "btn btn-xs btn-danger pull-right" %>
       <% end %>
     </h3>
     <% grouped = @tournament.matches.includes(:participant1, :participant2, :winner)
@@ -22,7 +23,7 @@
             <div style="width: 190px; position: relative;">
               <% status_labels = { "pending" => "準備中", "in_progress" => "試合中", "finished" => "終了" }
                  show_meta = match.court.present? || !match.pending?
-                 match_meta = [ match.court.presence, status_labels[match.status] ].compact.join(" ・ ")
+                 match_meta = [ status_labels[match.status], (match.court.presence unless match.finished?) ].compact.join(" ・ ")
                  p1 = match.participant1
                  p2 = match.participant2
                  p1_class = p1.present? && match.winner == p1 ? "bracket-slot-winner" : "bracket-slot"
@@ -36,21 +37,21 @@
                      data-action="click->bracket-match-trigger#open">
                   <div class="<%= p1_class %>" style="box-sizing: border-box; height: 42px; border-radius: 4px 4px 0 0; padding: 10px 12px; font-size: 1em; overflow: hidden;">
                     <%= p1.name %>
-                    <% if p1_games.present? %><span class="pull-right"><%= p1_games %></span><% end %>
+                    <% if p1_games.present? %><span class="pull-right bracket-slot-score"><%= p1_games %></span><% end %>
                   </div>
                   <div class="<%= p2_class %>" style="box-sizing: border-box; height: 42px; border-radius: 0 0 4px 4px; padding: 10px 12px; font-size: 1em; overflow: hidden;">
                     <%= p2.name %>
-                    <% if p2_games.present? %><span class="pull-right"><%= p2_games %></span><% end %>
+                    <% if p2_games.present? %><span class="pull-right bracket-slot-score"><%= p2_games %></span><% end %>
                   </div>
                 </div>
               <% else %>
-                <div class="<%= p1_class %>" style="box-sizing: border-box; height: 42px; width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em; cursor: default; overflow: hidden;">
+                <div class="<%= p1_class %> <%= 'bracket-slot-empty' unless p1.present? %>" style="box-sizing: border-box; height: 42px; width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em; cursor: default; overflow: hidden;">
                   <%= p1&.name || "未定" %>
-                  <% if p1_games.present? %><span class="pull-right"><%= p1_games %></span><% end %>
+                  <% if p1_games.present? %><span class="pull-right bracket-slot-score"><%= p1_games %></span><% end %>
                 </div>
-                <div class="<%= p2_class %>" style="box-sizing: border-box; height: 42px; width: 100%; border-radius: 0 0 4px 4px; padding: 10px 12px; font-size: 1em; cursor: default; overflow: hidden;">
+                <div class="<%= p2_class %> <%= 'bracket-slot-empty' unless p2.present? %>" style="box-sizing: border-box; height: 42px; width: 100%; border-radius: 0 0 4px 4px; padding: 10px 12px; font-size: 1em; cursor: default; overflow: hidden;">
                   <%= p2&.name || "未定" %>
-                  <% if p2_games.present? %><span class="pull-right"><%= p2_games %></span><% end %>
+                  <% if p2_games.present? %><span class="pull-right bracket-slot-score"><%= p2_games %></span><% end %>
                 </div>
               <% end %>
               <% if show_meta %>

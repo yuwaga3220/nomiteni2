@@ -1,0 +1,29 @@
+<% in_progress_matches = tournament.matches.includes(:participant1, :participant2)
+                                    .where(status: :in_progress)
+                                    .order(:court)
+   pending_matches = tournament.matches.includes(:participant1, :participant2)
+                                .where(status: :pending)
+                                .where.not(court: [ nil, "" ])
+                                .order(:court) %>
+<% if in_progress_matches.any? %>
+  <h3 class="bracket-heading">コート使用状況</h3>
+  <ul class="list-group court-status-list">
+    <% in_progress_matches.each do |match| %>
+      <li class="list-group-item">
+        <span class="court-status-court"><%= match.court.presence || "コート未定" %></span>
+        <span class="pull-right"><%= match.participant1&.name %> vs <%= match.participant2&.name %></span>
+      </li>
+    <% end %>
+  </ul>
+<% end %>
+<% if pending_matches.any? %>
+  <h3 class="bracket-heading">準備中のコート</h3>
+  <ul class="list-group court-status-list">
+    <% pending_matches.each do |match| %>
+      <li class="list-group-item">
+        <span class="court-status-court"><%= match.court %></span>
+        <span class="pull-right"><%= match.participant1&.name %> vs <%= match.participant2&.name %></span>
+      </li>
+    <% end %>
+  </ul>
+<% end %>
