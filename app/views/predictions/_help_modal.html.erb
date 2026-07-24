@@ -1,0 +1,29 @@
+<div data-controller="help-modal">
+  <button type="button" class="prediction-help-button"
+          title="PICK'EMSとは" data-action="click->help-modal#open">
+    <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
+  </button>
+  <div data-help-modal-target="backdrop" class="modal-backdrop" style="display: none;" data-action="click->help-modal#close"></div>
+  <div data-help-modal-target="modal" class="modal" style="display: none;" data-action="click->help-modal#closeIfOutside">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-action="click->help-modal#close">&times;</button>
+          <h4 class="modal-title">PICK'EMS（ピッケム）とは</h4>
+        </div>
+        <div class="modal-body">
+          <p>大会開催前の期間中、トーナメント表の各試合の勝者を予想できる機能です。</p>
+          <ul>
+            <li>予想が的中した試合1つにつき10ポイント獲得できます。</li>
+            <li>上のラウンドの予想は、下のラウンドで自分が予想した勝者をもとに組み立てられます。</li>
+            <li>右側の「リーダーボード」で、他のユーザーとの獲得ポイント・的中率を比較できます。</li>
+            <li>予想の変更は、大会が「開催前」のあいだのみ可能です。</li>
+          </ul>
+        </div>
+        <div class="modal-footer" style="border-top: 0;">
+          <button type="button" class="btn btn-default" data-action="click->help-modal#close">閉じる</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

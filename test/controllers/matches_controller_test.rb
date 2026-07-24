@@ -220,6 +220,20 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert match.in_progress?
   end
 
+  test "should reset winner and games when status is reverted to pending" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob,
+                                         winner: @alice, winner_games: 6, loser_games: 3, status: :finished)
+    log_in_as(users(:michael))
+    patch update_status_tournament_match_path(@tournament, match),
+          params: { court: match.court, status: "pending" }
+    match.reload
+    assert match.pending?
+    assert_nil match.winner
+    assert_nil match.winner_games
+    assert_nil match.loser_games
+  end
+
   test "should not update status before tournament starts" do
     match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
     log_in_as(users(:michael))

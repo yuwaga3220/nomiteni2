@@ -515,8 +515,21 @@ input:not([type="submit"]):not([type="button"]), textarea {
 a { color: $accent-purple; &:hover { color: $accent-purple-light; } }
 
 .home-link {
-  color: #ffffff;
-  &:hover { color: #ffffff; }
+  color: #5c5c5c;
+  &:hover { color: #5c5c5c; }
+}
+
+.prediction-help-button {
+  position: fixed;
+  top: 60px;
+  right: 10px;
+  z-index: 100;
+  background: none;
+  border: none;
+  padding: 0;
+  color: $text-muted-dark;
+  font-size: 20px;
+  &:hover { color: $accent-purple-light; }
 }
 
 h1, h2, h3, h4, h5, h6 { color: $text-primary; }
@@ -680,21 +693,18 @@ h2 { color: $text-muted-dark; }
   }
 }
 
+// Bracketryの .bracket-root * { border: none; } リセットに勝つため !important が必要
 .bracket-slot {
-  background-color: #1a1a1a;
-  border: 1px solid $border-dark;
+  background-color: #111111;
+  border: 1px solid #1f103f !important;
   color: $text-primary;
   text-align: center;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.bracket-slot-winner {
-  background-color: #17301c;
-  border: 1px solid #2f6b3a;
-  color: #8fe89c;
-  text-align: center;
-  font-weight: bold;
-  box-shadow: inset 0 0 0 1px rgba(143, 232, 156, 0.15);
+// 予備の試合、または終了した試合の敗者側
+.bracket-slot-muted {
+  color: $text-muted-dark;
 }
 
 .bracket-slot-empty {
@@ -724,13 +734,7 @@ h2 { color: $text-muted-dark; }
   border-left: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 
-.bracket-slot-winner .bracket-slot-score {
-  border-left-width: 2px !important;
-  border-left-color: #8fe89c !important;
-}
-
-.btn:hover > .bracket-slot,
-.btn:hover > .bracket-slot-winner {
+.btn:hover > .bracket-slot {
   border-color: $accent-purple-light;
 }
 

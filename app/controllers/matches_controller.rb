@@ -89,7 +89,10 @@ class MatchesController < ApplicationController
       flash[:danger] = "不正な試合状況です"
       redirect_to tournament_path(@tournament) and return
     end
-    match.update!(court: params[:court], status: params[:status])
+    attrs = { court: params[:court], status: params[:status] }
+    # 予備に戻したら、それまでの結果（勝者・ゲーム数）はリセットする
+    attrs.merge!(winner: nil, winner_games: nil, loser_games: nil) if params[:status] == "pending"
+    match.update!(attrs)
     redirect_to tournament_path(@tournament)
   end
 

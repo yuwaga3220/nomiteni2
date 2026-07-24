@@ -26,8 +26,11 @@
                  match_meta = [ status_labels[match.status], (match.court.presence unless match.finished?) ].compact.join(" ・ ")
                  p1 = match.participant1
                  p2 = match.participant2
-                 p1_class = p1.present? && match.winner == p1 ? "bracket-slot-winner" : "bracket-slot"
-                 p2_class = p2.present? && match.winner == p2 ? "bracket-slot-winner" : "bracket-slot"
+                 # 予備の試合、または終了した試合の敗者側だけ文字をグレーにする
+                 p1_muted = match.pending? || (match.finished? && match.winner != p1)
+                 p2_muted = match.pending? || (match.finished? && match.winner != p2)
+                 p1_class = "bracket-slot #{'bracket-slot-muted' if p1_muted}"
+                 p2_class = "bracket-slot #{'bracket-slot-muted' if p2_muted}"
                  p1_games = match.winner == p1 ? match.winner_games : (match.winner == p2 ? match.loser_games : nil)
                  p2_games = match.winner == p2 ? match.winner_games : (match.winner == p1 ? match.loser_games : nil) %>
               <% if editable && p1.present? && p2.present? %>
