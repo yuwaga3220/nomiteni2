@@ -1,6 +1,10 @@
 <div class="text-center">
+  <%= link_to "はじめる", signup_path, class: "btn btn-lg btn-primary" %>
+  <p class="guest-welcome-description">
+    トーナメントを作成して試合結果を記録し、参加者は各試合の勝者を予想（ピッケム）して楽しめるアプリです。
+  </p>
   <div class="signup-cta">
-    <%= link_to "アカウントを作成する", signup_path, class: "btn btn-lg btn-primary" %>
+    <%= link_to "はじめる", signup_path, class: "btn btn-lg btn-primary" %>
     <p class="text-center login-hint">
       アカウントをお持ちの方は<%= link_to "こちら", login_path, class: "login-hint-link" %>
     </p>

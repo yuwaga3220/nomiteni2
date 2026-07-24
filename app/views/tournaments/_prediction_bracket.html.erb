@@ -24,6 +24,8 @@
          # 予想が選択されているかどうかを判定
          p1_selected = p1.present? && prediction&.predicted_participant_id == p1.id
          p2_selected = p2.present? && prediction&.predicted_participant_id == p2.id %>
+      <% p1_class = "bracket-slot #{'bracket-slot-selected' if p1_selected} #{'bracket-slot-empty' unless p1.present?}"
+         p2_class = "bracket-slot #{'bracket-slot-selected' if p2_selected} #{'bracket-slot-empty' unless p2.present?}" %>
       <div id="bracket-match-<%= round - 1 %>-<%= i %>">
         <div style="width: 190px;">
           <%= button_to p1&.name || "未定",
@@ -32,16 +34,16 @@
                 method: :post,
                 form: { style: "display: block; margin: 0;" },
                 disabled: p1.nil? || !@tournament.before?,
-                class: "btn btn-sm #{p1_selected ? 'btn-warning' : 'btn-default'}",
-                style: "width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em; cursor: #{p1.nil? || !@tournament.before? ? 'default' : 'pointer'};" %>
+                class: p1_class,
+                style: "box-sizing: border-box; height: 42px; width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em; overflow: hidden; cursor: #{p1.nil? || !@tournament.before? ? 'default' : 'pointer'};" %>
           <%= button_to p2&.name || "未定",
                 tournament_prediction_path(@tournament),
                 params: { match_id: match.id, participant_id: p2&.id },
                 method: :post,
                 form: { style: "display: block; margin: 0;" },
                 disabled: p2.nil? || !@tournament.before?,
-                class: "btn btn-sm #{p2_selected ? 'btn-warning' : 'btn-default'}",
-                style: "width: 100%; border-radius: 0 0 4px 4px; margin-top: -1px; padding: 10px 12px; font-size: 1em; cursor: #{p2.nil? || !@tournament.before? ? 'default' : 'pointer'};" %>
+                class: p2_class,
+                style: "box-sizing: border-box; height: 42px; width: 100%; border-radius: 0 0 4px 4px; margin-top: -1px; padding: 10px 12px; font-size: 1em; overflow: hidden; cursor: #{p2.nil? || !@tournament.before? ? 'default' : 'pointer'};" %>
         </div>
       </div>
     <% end %>

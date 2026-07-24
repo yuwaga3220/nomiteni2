@@ -437,6 +437,14 @@ input {
   &:hover { color: $accent-purple-light; }
 }
 
+.tournament-card-delete-link {
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  color: $text-muted-dark;
+  &:hover { color: $accent-purple-light; }
+}
+
 .timestamp {
   color: $gray-light;
   display: block;
@@ -553,6 +561,12 @@ h2 { color: $text-muted-dark; }
   border-color: $accent-purple;
   color: #ffffff;
   &:hover, &:focus { background-color: $accent-purple-light; border-color: $accent-purple-light; color: #ffffff; }
+}
+
+.guest-welcome-description {
+  max-width: 480px;
+  margin: 0 auto 20px;
+  color: $text-muted-dark;
 }
 
 .signup-cta {
@@ -700,6 +714,10 @@ h2 { color: $text-muted-dark; }
   color: $text-primary;
   text-align: center;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  // button/input要素として描画される予想ブラケット用のリセット
+  &:focus { outline: none; }
+  &:disabled { opacity: 1; }
 }
 
 // 予備の試合、または終了した試合の敗者側
@@ -710,6 +728,14 @@ h2 { color: $text-muted-dark; }
 .bracket-slot-empty {
   color: $text-muted-dark;
   font-style: italic;
+}
+
+// 予想ブラケットで自分が予想した側
+.bracket-slot-selected {
+  background-color: $accent-purple !important;
+  border-color: $accent-purple-light !important;
+  color: #ffffff;
+  font-weight: bold;
 }
 
 // Bracketryの .bracket-root * リセットに勝つため !important が必要（.bracket-slot-score と同じ理由）

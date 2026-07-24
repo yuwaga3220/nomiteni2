@@ -33,7 +33,7 @@ class TournamentsInterfaceTest < TournamentsInterface
 
   test "should have tournament delete links on own profile page" do
     get user_path(@user)
-    assert_select "a", text: "削除"
+    assert_select "a.tournament-card-delete-link"
   end
 
   test "should be able to delete own tournament" do
@@ -45,7 +45,7 @@ class TournamentsInterfaceTest < TournamentsInterface
 
   test "should not have delete links on other user's profile page" do
     get user_path(users(:archer))
-    assert_select "a", { text: "削除", count: 0 }
+    assert_select "a.tournament-card-delete-link", count: 0
   end
 end
 

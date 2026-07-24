@@ -3,6 +3,12 @@
        id="tournament-<%= tournament.id %>"
        <% if tournament.image.attached? %>style="background-image: url(<%= url_for(tournament.image.variant(:mosaic)) %>);"<% end %>>
     <div class="panel-body">
+      <% if current_user?(tournament.user) %>
+        <%= link_to tournament, class: "tournament-card-delete-link", title: "削除",
+              data: { "turbo-method": :delete, "turbo-confirm": "本当に削除しますか？" } do %>
+          <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+        <% end %>
+      <% end %>
       <% if tournament.held_on.present? %>
         <%= link_to google_calendar_url(tournament), target: "_blank", rel: "noopener",
               class: "tournament-card-calendar-link", title: "Googleカレンダーに登録" do %>
@@ -23,12 +29,6 @@
         <% end %>
         <%= link_to "PICK'EMS（予想）", new_tournament_prediction_path(tournament), class: "btn btn-lavender btn-sm" %>
       </p>
-      <% if current_user?(tournament.user) %>
-        <p class="timestamp text-center">
-          <%= link_to "削除", tournament, data: { "turbo-method": :delete,
-                                                 "turbo-confirm": "本当に削除しますか？" } %>
-        </p>
-      <% end %>
     </div>
   </div>
 </div>
