@@ -1,12 +1,22 @@
 <div class="text-center">
-  <%= link_to "はじめる", signup_path, class: "btn btn-lg btn-primary" %>
-  <p class="guest-welcome-description">
-    トーナメントを作成して試合結果を記録し、参加者は各試合の勝者を予想（ピッケム）して楽しめるアプリです。
-  </p>
   <div class="signup-cta">
     <%= link_to "はじめる", signup_path, class: "btn btn-lg btn-primary" %>
     <p class="text-center login-hint">
       アカウントをお持ちの方は<%= link_to "こちら", login_path, class: "login-hint-link" %>
     </p>
+  </div>
+  <p class="guest-welcome-intro">HIT'EMSは、スポーツ大会の結果を予想して楽しむためのサービスです。</p>
+  <div class="guest-welcome-features">
+    <h2>使い方</h2>
+    <div class="guest-welcome-features-row">
+      <div class="guest-welcome-feature">
+        <h3>1. 大会がはじまる前に結果予想を楽しむ！</h3>
+        <p>大会が「開催前」の間、トーナメント表の各試合の勝者を予想（ピッケム）できます。予想が的中するとポイントを獲得し、他の参加者とランキングを競えます。</p>
+      </div>
+      <div class="guest-welcome-feature">
+        <h3>2. 大会の進行状況をリアルタイムでチェックする！</h3>
+        <p>大会が「開催中」になると、各試合の結果やコートの使用状況がトーナメント表に反映されます。自分の予想が当たっているかをその場で確認できます。</p>
+      </div>
+    </div>
   </div>
 </div>

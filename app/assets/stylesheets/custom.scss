@@ -563,10 +563,41 @@ h2 { color: $text-muted-dark; }
   &:hover, &:focus { background-color: $accent-purple-light; border-color: $accent-purple-light; color: #ffffff; }
 }
 
-.guest-welcome-description {
+.guest-welcome-intro {
   max-width: 480px;
-  margin: 0 auto 20px;
+  margin: 20px auto;
   color: $text-muted-dark;
+}
+
+.guest-welcome-features {
+  max-width: 720px;
+  margin: 40px auto 0;
+
+  h2 {
+    margin-bottom: 20px;
+  }
+}
+
+.guest-welcome-features-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+}
+
+.guest-welcome-feature {
+  flex: 1 1 280px;
+  max-width: 320px;
+  h3 {
+    font-size: 1.1em;
+    color: $text-primary;
+    margin-bottom: 8px;
+  }
+  p {
+    font-size: 0.9em;
+    color: $text-muted-dark;
+    line-height: 1.6em;
+  }
 }
 
 .signup-cta {
@@ -710,7 +741,7 @@ h2 { color: $text-muted-dark; }
 // Bracketryの .bracket-root * { border: none; } リセットに勝つため !important が必要
 .bracket-slot {
   background-color: #111111;
-  border: 1px solid #1f103f !important;
+  border: 1px solid #331d62 !important;
   color: $text-primary;
   text-align: center;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -732,8 +763,7 @@ h2 { color: $text-muted-dark; }
 
 // 予想ブラケットで自分が予想した側
 .bracket-slot-selected {
-  background-color: $accent-purple !important;
-  border-color: $accent-purple-light !important;
+  border-left: 4px solid $accent-purple-light !important;
   color: #ffffff;
   font-weight: bold;
 }
