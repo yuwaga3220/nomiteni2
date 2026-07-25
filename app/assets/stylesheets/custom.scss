@@ -725,7 +725,7 @@ h2 { color: $text-muted-dark; }
 }
 
 .bracket-wrapper {
-  height: 70vh;
+  height: 100vh;
   min-height: 400px;
   margin-top: 10px;
 
@@ -792,6 +792,22 @@ h2 { color: $text-muted-dark; }
 
 .btn:hover > .bracket-slot {
   border-color: $accent-purple-light;
+}
+
+// Bracketryが実行時に挿入する .bracket-root * { border-radius: 0; } 相当のリセットに
+// 勝つため !important が必要（.bracket-match-live と同じ理由）
+.bracket-match-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateY(-100%);
+  padding: 0px 5px !important;
+  border-radius: 1px !important;
+  background-color: #9f74fa;
+  color: #ffffff;
+  font-size: 0.7em;
+  line-height: 1.4;
+  white-space: nowrap;
 }
 
 /* modal (Bootstrap 3 modal has no JS dependency here, so dark theme is applied purely via CSS) */
