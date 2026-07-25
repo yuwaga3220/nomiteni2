@@ -4,6 +4,10 @@ require "rails/test_help"
 require "minitest/reporters"
 Minitest::Reporters.use! [ Minitest::Reporters::SpecReporter.new ]
 
+require "omniauth"
+OmniAuth.config.test_mode = true
+OmniAuth.config.logger = Rails.logger
+
 module ActiveSupport
   class TestCase
     # Run tests in parallel with specified workers
@@ -32,5 +36,14 @@ class ActionDispatch::IntegrationTest
                                           remember_me: remember_me
                                         }
                                       }
+  end
+
+  def mock_google_auth(email:, name: "Google User", uid: "123545")
+    OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
+      provider: "google_oauth2",
+      uid: uid,
+      info: OmniAuth::AuthHash::InfoHash.new(email: email, name: name)
+    )
+    Rails.application.env_config["omniauth.auth"] = OmniAuth.config.mock_auth[:google_oauth2]
   end
 end

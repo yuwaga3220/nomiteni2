@@ -23,6 +23,25 @@ class SessionsController < ApplicationController
     end
   end
 
+  def omniauth
+    auth = request.env["omniauth.auth"]
+    user = User.from_omniauth(auth)
+    if user.persisted?
+      forwarding_url = session[:forwarding_url]
+      reset_session
+      log_in user
+      redirect_to forwarding_url || root_url
+    else
+      flash[:danger] = "Googleアカウントでのログインに失敗しました"
+      redirect_to login_url
+    end
+  end
+
+  def omniauth_failure
+    flash[:danger] = "Googleアカウントでのログインに失敗しました"
+    redirect_to login_url
+  end
+
   def destroy
     log_out if logged_in?
     redirect_to root_url, status: :see_other

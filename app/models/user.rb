@@ -28,6 +28,33 @@ class User < ApplicationRecord
     SecureRandom.urlsafe_base64
   end
 
+  # OmniAuthの認証結果からユーザーを検索または作成する
+  def self.from_omniauth(auth)
+    user = find_by(provider: auth.provider, uid: auth.uid)
+    return user if user
+
+    email = auth.info.email.downcase
+    user = find_by(email: email)
+
+    if user
+      # 既存のメール/パスワードアカウントに自動連携する
+      user.update_columns(provider: auth.provider, uid: auth.uid,
+                           activated: true, activated_at: Time.zone.now)
+      user
+    else
+      # Googleアカウントの情報から新規ユーザーを作成する
+      create!(
+        name: auth.info.name,
+        email: email,
+        password: new_token,
+        provider: auth.provider,
+        uid: auth.uid,
+        activated: true,
+        activated_at: Time.zone.now
+      )
+    end
+  end
+
   # ユーザトークンをDBに保存する
   def remember
     self.remember_token = User.new_token

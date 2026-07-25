@@ -20,6 +20,14 @@
       <%= f.submit "ログイン", class: "btn btn-primary" %>
     <% end %>
 
+    <div class="text-center">
+      <p>または</p>
+      <%= button_to "Googleでログイン", "/auth/google_oauth2",
+            method: :post,
+            data: { turbo: false },
+            class: "btn btn-default btn-block" %>
+    </div>
+
     <p class="text-center login-hint">初めてご利用の方は <%= link_to "こちら", signup_path, class: "login-hint-link" %></p>
   </div>
 </div>
