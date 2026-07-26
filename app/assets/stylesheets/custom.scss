@@ -854,6 +854,58 @@ h2 { color: $text-muted-dark; }
   &:hover { color: #ffffff; opacity: 1; }
 }
 
+.match-result-modal-content {
+  width: 240px;
+
+  .modal-header {
+    padding: 10px 15px;
+  }
+  .modal-title {
+    font-size: 1.1em;
+  }
+  .modal-body {
+    padding: 12px 15px 4px;
+  }
+  .match-result-score-body {
+    padding-top: 12px;
+  }
+  .modal-footer {
+    padding: 8px 15px;
+  }
+  .form-group {
+    margin-bottom: 0;
+  }
+  label {
+    margin-bottom: 3px;
+    font-size: 0.8em;
+    color: $text-muted-dark;
+    font-weight: normal;
+  }
+  .form-control {
+    height: 32px;
+    padding: 4px 6px;
+    font-size: 0.9em;
+  }
+}
+
+.match-result-row {
+  display: flex;
+  gap: 6px;
+  .form-group {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.match-result-modal-footer {
+  text-align: right;
+  border-top: 0 !important;
+}
+
+.match-result-modal-footer-divider {
+  border-bottom: 1px solid $border-dark !important;
+}
+
 /* participant register form */
 
 .participant-panel {
