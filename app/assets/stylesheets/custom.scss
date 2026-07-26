@@ -810,6 +810,18 @@ h2 { color: $text-muted-dark; }
   white-space: nowrap;
 }
 
+// 編集可能な試合カードであることを示すアイコン。カード本体がbtnなのでクリックは
+// 素通りさせつつ視覚的な目印としてだけ機能させる
+.bracket-match-edit-icon {
+  position: absolute;
+  top: 4px !important;
+  left: 4px !important;
+  font-size: 0.75em;
+  color: rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+  z-index: 1;
+}
+
 /* modal (Bootstrap 3 modal has no JS dependency here, so dark theme is applied purely via CSS) */
 
 .modal {

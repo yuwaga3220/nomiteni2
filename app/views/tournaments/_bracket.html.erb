@@ -41,6 +41,7 @@
                      data-controller="bracket-match-trigger"
                      data-bracket-match-trigger-modal-id-value="match-result-modal-<%= match.id %>"
                      data-action="click->bracket-match-trigger#open">
+                  <span class="glyphicon glyphicon-pencil bracket-match-edit-icon" aria-hidden="true"></span>
                   <div class="<%= p1_class %>" style="box-sizing: border-box; height: 42px; border-radius: 4px 4px 0 0; padding: 10px 12px; font-size: 1em; overflow: hidden;">
                     <%= p1.name %>
                     <% if p1_games.present? %><span class="pull-right bracket-slot-score"><%= p1_games %></span><% end %>
