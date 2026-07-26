@@ -1,0 +1,56 @@
+<% participants = @tournament.participants.order(:created_at) %>
+<div class="col-xs-12">
+  <div class="panel panel-default participant-panel">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        選手登録
+        <span class="badge participant-count-badge"><%= @tournament.participants.count %></span>
+      </h3>
+    </div>
+    <div class="panel-body">
+      <% if current_user?(@tournament.user) %>
+        <p class="participant-form-hint">１回戦のポジションを入力してください。選手数は2, 4, 8...である必要があります。</p>
+        <% if current_user?(@tournament.user) %>
+          <div class="col-xs-12">
+            <div class="well participant-add-panel">
+              <%= form_with(model: [ @tournament, Participant.new ]) do |f| %>
+                <div class="field">
+                  <%= f.text_field :name, placeholder: "選手名を入力", class: "form-control" %>
+                </div>
+                <%= f.submit "追加", class: "btn btn-primary btn-block" %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+        <%= form_with(url: tournament_matches_path(@tournament), method: :post) do |f| %>
+          <ul class="list-group participant-list">
+            <% participants.each do |participant| %>
+              <li class="list-group-item participant-list-item">
+                <%= number_field_tag "positions[#{participant.id}]", nil,
+                      placeholder: "#", min: 1, max: @tournament.participants.count,
+                      class: "form-control input-sm participant-position-input" %>
+                <span class="participant-name"><%= participant.name %></span>
+                <% if @tournament.before? %>
+                  <%= link_to tournament_participant_path(@tournament, participant),
+                        data: { "turbo-method": :delete, "turbo-confirm": "削除しますか？" },
+                        class: "btn btn-xs btn-danger participant-delete-btn" do %>
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                  <% end %>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+          <%= f.submit "確定してドローを作成する", class: "btn btn-primary btn-block participant-submit-btn" %>
+        <% end %>
+      <% else %>
+        <ul class="list-group participant-list">
+          <% participants.each do |participant| %>
+            <li class="list-group-item participant-list-item">
+              <span class="participant-name"><%= participant.name %></span>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+    </div>
+  </div>
+</div>

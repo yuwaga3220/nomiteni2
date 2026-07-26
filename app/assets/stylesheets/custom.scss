@@ -842,6 +842,86 @@ h2 { color: $text-muted-dark; }
   &:hover { color: #ffffff; opacity: 1; }
 }
 
+/* participant register form */
+
+.participant-panel {
+  .panel-heading {
+    display: flex;
+    align-items: center;
+  }
+  .panel-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  // panel-body内はBootstrapの.rowが無いので、ネストしたcol-xs-12の
+  // グリッド用paddingを打ち消してpanel-bodyのpaddingとの二重取りを防ぐ
+  .panel-body > .col-xs-12 {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+.participant-add-panel {
+  margin-top: 4px;
+  margin-bottom: 20px;
+}
+
+.participant-count-badge {
+  background-color: $accent-purple-light;
+  color: #ffffff;
+}
+
+.participant-form-hint {
+  color: $text-muted-dark;
+  font-size: 0.9em;
+}
+
+.participant-list {
+  margin-bottom: 15px;
+}
+
+.participant-list-item {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.participant-position-input {
+  width: 60px;
+  flex: 0 0 auto;
+  margin-bottom: 0 !important;
+}
+
+.participant-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.participant-delete-btn {
+  flex: 0 0 auto;
+}
+
+.participant-submit-btn {
+  white-space: normal;
+}
+
+@media (max-width: 480px) {
+  .participant-list-item {
+    .participant-position-input {
+      width: 48px;
+      padding-left: 6px;
+      padding-right: 6px;
+    }
+    .participant-name {
+      font-size: 0.95em;
+    }
+  }
+}
+
 .modal-backdrop {
   background-color: rgba(0, 0, 0, 0.7);
 }

@@ -16,7 +16,7 @@ class MatchesController < ApplicationController
     end
 
     unless power_of_two?(count)
-      flash[:danger] = "参加者数が2の冪乗（2, 4, 8...）でないため、トーナメントを作成できません"
+      flash[:danger] = "参加者数が条件を満たしていません。"
       redirect_to tournament_path(@tournament) and return
     end
 

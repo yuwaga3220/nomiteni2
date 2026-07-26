@@ -5,10 +5,19 @@
 <h2 style="margin-top: 0px;"> <%= @tournament.title %></h2>
 <%= render "users/profile_summary", user: current_user, current_tournament: @tournament %>
 <div class="row">
-  <div class="col-md-9">
-    <%= render "tournaments/prediction_bracket" %>
-  </div>
-  <div class="col-md-3">
-    <%= render "ranking" %>
-  </div>
+  <% if @tournament.matches.empty? %>
+    <div class="alert alert-warning">まだドローが作成されていません。</div>
+  <% else %>
+    <div class="col-md-9">  
+      <% if @tournament.before? %>
+        <div class="alert alert-info">勝者を予想しましょう。</div>
+      <% else %>
+        <div class="alert alert-warning">現在予想を受け付けていません。</div>
+      <% end %>
+      <%= render "tournaments/prediction_bracket" %>
+    </div>
+    <div class="col-md-3">
+      <%= render "ranking" if @tournament.participants.any? %>
+    </div>
+  <% end %>
 </div>
