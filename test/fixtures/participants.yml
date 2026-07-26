@@ -1,35 +1,44 @@
 alice:
   tournament: orange
   name: "アリス"
+  position: 1
 
 bob:
   tournament: orange
   name: "ボブ"
+  position: 2
 
 carol:
   tournament: ants
   name: "キャロル"
+  position: 1
 
 dave:
   tournament: ants
   name: "デイブ"
+  position: 2
 
 eve:
   tournament: ants
   name: "イブ"
+  position: 3
 
 frank:
   tournament: zone
   name: "フランク"
+  position: 1
 
 grace:
   tournament: zone
   name: "グレース"
+  position: 2
 
 heidi:
   tournament: zone
   name: "ハイジ"
+  position: 3
 
 ivan:
   tournament: zone
   name: "イワン"
+  position: 4

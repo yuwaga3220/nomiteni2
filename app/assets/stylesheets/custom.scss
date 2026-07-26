@@ -879,13 +879,55 @@ h2 { color: $text-muted-dark; }
 
 .participant-list {
   margin-bottom: 15px;
+  // 2人ずつを1回戦の対戦カードとしてグループ表示するための連番
+  counter-reset: participant-match-number;
 }
 
 .participant-list-item {
+  position: relative;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
+
+  // 2人1組（1回戦の対戦カード）ごとに、上下を結合した1つの箱に見せる
+  // （bracket-slotの対戦カードと同じデザインパターン）
+  &:nth-child(odd) {
+    counter-increment: participant-match-number;
+    border-radius: 4px 4px 0 0 !important;
+    border-top-width: 1px !important;
+    margin-bottom: 0 !important;
+    padding-top: 22px;
+
+    &::before {
+      content: "第" counter(participant-match-number) "試合";
+      position: absolute;
+      top: 4px;
+      left: 12px;
+      font-size: 0.7em;
+      color: $text-muted-dark;
+    }
+  }
+
+  &:nth-child(even) {
+    border-radius: 0 0 4px 4px !important;
+    border-top-width: 0 !important;
+    margin-bottom: 12px !important;
+  }
+}
+
+.participant-drag-handle {
+  flex: 0 0 auto;
+  color: $text-muted-dark;
+  cursor: grab;
+  // ハンドルを掴んでいる間はブラウザ標準のスクロール/ズームジェスチャーを無効化し、
+  // JS側のpointermoveでの並び替えだけが反応するようにする
+  touch-action: none;
+  padding: 4px;
+}
+
+.participant-dragging {
+  opacity: 0.4;
 }
 
 .participant-position-badge {
@@ -911,6 +953,14 @@ h2 { color: $text-muted-dark; }
 
 .participant-delete-btn {
   flex: 0 0 auto;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  color: #ffffff;
+  opacity: 0.6;
+  &:hover, &:focus {
+    opacity: 1;
+    background-color: transparent !important;
+  }
 }
 
 .participant-submit-btn {

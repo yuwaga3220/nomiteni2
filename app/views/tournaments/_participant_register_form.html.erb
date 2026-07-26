@@ -1,4 +1,4 @@
-<% participants = @tournament.participants.order(:created_at, :id) %>
+<% participants = @tournament.participants.order(:position, :id) %>
 <div class="col-xs-12">
   <div class="panel panel-default participant-panel">
     <div class="panel-heading">
@@ -8,7 +8,10 @@
     </div>
     <div class="panel-body">
       <% if current_user?(@tournament.user) %>
-        <p class="participant-form-hint">上から１、２、３...の順に１回戦の対戦が決まります。選手数は2, 4, 8...である必要があります。</p>
+        <p class="participant-form-hint">
+          上から2人ずつが１回戦で対戦します。選手数は2, 4, 8...である必要があります。
+          <% if @tournament.before? %>ドラッグして並び替えられます。<% end %>
+        </p>
         <% if current_user?(@tournament.user) %>
           <div class="col-xs-12">
             <div class="well participant-add-panel">
@@ -22,15 +25,28 @@
           </div>
         <% end %>
         <%= form_with(url: tournament_matches_path(@tournament), method: :post) do |f| %>
-          <ul class="list-group participant-list">
+          <ul class="list-group participant-list"
+              <% if @tournament.before? %>
+                data-controller="participant-reorder"
+                data-participant-reorder-url-value="<%= reorder_tournament_participants_path(@tournament) %>"
+              <% end %>>
             <% participants.each_with_index do |participant, index| %>
-              <li class="list-group-item participant-list-item">
-                <span class="participant-position-badge"><%= index + 1 %></span>
+              <li class="list-group-item participant-list-item"
+                  data-id="<%= participant.id %>"
+                  <% if @tournament.before? %>
+                    data-participant-reorder-target="item"
+                  <% end %>>
+                <% if @tournament.before? %>
+                  <span class="glyphicon glyphicon-menu-hamburger participant-drag-handle"
+                        aria-hidden="true"
+                        data-participant-reorder-target="handle"
+                        data-action="pointerdown->participant-reorder#pointerdown"></span>
+                <% end %>
                 <span class="participant-name"><%= participant.name %></span>
                 <% if @tournament.before? %>
                   <%= link_to tournament_participant_path(@tournament, participant),
                         data: { "turbo-method": :delete, "turbo-confirm": "削除しますか？" },
-                        class: "btn btn-xs btn-danger participant-delete-btn" do %>
+                        class: "btn btn-xs btn-default participant-delete-btn" do %>
                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                   <% end %>
                 <% end %>

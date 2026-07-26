@@ -23,6 +23,24 @@ class ParticipantsController < ApplicationController
     redirect_to tournament_path(@tournament)
   end
 
+  def reorder
+    unless @tournament.before?
+      head :unprocessable_entity and return
+    end
+
+    ids = Array(params[:participant_ids]).map(&:to_i)
+    if ids.sort != @tournament.participants.pluck(:id).sort
+      head :unprocessable_entity and return
+    end
+
+    Participant.transaction do
+      ids.each_with_index do |id, index|
+        @tournament.participants.where(id: id).update_all(position: index + 1)
+      end
+    end
+    head :ok
+  end
+
   private
 
   def participant_params

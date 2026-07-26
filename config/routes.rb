@@ -16,7 +16,11 @@ Rails.application.routes.draw do
       patch :update_status
     end
     resource :prediction, only: [ :new, :create ]
-    resources :participants, only: [ :create, :destroy ]
+    resources :participants, only: [ :create, :destroy ] do
+      collection do
+        patch :reorder
+      end
+    end
     resources :matches, only: [ :create ] do
       collection do
         delete :destroy_all

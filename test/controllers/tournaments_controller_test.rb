@@ -58,6 +58,14 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "during", @tournament.reload.status
   end
 
+  test "should not update status to during when there are no matches" do
+    log_in_as(users(:michael))
+    patch update_status_tournament_path(@tournament), params: { status: "during" }
+    assert_redirected_to tournament_path(@tournament)
+    assert_not flash.empty?
+    assert_equal "before", @tournament.reload.status
+  end
+
   test "should update status to after when all matches are finished" do
     @tournament.update!(status: :during)
     match = @tournament.matches.create!(round: 1, participant1: participants(:alice), participant2: participants(:bob))

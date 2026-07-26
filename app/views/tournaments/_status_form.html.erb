@@ -12,12 +12,14 @@
     <%= f.radio_button :status, "during",
       id: "status_during",
       checked: tournament.during?,
+      disabled: tournament.matches.empty?,
       onchange: status_onchange,
       class: "status-toggle-input" %>
     <%= label_tag "status_during", "開催中", class: "status-toggle-label" %>
     <%= f.radio_button :status, "after",
       id: "status_after",
       checked: tournament.after?,
+      disabled: tournament.matches.empty?,
       onchange: status_onchange,
       class: "status-toggle-input" %>
     <%= label_tag "status_after", "開催後", class: "status-toggle-label" %>

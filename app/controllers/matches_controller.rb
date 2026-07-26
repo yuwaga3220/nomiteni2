@@ -6,12 +6,12 @@ class MatchesController < ApplicationController
     count = @tournament.participants.count
 
     unless power_of_two?(count)
-      flash[:danger] = "参加者数が条件を満たしていません。"
+      flash[:danger] = "選手数が条件を満たしていません。"
       redirect_to tournament_path(@tournament) and return
     end
 
-    # 登録順（上から１、２、３...）をそのままポジションとして割り当てる
-    ordered_participants = @tournament.participants.order(:created_at, :id).to_a
+    # 表示順（ドラッグ&ドロップで並び替えられたposition）をそのままポジションとして割り当てる
+    ordered_participants = @tournament.participants.order(:position, :id).to_a
 
     Match.transaction do
       @tournament.matches.update_all(next_match_id: nil)
