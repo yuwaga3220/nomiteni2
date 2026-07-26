@@ -40,6 +40,22 @@ export default class extends Controller {
     this.persist()
   }
 
+  shuffle() {
+    const items = this.itemTargets
+    if (items.length < 2) return
+
+    const parent = items[0].parentNode
+    const shuffled = [ ...items ]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[ shuffled[i], shuffled[j] ] = [ shuffled[j], shuffled[i] ]
+    }
+    shuffled.forEach(item => parent.appendChild(item))
+
+    this.renumber()
+    this.persist()
+  }
+
   renumber() {
     this.itemTargets.forEach((item, index) => {
       const badge = item.querySelector('[data-participant-reorder-target~="badge"]')

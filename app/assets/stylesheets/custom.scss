@@ -877,6 +877,12 @@ h2 { color: $text-muted-dark; }
   font-size: 0.9em;
 }
 
+.participant-shuffle-btn {
+  display: block;
+  margin-left: auto;
+  margin-bottom: 10px;
+}
+
 .participant-list {
   margin-bottom: 15px;
   // 2人ずつを1回戦の対戦カードとしてグループ表示するための連番

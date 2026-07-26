@@ -25,34 +25,40 @@
           </div>
         <% end %>
         <%= form_with(url: tournament_matches_path(@tournament), method: :post) do |f| %>
-          <ul class="list-group participant-list"
-              <% if @tournament.before? %>
-                data-controller="participant-reorder"
-                data-participant-reorder-url-value="<%= reorder_tournament_participants_path(@tournament) %>"
-              <% end %>>
-            <% participants.each_with_index do |participant, index| %>
-              <li class="list-group-item participant-list-item"
-                  data-id="<%= participant.id %>"
-                  <% if @tournament.before? %>
-                    data-participant-reorder-target="item"
-                  <% end %>>
-                <% if @tournament.before? %>
-                  <span class="glyphicon glyphicon-menu-hamburger participant-drag-handle"
-                        aria-hidden="true"
-                        data-participant-reorder-target="handle"
-                        data-action="pointerdown->participant-reorder#pointerdown"></span>
-                <% end %>
-                <span class="participant-name"><%= participant.name %></span>
-                <% if @tournament.before? %>
-                  <%= link_to tournament_participant_path(@tournament, participant),
-                        data: { "turbo-method": :delete, "turbo-confirm": "削除しますか？" },
-                        class: "btn btn-xs btn-default participant-delete-btn" do %>
-                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                  <% end %>
-                <% end %>
-              </li>
+          <div <% if @tournament.before? %>
+                 data-controller="participant-reorder"
+                 data-participant-reorder-url-value="<%= reorder_tournament_participants_path(@tournament) %>"
+               <% end %>>
+            <% if @tournament.before? %>
+              <button type="button" class="btn btn-default btn-sm participant-shuffle-btn" data-action="participant-reorder#shuffle">
+                <span class="glyphicon glyphicon-random" aria-hidden="true"></span> シャッフル
+              </button>
             <% end %>
-          </ul>
+            <ul class="list-group participant-list">
+              <% participants.each_with_index do |participant, index| %>
+                <li class="list-group-item participant-list-item"
+                    data-id="<%= participant.id %>"
+                    <% if @tournament.before? %>
+                      data-participant-reorder-target="item"
+                    <% end %>>
+                  <% if @tournament.before? %>
+                    <span class="glyphicon glyphicon-menu-hamburger participant-drag-handle"
+                          aria-hidden="true"
+                          data-participant-reorder-target="handle"
+                          data-action="pointerdown->participant-reorder#pointerdown"></span>
+                  <% end %>
+                  <span class="participant-name"><%= participant.name %></span>
+                  <% if @tournament.before? %>
+                    <%= link_to tournament_participant_path(@tournament, participant),
+                          data: { "turbo-method": :delete, "turbo-confirm": "削除しますか？" },
+                          class: "btn btn-xs btn-default participant-delete-btn" do %>
+                      <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    <% end %>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
           <%= f.submit "確定してドローを作成する", class: "btn btn-primary btn-block participant-submit-btn" %>
         <% end %>
       <% else %>
