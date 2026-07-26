@@ -14,10 +14,21 @@
       <% else %>
         <div class="alert alert-warning">現在予想を受け付けていません。</div>
       <% end %>
+      <% if @biggest_upset_match %>
+          <div class="upset-highlight">
+            <div class="upset-highlight-label"><h4>BEST OF GIANT KILLER</h4></div>
+            <div class="upset-highlight-winner"><h3><%= @biggest_upset_match.winner&.name %></h1></div>
+          </div>
+        <% end %>
       <%= render "tournaments/prediction_bracket" %>
     </div>
     <div class="col-md-3">
-      <%= render "ranking" if @tournament.participants.any? %>
+      <% if @tournament.participants.any? %>
+        <% unless @tournament.before? %>
+          <%= render "prediction_log" %>
+        <% end %>
+        <%= render "ranking" %>
+      <% end %>
     </div>
   <% end %>
 </div>

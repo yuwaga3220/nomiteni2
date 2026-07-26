@@ -1,7 +1,7 @@
 <h4>
   リーダーボード
   <% if @tournament.during? %>
-    <small class="text-muted">（集計中）</small>
+    <small class="text-muted">（暫定）</small>
   <% elsif @tournament.after? %>
     <small class="text-muted">（確定）</small>
   <% end %>

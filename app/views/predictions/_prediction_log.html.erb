@@ -1,0 +1,23 @@
+<h4>ログ</h4>
+<% if @prediction_log.blank? %>
+  <p class="text-muted">まだ結果が出た試合はありません。</p>
+<% else %>
+  <ul class="list-group prediction-log">
+    <% @prediction_log.each do |prediction| %>
+      <% match = prediction.match
+         correct = prediction.predicted_participant_id == match.winner_id %>
+      <li class="list-group-item prediction-log-item">
+        <span class="glyphicon <%= correct ? 'glyphicon-ok' : 'glyphicon-remove' %> prediction-log-icon <%= correct ? 'prediction-result-correct' : 'prediction-result-incorrect' %>" aria-hidden="true"></span>
+        <div class="prediction-log-body">
+          <div class="prediction-log-match">
+            <%= match.participant1&.name %> vs <%= match.participant2&.name %>
+          </div>
+          <div class="prediction-log-detail">
+            <%= prediction.user.name %>さんの予想: <%= prediction.predicted_participant.name %>
+            <span class="text-muted">（勝者: <%= match.winner&.name %>）</span>
+          </div>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

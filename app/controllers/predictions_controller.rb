@@ -13,6 +13,13 @@ class PredictionsController < ApplicationController
       h[[ m.next_match_id, m.next_slot ]] = m
     end
     @ranking = @tournament.ranking unless @tournament.before?
+    @prediction_log = prediction_log unless @tournament.before?
+
+    # 波乱の勝者は、全試合が終了してから計算・表示する
+    if @tournament.after?
+      hit_rates = match_hit_rates(@prediction_log)
+      @biggest_upset_match = biggest_upset_match(@prediction_log, hit_rates)
+    end
   end
 
   def create
@@ -30,6 +37,28 @@ class PredictionsController < ApplicationController
   end
 
   private
+
+  # 終了した試合に対する全員の予想結果を、新しい順に並べて返す
+  def prediction_log
+    Prediction.where(match: @tournament.matches.finished)
+              .includes(:user, :predicted_participant, match: [ :participant1, :participant2, :winner ])
+              .order(updated_at: :desc)
+  end
+
+  # 試合ごとに、全ユーザーの予想のうち何%が的中したかを返す
+  def match_hit_rates(predictions)
+    predictions.group_by(&:match_id).transform_values do |preds|
+      correct = preds.count { |p| p.predicted_participant_id == p.match.winner_id }
+      { correct: correct, total: preds.size, rate: (correct.to_f / preds.size * 100).round }
+    end
+  end
+
+  # 全ユーザーの予想の的中率が最も低かった試合（＝最大の波乱）を返す
+  def biggest_upset_match(predictions, hit_rates)
+    return nil if hit_rates.blank?
+    lowest_match_id = hit_rates.min_by { |_, rate| rate[:rate] }&.first
+    predictions.find { |p| p.match_id == lowest_match_id }&.match
+  end
 
   def set_tournament
     @tournament = Tournament.find(params[:tournament_id])

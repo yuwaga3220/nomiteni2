@@ -31,6 +31,10 @@
           <div class="bracket-match-label">
             R<%= round %>-<%= i + 1 %><% if match.court.present? && !match.finished? %> (コート：<%= match.court %>)<% end %>
           </div>
+          <% if match.finished? && prediction.present? %>
+            <% prediction_correct = prediction.predicted_participant_id == match.winner_id %>
+            <span class="glyphicon <%= prediction_correct ? 'glyphicon-ok' : 'glyphicon-remove' %> prediction-result-icon <%= prediction_correct ? 'prediction-result-correct' : 'prediction-result-incorrect' %>" aria-hidden="true"></span>
+          <% end %>
           <%= button_to p1&.name || "未定",
                 tournament_prediction_path(@tournament),
                 params: { match_id: match.id, participant_id: p1&.id },

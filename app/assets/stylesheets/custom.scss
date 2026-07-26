@@ -822,6 +822,78 @@ h2 { color: $text-muted-dark; }
   z-index: 1;
 }
 
+// 予想の的中/不的中を示すアイコン。カード右上に表示する
+.prediction-result-icon {
+  position: absolute;
+  top: 4px !important;
+  right: 4px !important;
+  font-size: 0.85em;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.prediction-result-correct {
+  color: #7dd87d;
+}
+
+.prediction-result-incorrect {
+  color: #e87d7d;
+}
+
+.prediction-log {
+  margin-bottom: 20px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.prediction-log-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.prediction-log-icon {
+  flex: 0 0 auto;
+  margin-top: 3px;
+  font-size: 0.85em;
+}
+
+.prediction-log-body {
+  min-width: 0;
+}
+
+.prediction-log-match {
+  font-size: 0.85em;
+  font-weight: bold;
+  color: $text-primary;
+}
+
+.prediction-log-detail {
+  font-size: 0.8em;
+  color: $text-muted-dark;
+}
+
+.upset-highlight {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 6px;
+  text-align: center;
+  background: linear-gradient(135deg, $accent-purple, $accent-purple-light);
+}
+
+.upset-highlight-label {
+  font-size: 0.8em;
+  letter-spacing: 0.05em;
+  color: rgba(151, 151, 151, 0.876);
+}
+
+.upset-highlight-winner {
+  margin-top: 4px;
+  font-size: 1.6em;
+  font-weight: bold;
+  color: #ffffff;
+}
+
 /* modal (Bootstrap 3 modal has no JS dependency here, so dark theme is applied purely via CSS) */
 
 .modal {

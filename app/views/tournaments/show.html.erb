@@ -11,6 +11,13 @@
   </div>
 <% end %>
 
+<% if @champion.present? %>
+  <div class="upset-highlight">
+    <div class="upset-highlight-label"><h4>CHAMPION</h4></div>
+    <div class="upset-highlight-winner"><%= @champion.name %></div>
+  </div>
+<% end %>
+
 <%= render "bracket",
   editable: current_user?(@tournament.user) && @tournament.during? if @tournament.matches.any? %>
 

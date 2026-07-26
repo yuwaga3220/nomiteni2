@@ -71,4 +71,26 @@ class TournamentShowTest < TournamentsInterface
     assert_select "title", full_title(tournament.title)
     assert_match tournament.title, response.body
   end
+
+  test "should display the champion after the tournament ends" do
+    tournament = tournaments(:orange)
+    alice = participants(:alice)
+    bob = participants(:bob)
+    tournament.matches.create!(round: 1, participant1: alice, participant2: bob,
+                                winner: alice, winner_games: 6, loser_games: 3, status: :finished)
+    tournament.update!(status: :after)
+    get tournament_path(tournament)
+    assert_select ".upset-highlight-winner", text: alice.name
+  end
+
+  test "should not display the champion before the tournament ends" do
+    tournament = tournaments(:orange)
+    alice = participants(:alice)
+    bob = participants(:bob)
+    tournament.matches.create!(round: 1, participant1: alice, participant2: bob,
+                                winner: alice, winner_games: 6, loser_games: 3, status: :finished)
+    tournament.update!(status: :during)
+    get tournament_path(tournament)
+    assert_select ".upset-highlight", count: 0
+  end
 end
