@@ -888,10 +888,18 @@ h2 { color: $text-muted-dark; }
   gap: 10px;
 }
 
-.participant-position-input {
-  width: 60px;
+.participant-position-badge {
   flex: 0 0 auto;
-  margin-bottom: 0 !important;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 11px;
+  background-color: $border-dark;
+  color: $text-primary;
+  font-size: 0.85em;
+  font-weight: bold;
+  text-align: center;
+  line-height: 22px;
 }
 
 .participant-name {

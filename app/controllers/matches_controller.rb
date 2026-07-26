@@ -3,32 +3,15 @@ class MatchesController < ApplicationController
   before_action :correct_tournament_user
 
   def create
-    allowed_keys = @tournament.participants.pluck(:id).map(&:to_s)
-    positions = params[:positions].permit(*allowed_keys).to_h
     count = @tournament.participants.count
-
-    blank_names = positions.select { |_, position| position.blank? }
-                           .filter_map { |participant_id, _|
-                           @tournament.participants.find_by(id: participant_id)&.name }
-    if blank_names.any?
-      flash[:danger] = "#{blank_names.join('、')} のポジションが入力されていません"
-      redirect_to tournament_path(@tournament) and return
-    end
 
     unless power_of_two?(count)
       flash[:danger] = "参加者数が条件を満たしていません。"
       redirect_to tournament_path(@tournament) and return
     end
 
-    position_values = positions.values.map(&:to_i)
-    unless position_values.sort == (1..count).to_a
-      flash[:danger] = "ポジションは1から#{count}までの値を重複なく入力してください"
-      redirect_to tournament_path(@tournament) and return
-    end
-
-    ordered_participants = positions.sort_by { |_, position| position.to_i }
-                                     .map { |participant_id, _|
-                                     @tournament.participants.find(participant_id) }
+    # 登録順（上から１、２、３...）をそのままポジションとして割り当てる
+    ordered_participants = @tournament.participants.order(:created_at, :id).to_a
 
     Match.transaction do
       @tournament.matches.update_all(next_match_id: nil)
