@@ -2,23 +2,8 @@
 <%= link_to "← ホームへ戻る", root_path, class: "home-link" %>
 <h1 style="margin-bottom: 5px;">TOURNAMENT</h1>
 <h2 style="margin-top: 0px;"><%= @tournament.title %></h2>
-<%= render "tournament_info", tournament: @tournament %>
 
-<% if @tournament.matches.empty? %>
-  <div class="alert alert-warning">まだドローが作成されていません。</div>
-  <div class="row">
-    <%= render "participant_register_form" if current_user?(@tournament.user) %>
-  </div>
-<% end %>
+<% owner_view = current_user?(@tournament.user) %>
+<%= turbo_stream_from "tournament_#{@tournament.id}_#{owner_view ? 'owner' : 'public'}" %>
 
-<% if @champion.present? %>
-  <div class="upset-highlight">
-    <div class="upset-highlight-label"><h4>CHAMPION</h4></div>
-    <div class="upset-highlight-winner"><%= @champion.name %></div>
-  </div>
-<% end %>
-
-<%= render "bracket",
-  editable: current_user?(@tournament.user) && @tournament.during? if @tournament.matches.any? %>
-
-<%= render "court_status", tournament: @tournament if @tournament.matches.any? %>
+<%= render "status_section", tournament: @tournament, owner_view: owner_view %>

@@ -2,13 +2,13 @@
   <div class="col-md-12">
     <h3 class="bracket-heading">
       ドロー
-      <% if current_user?(@tournament.user) %>
-        <%= link_to "削除", destroy_all_tournament_matches_path(@tournament),
+      <% if owner_view %>
+        <%= link_to "削除", destroy_all_tournament_matches_path(tournament),
               data: { "turbo-method": :delete, "turbo-confirm": "トーナメントツリーを削除しますか？" },
               class: "btn btn-xs btn-danger pull-right" %>
       <% end %>
     </h3>
-    <% grouped = @tournament.matches.includes(:participant1, :participant2, :winner)
+    <% grouped = tournament.matches.includes(:participant1, :participant2, :winner)
                                      .group_by(&:round).sort
        bracket_data = {
          rounds: grouped.map { |round, _| { name: "Round #{round}" } },
@@ -85,7 +85,7 @@
           <% p1 = match.participant1
              p2 = match.participant2 %>
           <% if p1.present? && p2.present? %>
-            <%= render "match_result_modal", match: match, p1: p1, p2: p2 %>
+            <%= render "tournaments/match_result_modal", tournament: tournament, match: match, p1: p1, p2: p2 %>
           <% end %>
         <% end %>
       <% end %>

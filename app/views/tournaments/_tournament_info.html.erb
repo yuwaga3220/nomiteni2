@@ -18,7 +18,7 @@
   <% if tournament.description.present? %>
     <p class="tournament-description"><%= tournament.description %></p>
   <% end %>
-  <% if current_user?(tournament.user) %>
+  <% if owner_view %>
     <%= render "tournaments/status_form", tournament: tournament %>
   <% else %>
     <% status_labels = { "before" => "開催前", "during" => "開催中", "after" => "開催後" } %>

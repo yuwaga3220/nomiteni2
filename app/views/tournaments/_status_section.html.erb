@@ -1,0 +1,22 @@
+<div id="tournament-status-section">
+  <%= render "tournaments/tournament_info", tournament: tournament, owner_view: owner_view %>
+
+  <% if tournament.matches.empty? %>
+    <div class="alert alert-warning">まだドローが作成されていません。</div>
+    <div class="row">
+      <%= render "tournaments/participant_register_form", tournament: tournament, owner_view: owner_view if owner_view %>
+    </div>
+  <% end %>
+
+  <% if (champion = tournament.champion).present? %>
+    <div class="upset-highlight">
+      <div class="upset-highlight-label"><h4>CHAMPION</h4></div>
+      <div class="upset-highlight-winner"><%= champion.name %></div>
+    </div>
+  <% end %>
+
+  <%= render "tournaments/bracket", tournament: tournament, owner_view: owner_view,
+        editable: owner_view && tournament.during? if tournament.matches.any? %>
+
+  <%= render "tournaments/court_status", tournament: tournament if tournament.matches.any? %>
+</div>

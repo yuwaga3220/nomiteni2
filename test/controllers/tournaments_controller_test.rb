@@ -74,4 +74,14 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     patch update_status_tournament_path(@tournament), params: { status: "after" }
     assert_equal "after", @tournament.reload.status
   end
+
+  test "should broadcast to owner and public streams when status changes" do
+    @tournament.matches.create!(round: 1, participant1: participants(:alice), participant2: participants(:bob))
+    log_in_as(users(:michael))
+    assert_broadcasts("tournament_#{@tournament.id}_owner", 1) do
+      assert_broadcasts("tournament_#{@tournament.id}_public", 1) do
+        patch update_status_tournament_path(@tournament), params: { status: "during" }
+      end
+    end
+  end
 end

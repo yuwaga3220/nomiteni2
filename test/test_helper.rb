@@ -16,6 +16,7 @@ module ActiveSupport
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all
     include ApplicationHelper
+    include ActionCable::TestHelper
 
     # Add more helper methods to be used by all tests here...
 

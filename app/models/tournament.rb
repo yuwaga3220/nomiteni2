@@ -33,4 +33,10 @@ class Tournament < ApplicationRecord
         )
         .order(Arel.sql("total_points DESC"))
   end
+
+  # 決勝（next_matchを持たない試合）の勝者を優勝者として返す（開催後でなければnil）
+  def champion
+    return nil unless after?
+    matches.find_by(next_match_id: nil)&.winner
+  end
 end

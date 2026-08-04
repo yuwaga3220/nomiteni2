@@ -4,8 +4,6 @@ class TournamentsController < ApplicationController
 
   def show
     @tournament = Tournament.find(params[:id])
-    # 決勝（next_matchを持たない試合）の勝者を優勝者として表示する
-    @champion = @tournament.matches.find_by(next_match_id: nil)&.winner if @tournament.after?
   end
 
   def new
@@ -42,6 +40,7 @@ class TournamentsController < ApplicationController
                      .update_all(participant1_id: nil, participant2_id: nil)
         end
       end
+      broadcast_tournament_status!(@tournament)
     end
     redirect_to tournament_path(@tournament)
   end

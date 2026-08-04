@@ -18,6 +18,7 @@ class MatchesController < ApplicationController
       @tournament.matches.destroy_all
       build_bracket(ordered_participants)
     end
+    broadcast_tournament_status!(@tournament)
     flash[:success] = "トーナメントツリーを作成しました"
     redirect_to tournament_path(@tournament)
   end
@@ -59,6 +60,7 @@ class MatchesController < ApplicationController
         prediction.update!(points: points)
       end
     end
+    broadcast_tournament_status!(@tournament)
     redirect_to tournament_path(@tournament)
   end
 
@@ -76,12 +78,14 @@ class MatchesController < ApplicationController
     # 予備に戻したら、それまでの結果（勝者・ゲーム数）はリセットする
     attrs.merge!(winner: nil, winner_games: nil, loser_games: nil) if params[:status] == "pending"
     match.update!(attrs)
+    broadcast_tournament_status!(@tournament)
     redirect_to tournament_path(@tournament)
   end
 
   def destroy_all
     @tournament.matches.update_all(next_match_id: nil)
     @tournament.matches.destroy_all
+    broadcast_tournament_status!(@tournament)
     flash[:success] = "トーナメントツリーを削除しました"
     redirect_to tournament_path(@tournament)
   end

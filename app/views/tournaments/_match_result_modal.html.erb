@@ -7,7 +7,7 @@
           <button type="button" class="close" data-action="click->match-result-modal#close">&times;</button>
           <h4 class="modal-title"><%= p1.name %> vs <%= p2.name %></h4>
         </div>
-        <%= form_with url: update_status_tournament_match_path(@tournament, match), method: :patch do %>
+        <%= form_with url: update_status_tournament_match_path(tournament, match), method: :patch do %>
           <div class="modal-body">
             <div class="match-result-row">
               <div class="form-group">
@@ -28,7 +28,7 @@
             <%= submit_tag "コート・状況を更新", class: "btn btn-default btn-sm" %>
           </div>
         <% end %>
-        <%= form_with url: set_winner_tournament_match_path(@tournament, match), method: :patch do %>
+        <%= form_with url: set_winner_tournament_match_path(tournament, match), method: :patch do %>
           <div class="modal-body match-result-score-body">
             <div class="match-result-row">
               <div class="form-group">

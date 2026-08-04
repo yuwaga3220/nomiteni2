@@ -35,6 +35,15 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_nil match.next_match
   end
 
+  test "should broadcast to owner and public streams when bracket is created" do
+    log_in_as(users(:michael))
+    assert_broadcasts("tournament_#{@tournament.id}_owner", 1) do
+      assert_broadcasts("tournament_#{@tournament.id}_public", 1) do
+        post tournament_matches_path(@tournament)
+      end
+    end
+  end
+
   test "should not create bracket when participant count is not power of two" do
     tournament = tournaments(:ants)
     log_in_as(users(:archer))
@@ -69,6 +78,16 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
       delete destroy_all_tournament_matches_path(@tournament)
     end
     assert_redirected_to tournament_path(@tournament)
+  end
+
+  test "should broadcast to owner and public streams when bracket is destroyed" do
+    @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    log_in_as(users(:michael))
+    assert_broadcasts("tournament_#{@tournament.id}_owner", 1) do
+      assert_broadcasts("tournament_#{@tournament.id}_public", 1) do
+        delete destroy_all_tournament_matches_path(@tournament)
+      end
+    end
   end
 
   test "should destroy all matches across multiple rounds" do
@@ -116,6 +135,18 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_equal @bob, match.winner
     assert_equal 6, match.winner_games
     assert_equal 2, match.loser_games
+  end
+
+  test "should broadcast to owner and public streams when winner is set" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    log_in_as(users(:michael))
+    assert_broadcasts("tournament_#{@tournament.id}_owner", 1) do
+      assert_broadcasts("tournament_#{@tournament.id}_public", 1) do
+        patch set_winner_tournament_match_path(@tournament, match),
+              params: { participant1_games: 6, participant2_games: 3 }
+      end
+    end
   end
 
   test "should reject tied scores" do
@@ -188,6 +219,18 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     match.reload
     assert_equal "コートA", match.court
     assert match.in_progress?
+  end
+
+  test "should broadcast to owner and public streams when match status is updated" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    log_in_as(users(:michael))
+    assert_broadcasts("tournament_#{@tournament.id}_owner", 1) do
+      assert_broadcasts("tournament_#{@tournament.id}_public", 1) do
+        patch update_status_tournament_match_path(@tournament, match),
+              params: { court: "コートA", status: "in_progress" }
+      end
+    end
   end
 
   test "should reset winner and games when status is reverted to pending" do
