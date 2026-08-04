@@ -10,9 +10,11 @@ class Tournament < ApplicationRecord
   end
   default_scope -> { order(created_at: :desc) }
   enum :status, { before: 0, during: 1, after: 2 }
+  has_secure_password :passcode, validations: false
   validates :user_id, presence: true
   validates :title, presence: true, length: { maximum: 100 }
   validates :venue, length: { maximum: 100 }, allow_blank: true
+  validates :passcode, format: { with: /\A\d{4}\z/, message: "は4桁の数字で入力してください" }, allow_blank: true
   validates :image, content_type: { in: %w[image/jpeg image/gif image/png image/webp],
                                     message: "must be a valid image format" },
                     size:         { less_than: 5.megabytes,

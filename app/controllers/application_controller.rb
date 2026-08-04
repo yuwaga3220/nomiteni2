@@ -29,4 +29,13 @@ class ApplicationController < ActionController::Base
       redirect_to login_url, status: :see_other
     end
   end
+
+  # パスコードが必要な大会に、認可されていない状態でアクセスしようとした場合はrootへ戻す。
+  # 戻り値がtrueならブロックした（呼び出し元は続けて `return if ...` で処理を止める）
+  def block_unless_tournament_accessible(tournament)
+    return false unless tournament_passcode_required?(tournament)
+    flash[:danger] = "パスコードが必要です。大会一覧からアクセスしてください"
+    redirect_to root_url
+    true
+  end
 end

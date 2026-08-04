@@ -22,12 +22,17 @@
         </p>
       <% end %>
       <p class="text-center">
-        <% if current_user?(tournament.user) %>
-          <%= link_to "管理画面", tournament, class: "btn btn-lavender btn-sm" %>
+        <% if tournament_passcode_required?(tournament) %>
+          <%= render "tournaments/passcode_modal", tournament: tournament, label: "試合状況", next_target: "show" %>
+          <%= render "tournaments/passcode_modal", tournament: tournament, label: "PICK'EMS（予想）", next_target: "predictions" %>
         <% else %>
-          <%= link_to "試合状況", tournament, class: "btn btn-lavender btn-sm" %>
+          <% if current_user?(tournament.user) %>
+            <%= link_to "管理画面", tournament, class: "btn btn-lavender btn-sm" %>
+          <% else %>
+            <%= link_to "試合状況", tournament, class: "btn btn-lavender btn-sm" %>
+          <% end %>
+          <%= link_to "PICK'EMS（予想）", new_tournament_prediction_path(tournament), class: "btn btn-lavender btn-sm" %>
         <% end %>
-        <%= link_to "PICK'EMS（予想）", new_tournament_prediction_path(tournament), class: "btn btn-lavender btn-sm" %>
       </p>
     </div>
   </div>

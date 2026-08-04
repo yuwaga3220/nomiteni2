@@ -85,4 +85,28 @@ class PredictionsControllerTest < ActionDispatch::IntegrationTest
     get new_tournament_prediction_path(@tournament)
     assert_select ".upset-highlight", count: 0
   end
+
+  test "should redirect predictions page to root when passcode is required and not authorized" do
+    @tournament.update!(passcode: "1234")
+    log_in_as(users(:archer))
+    get new_tournament_prediction_path(@tournament)
+    assert_redirected_to root_url
+  end
+
+  test "should redirect prediction create to root when passcode is required and not authorized" do
+    @tournament.update!(status: :before, passcode: "1234")
+    log_in_as(users(:archer))
+    assert_no_difference "Prediction.count" do
+      post tournament_prediction_path(@tournament), params: { match_id: @match.id, participant_id: @alice.id }
+    end
+    assert_redirected_to root_url
+  end
+
+  test "should allow predictions page once session is authorized via passcode" do
+    @tournament.update!(passcode: "1234")
+    log_in_as(users(:archer))
+    post tournament_passcode_path(@tournament), params: { passcode: "1234", next: "predictions" }
+    get new_tournament_prediction_path(@tournament)
+    assert_response :success
+  end
 end

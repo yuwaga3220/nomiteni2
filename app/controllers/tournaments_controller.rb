@@ -4,6 +4,7 @@ class TournamentsController < ApplicationController
 
   def show
     @tournament = Tournament.find(params[:id])
+    block_unless_tournament_accessible(@tournament)
   end
 
   def new
@@ -54,7 +55,7 @@ class TournamentsController < ApplicationController
   private
 
   def tournament_params
-    params.require(:tournament).permit(:title, :description, :held_on, :venue, :image)
+    params.require(:tournament).permit(:title, :description, :held_on, :venue, :image, :passcode)
   end
 
   def correct_user

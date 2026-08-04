@@ -84,4 +84,27 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
       end
     end
   end
+
+  test "should redirect show to root when passcode is required and not authorized" do
+    @tournament.update!(passcode: "1234")
+    log_in_as(users(:archer))
+    get tournament_path(@tournament)
+    assert_redirected_to root_url
+  end
+
+  test "should show tournament to owner without passcode even when passcode is set" do
+    @tournament.update!(passcode: "1234")
+    log_in_as(users(:michael))
+    get tournament_path(@tournament)
+    assert_response :success
+  end
+
+  test "should show tournament to non-owner once session is authorized via passcode" do
+    @tournament.update!(passcode: "1234")
+    log_in_as(users(:archer))
+    post tournament_passcode_path(@tournament), params: { passcode: "1234" }
+    assert_redirected_to tournament_path(@tournament)
+    get tournament_path(@tournament)
+    assert_response :success
+  end
 end

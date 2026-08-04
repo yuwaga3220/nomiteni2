@@ -20,5 +20,9 @@
     <%= f.label :image, "イメージ画像（任意）" %>
     <%= f.file_field :image, accept: "image/png,image/jpeg,image/gif,image/webp" %>
   </div>
+  <div class="field">
+    <%= f.label :passcode, "パスコード（任意・4桁の数字）" %>
+    <%= f.text_field :passcode, placeholder: "例: 1234", maxlength: 4, inputmode: "numeric", pattern: "\\d{4}" %>
+  </div>
   <%= f.submit "大会を公開する", class: "btn btn-primary btn-block" %>
 <% end %>

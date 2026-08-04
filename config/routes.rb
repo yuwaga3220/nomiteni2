@@ -18,6 +18,7 @@ Rails.application.routes.draw do
       patch :update_status
     end
     resource :prediction, only: [ :new, :create ]
+    resource :passcode, only: [ :create ], controller: "tournament_passcodes"
     resources :participants, only: [ :create, :destroy ] do
       collection do
         patch :reorder

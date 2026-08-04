@@ -49,4 +49,26 @@ class TournamentTest < ActiveSupport::TestCase
     tournament.update!(status: :after)
     assert_equal alice, tournament.champion
   end
+
+  test "passcode should be optional" do
+    @tournament.passcode = nil
+    assert @tournament.valid?
+    assert_nil @tournament.passcode_digest
+  end
+
+  test "passcode should be rejected if not 4 digits" do
+    @tournament.passcode = "12a4"
+    assert_not @tournament.valid?
+    @tournament.passcode = "123"
+    assert_not @tournament.valid?
+  end
+
+  test "passcode should be hashed and authenticatable when valid" do
+    @tournament.passcode = "1234"
+    assert @tournament.valid?
+    @tournament.save!
+    assert_not_nil @tournament.passcode_digest
+    assert @tournament.authenticate_passcode("1234")
+    assert_not @tournament.authenticate_passcode("0000")
+  end
 end

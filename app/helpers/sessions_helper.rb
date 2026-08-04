@@ -49,4 +49,17 @@ module SessionsHelper
   def store_location
     session[:forwarding_url] = request.original_url if request.get? || request.head?
   end
+
+  # 大会にパスコードが設定されており、かつオーナーでもセッションで認可済みでもない場合にtrue
+  def tournament_passcode_required?(tournament)
+    tournament.passcode_digest.present? &&
+      !current_user?(tournament.user) &&
+      !session[:authorized_tournament_ids]&.include?(tournament.id)
+  end
+
+  # 大会へのアクセスをセッションに記憶する
+  def authorize_tournament!(tournament)
+    session[:authorized_tournament_ids] ||= []
+    session[:authorized_tournament_ids] << tournament.id
+  end
 end

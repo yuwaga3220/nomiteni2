@@ -3,6 +3,8 @@ class PredictionsController < ApplicationController
   before_action :set_tournament
 
   def new
+    return if block_unless_tournament_accessible(@tournament)
+
     @existing_predictions = current_user.predictions
                                         .where(match: @tournament.matches)
                                         .includes(:predicted_participant)
@@ -23,6 +25,8 @@ class PredictionsController < ApplicationController
   end
 
   def create
+    return if block_unless_tournament_accessible(@tournament)
+
     unless @tournament.before?
       flash[:danger] = "開催前以外は予想を入力できません"
       redirect_to new_tournament_prediction_path(@tournament) and return
