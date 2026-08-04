@@ -33,6 +33,10 @@ class MatchesController < ApplicationController
       flash[:danger] = "両方の選手が決まっていない試合には結果を入力できません"
       redirect_to tournament_path(@tournament) and return
     end
+    if match.result_locked?
+      flash[:danger] = "次の試合が開始しているため、この試合の結果は変更できません"
+      redirect_to tournament_path(@tournament) and return
+    end
 
     p1_games = params[:participant1_games].to_i
     p2_games = params[:participant2_games].to_i
@@ -72,6 +76,10 @@ class MatchesController < ApplicationController
     match = @tournament.matches.find(params[:id])
     unless Match.statuses.key?(params[:status])
       flash[:danger] = "不正な試合状況です"
+      redirect_to tournament_path(@tournament) and return
+    end
+    if match.result_locked?
+      flash[:danger] = "次の試合が開始しているため、この試合の状況は変更できません"
       redirect_to tournament_path(@tournament) and return
     end
     attrs = { court: params[:court], status: params[:status] }

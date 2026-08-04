@@ -11,6 +11,11 @@ class Match < ApplicationRecord
   validates :winner_games, :loser_games, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
   validate :winner_games_must_exceed_loser_games, if: -> { winner_games.present? || loser_games.present? }
 
+  # 次の試合が既に始まっている（予備でない）場合、この試合の結果は変更できない
+  def result_locked?
+    next_match.present? && !next_match.pending?
+  end
+
   private
 
   def winner_games_must_exceed_loser_games

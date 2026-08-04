@@ -182,6 +182,33 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_equal @alice, final.reload.participant1
   end
 
+  test "should not set winner when the next match has already started" do
+    @tournament.update!(status: :during)
+    final = @tournament.matches.create!(round: 2, status: :in_progress)
+    match1 = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob,
+                                          next_match: final, next_slot: 1)
+    log_in_as(users(:michael))
+    patch set_winner_tournament_match_path(@tournament, match1),
+          params: { participant1_games: 6, participant2_games: 4 }
+    assert_redirected_to tournament_path(@tournament)
+    assert_not flash[:danger].nil?
+    assert_nil match1.reload.winner
+  end
+
+  test "should not update status when the next match has already started" do
+    @tournament.update!(status: :during)
+    final = @tournament.matches.create!(round: 2, status: :in_progress)
+    match1 = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob,
+                                          next_match: final, next_slot: 1, status: :finished,
+                                          winner: @alice, winner_games: 6, loser_games: 3)
+    log_in_as(users(:michael))
+    patch update_status_tournament_match_path(@tournament, match1),
+          params: { court: "コートB", status: "pending" }
+    assert_redirected_to tournament_path(@tournament)
+    assert_not flash[:danger].nil?
+    assert match1.reload.finished?
+  end
+
   test "should award 10 points for a correct prediction and 0 for a wrong one" do
     @tournament.update!(status: :during)
     match = @tournament.matches.create!(round: 3, participant1: @alice, participant2: @bob)

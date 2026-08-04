@@ -36,7 +36,7 @@
                  p2_class = "bracket-slot #{'bracket-slot-muted' if p2_muted}"
                  p1_games = match.winner == p1 ? match.winner_games : (match.winner == p2 ? match.loser_games : nil)
                  p2_games = match.winner == p2 ? match.winner_games : (match.winner == p1 ? match.loser_games : nil) %>
-              <% if editable && p1.present? && p2.present? %>
+              <% if editable && p1.present? && p2.present? && !match.result_locked? %>
                 <div class="btn btn-sm" style="width: 100%; padding: 0; border: 0; cursor: pointer;"
                      data-controller="bracket-match-trigger"
                      data-bracket-match-trigger-modal-id-value="match-result-modal-<%= match.id %>"
@@ -84,7 +84,7 @@
         <% matches.each do |match| %>
           <% p1 = match.participant1
              p2 = match.participant2 %>
-          <% if p1.present? && p2.present? %>
+          <% if p1.present? && p2.present? && !match.result_locked? %>
             <%= render "tournaments/match_result_modal", tournament: tournament, match: match, p1: p1, p2: p2 %>
           <% end %>
         <% end %>
