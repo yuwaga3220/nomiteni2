@@ -5,15 +5,23 @@
 - トーナメント進捗状況のリアルタイム確認
 - トーナメントの予想
 
-## 技術スタック
+## Tech Stack
 
-- 言語：Ruby 3.4
-- フレームワーク：Rails 8.1
-- DB：SQLite
-- トーナメント描画用：Bracketry
-- 認証：Google OAuth2
+- Language: Ruby 3.4
+- Framework: Rails 8.1
+- Database: SQLite (development/test) / PostgreSQL (production)
+- Frontend: Bootstrap 3 (bootstrap-sass) + Sprockets + importmap + Turbo + Stimulus
+- Bracket rendering: Bracketry (JS)
+- Auth: bcrypt + session, Google OAuth2
+- Real-time updates: Turbo Streams + Action Cable (Solid Cable)
+- Images: Active Storage
+- Pagination: will_paginate
+- Jobs/Cache: Solid Queue, Solid Cache
+- Deployment: Kamal (Docker)
+- Testing: Minitest
+- Lint/Security: RuboCop (rubocop-rails-omakase), Brakeman, bundler-audit
 
-## セットアップ
+## Setup
 
 ```bash
 bundle install
@@ -22,13 +30,13 @@ bin/rails db:seed      # サンプルデータ投入（任意）
 bin/rails server
 ```
 
-## テスト
+## Test
 
 ```bash
 bin/rails test
 ```
 
-## メモ
+## Memo
 
 - トーナメントの状態管理（`status`: before / during / after）
 　　開催前：予想の入力が可能。ブラケット編集は不可
