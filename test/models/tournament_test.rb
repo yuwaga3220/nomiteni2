@@ -50,6 +50,29 @@ class TournamentTest < ActiveSupport::TestCase
     assert_equal alice, tournament.champion
   end
 
+  test "best_predictor should be nil before the tournament ends" do
+    tournament = tournaments(:orange)
+    alice = participants(:alice)
+    bob = participants(:bob)
+    match = tournament.matches.create!(round: 1, participant1: alice, participant2: bob,
+                                        winner: alice, winner_games: 6, loser_games: 3, status: :finished)
+    Prediction.create!(user: users(:michael), match: match, predicted_participant: alice, points: 10)
+    tournament.update!(status: :during)
+    assert_nil tournament.best_predictor
+  end
+
+  test "best_predictor should return the user with the most points after the tournament ends" do
+    tournament = tournaments(:orange)
+    alice = participants(:alice)
+    bob = participants(:bob)
+    match = tournament.matches.create!(round: 1, participant1: alice, participant2: bob,
+                                        winner: alice, winner_games: 6, loser_games: 3, status: :finished)
+    Prediction.create!(user: users(:michael), match: match, predicted_participant: alice, points: 10)
+    Prediction.create!(user: users(:archer), match: match, predicted_participant: bob, points: 0)
+    tournament.update!(status: :after)
+    assert_equal users(:michael), tournament.best_predictor
+  end
+
   test "passcode should be optional" do
     @tournament.passcode = nil
     assert @tournament.valid?

@@ -41,4 +41,10 @@ class Tournament < ApplicationRecord
     return nil unless after?
     matches.find_by(next_match_id: nil)&.winner
   end
+
+  # 獲得ポイントが最も多い予想者を返す（開催後でなければnil）
+  def best_predictor
+    return nil unless after?
+    ranking.first
+  end
 end

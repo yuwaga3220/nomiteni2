@@ -17,10 +17,11 @@ class PredictionsController < ApplicationController
     @ranking = @tournament.ranking unless @tournament.before?
     @prediction_log = prediction_log unless @tournament.before?
 
-    # 波乱の勝者は、全試合が終了してから計算・表示する
+    # 波乱の勝者・最優秀予想者は、全試合が終了してから計算・表示する
     if @tournament.after?
       hit_rates = match_hit_rates(@prediction_log)
       @biggest_upset_match = biggest_upset_match(@prediction_log, hit_rates)
+      @best_predictor = @tournament.best_predictor
     end
   end
 

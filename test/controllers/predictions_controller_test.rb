@@ -71,6 +71,27 @@ class PredictionsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".upset-highlight-winner", text: @bob.name
   end
 
+  test "should show the user with the most points as the best predictionor after all matches finish" do
+    other_match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    @match.update!(winner: @alice, winner_games: 6, loser_games: 3, status: :finished)
+    other_match.update!(winner: @bob, winner_games: 6, loser_games: 3, status: :finished)
+    @tournament.update!(status: :after)
+    Prediction.create!(user: users(:michael), match: @match, predicted_participant: @alice, points: 10)
+    Prediction.create!(user: users(:michael), match: other_match, predicted_participant: @bob, points: 10)
+    Prediction.create!(user: users(:archer), match: @match, predicted_participant: @alice, points: 10)
+    Prediction.create!(user: users(:archer), match: other_match, predicted_participant: @alice, points: 0)
+    log_in_as(users(:michael))
+    get new_tournament_prediction_path(@tournament)
+    assert_select ".upset-highlight-label", text: "BEST PREDICTOR"
+    assert_select ".upset-highlight-winner", text: users(:michael).name
+  end
+
+  test "should not show best predictionor before tournament starts" do
+    log_in_as(users(:michael))
+    get new_tournament_prediction_path(@tournament)
+    assert_select ".upset-highlight-label", text: "BEST PREDICTOR", count: 0
+  end
+
   test "should not show biggest upset before tournament starts" do
     log_in_as(users(:michael))
     get new_tournament_prediction_path(@tournament)

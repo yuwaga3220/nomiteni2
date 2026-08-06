@@ -20,6 +20,12 @@
             <div class="upset-highlight-winner"><h3><%= @biggest_upset_match.winner&.name %></h1></div>
           </div>
         <% end %>
+      <% if @best_predictor %>
+          <div class="upset-highlight">
+            <div class="upset-highlight-label"><h4>BEST PREDICTOR</h4></div>
+            <div class="upset-highlight-winner"><h3><%= @best_predictor.name %></h3></div>
+          </div>
+        <% end %>
       <%= render "tournaments/prediction_bracket" %>
     </div>
     <div class="col-md-3">

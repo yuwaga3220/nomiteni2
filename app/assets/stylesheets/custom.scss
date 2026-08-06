@@ -1001,6 +1001,8 @@ h2 { color: $text-muted-dark; }
   border-radius: 6px;
   text-align: center;
   background: linear-gradient(135deg, $accent-purple, $accent-purple-light);
+  border: 1px solid rgba(155, 109, 255, 0.7);
+  box-shadow: 0 0 22px 4px rgba(155, 109, 255, 0.45), inset 0 0 20px rgba(255, 255, 255, 0.06);
 }
 
 .upset-highlight-label {
