@@ -600,6 +600,14 @@ h2 { color: $text-muted-dark; }
   }
 }
 
+.guest-welcome-feature-image {
+  width: 100%;
+  max-width: 260px;
+  border-radius: 8px;
+  border: 1px solid $border-dark;
+  margin-bottom: 16px;
+}
+
 .signup-cta {
   display: inline-block;
 }
@@ -1093,7 +1101,7 @@ h2 { color: $text-muted-dark; }
   text-overflow: ellipsis;
 }
 
-.participant-delete-btn {
+.participant-delete-btn, .participant-edit-btn {
   flex: 0 0 auto;
   background-color: transparent !important;
   border-color: transparent !important;
@@ -1102,6 +1110,31 @@ h2 { color: $text-muted-dark; }
   &:hover, &:focus {
     opacity: 1;
     background-color: transparent !important;
+  }
+}
+
+.participant-edit-form {
+  display: none;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+
+  .participant-edit-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    margin-bottom: 0 !important;
+  }
+
+  // グローバルの `input, textarea { width: 100%; margin-bottom: 15px; }` が
+  // 保存ボタン（input[type="submit"]）にも効いてしまい、縦積みの巨大ボタンに
+  // なってしまうのを防ぐ
+  input[type="submit"], button {
+    width: auto;
+    flex: 0 0 auto;
+    margin-bottom: 0 !important;
   }
 }
 

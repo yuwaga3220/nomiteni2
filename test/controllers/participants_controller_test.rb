@@ -46,6 +46,47 @@ class ParticipantsControllerTest < ActionDispatch::IntegrationTest
     assert_not flash.empty?
   end
 
+  test "should update participant name for owner" do
+    log_in_as(users(:michael))
+    patch tournament_participant_path(@tournament, @participant), params: { participant: { name: "アリシア" } }
+    assert_redirected_to tournament_path(@tournament)
+    assert_equal "アリシア", @participant.reload.name
+  end
+
+  test "should not update participant name when tournament is not before" do
+    @tournament.update!(status: :during)
+    log_in_as(users(:michael))
+    original_name = @participant.name
+    patch tournament_participant_path(@tournament, @participant), params: { participant: { name: "アリシア" } }
+    assert_redirected_to tournament_path(@tournament)
+    assert_not flash.empty?
+    assert_equal original_name, @participant.reload.name
+  end
+
+  test "should not update participant name to a blank value" do
+    log_in_as(users(:michael))
+    original_name = @participant.name
+    patch tournament_participant_path(@tournament, @participant), params: { participant: { name: "" } }
+    assert_redirected_to tournament_path(@tournament)
+    assert_not flash.empty?
+    assert_equal original_name, @participant.reload.name
+  end
+
+  test "should redirect update when not logged in" do
+    original_name = @participant.name
+    patch tournament_participant_path(@tournament, @participant), params: { participant: { name: "アリシア" } }
+    assert_redirected_to login_url
+    assert_equal original_name, @participant.reload.name
+  end
+
+  test "should redirect update when wrong user" do
+    log_in_as(users(:archer))
+    original_name = @participant.name
+    patch tournament_participant_path(@tournament, @participant), params: { participant: { name: "アリシア" } }
+    assert_redirected_to root_url
+    assert_equal original_name, @participant.reload.name
+  end
+
   test "should reorder participants" do
     bob = participants(:bob)
     log_in_as(users(:michael))

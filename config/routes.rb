@@ -19,7 +19,7 @@ Rails.application.routes.draw do
     end
     resource :prediction, only: [ :new, :create ]
     resource :passcode, only: [ :create ], controller: "tournament_passcodes"
-    resources :participants, only: [ :create, :destroy ] do
+    resources :participants, only: [ :create, :update, :destroy ] do
       collection do
         patch :reorder
       end

@@ -12,6 +12,20 @@ class ParticipantsController < ApplicationController
     redirect_to tournament_path(@tournament)
   end
 
+  def update
+    unless @tournament.before?
+      flash[:danger] = "開催前以外は参加者を編集できません"
+      redirect_to tournament_path(@tournament) and return
+    end
+    @participant = @tournament.participants.find(params[:id])
+    if @participant.update(participant_params)
+      flash[:success] = "参加者名を更新しました"
+    else
+      flash[:danger] = @participant.errors.full_messages.join(", ")
+    end
+    redirect_to tournament_path(@tournament)
+  end
+
   def destroy
     unless @tournament.before?
       flash[:danger] = "開催前以外は参加者を削除できません"
