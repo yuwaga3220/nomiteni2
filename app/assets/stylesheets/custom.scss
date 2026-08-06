@@ -322,6 +322,14 @@ input {
   text-align: center;
 }
 
+.tournament-list-heading {
+  text-align: left;
+  padding-left: 12px;
+  border-left: 3px solid $accent-purple-light;
+  margin-top: 36px;
+  margin-bottom: 16px;
+}
+
 .profile-summary-header {
   display: flex;
   align-items: center;
@@ -564,17 +572,52 @@ h2 { color: $text-muted-dark; }
 }
 
 .guest-welcome-intro {
+  display: flex;
+  align-items: center;
   max-width: 480px;
-  margin: 20px auto;
-  color: $text-muted-dark;
+  margin: 28px auto 0;
+  color: $accent-purple-light;
+  font-weight: bold;
+  font-size: 1.15em;
+  line-height: 1.5em;
+  letter-spacing: 0.3px;
+
+  &::before, &::after {
+    content: "";
+    flex: 1 1 auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, $accent-purple-light);
+  }
+
+  &::after {
+    background: linear-gradient(90deg, $accent-purple-light, transparent);
+  }
+}
+
+.guest-welcome-intro-text {
+  flex: 0 0 auto;
+  padding: 0 16px;
+  text-align: center;
 }
 
 .guest-welcome-features {
-  max-width: 720px;
-  margin: 40px auto 0;
+  max-width: 760px;
+  margin: 56px auto 0;
+}
 
-  h2 {
-    margin-bottom: 20px;
+.guest-welcome-features-heading {
+  color: #ffffff;
+  margin-bottom: 28px;
+  position: relative;
+
+  &::after {
+    content: "";
+    display: block;
+    width: 85px;
+    height: 3px;
+    margin: 10px auto 0;
+    background-color: $accent-purple-light;
+    border-radius: 2px;
   }
 }
 
@@ -582,12 +625,59 @@ h2 { color: $text-muted-dark; }
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 24px;
+  align-items: stretch;
+  gap: 28px;
 }
 
 .guest-welcome-feature {
-  flex: 1 1 280px;
+  flex: 1 1 300px;
   max-width: 320px;
+  text-align: left;
+  background-color: #1a1a1a;
+  border: 1px solid $border-dark;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: $accent-purple-light;
+  }
+}
+
+.guest-welcome-feature-image {
+  display: block;
+  width: 100%;
+  border-bottom: 1px solid $border-dark;
+}
+
+.guest-welcome-feature-body {
+  position: relative;
+  padding: 24px 18px 20px;
+}
+
+.guest-welcome-feature-badge {
+  position: absolute;
+  top: -18px;
+  left: 18px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: $accent-purple-light;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+
+  ~ h3 {
+    margin-top: 6px;
+  }
+}
+
+.guest-welcome-feature {
   h3 {
     font-size: 1.1em;
     color: $text-primary;
@@ -597,19 +687,32 @@ h2 { color: $text-muted-dark; }
     font-size: 0.9em;
     color: $text-muted-dark;
     line-height: 1.6em;
+    margin-bottom: 0;
   }
-}
-
-.guest-welcome-feature-image {
-  width: 100%;
-  max-width: 260px;
-  border-radius: 8px;
-  border: 1px solid $border-dark;
-  margin-bottom: 16px;
 }
 
 .signup-cta {
   display: inline-block;
+
+  .btn-lg {
+    padding: 12px 40px;
+    font-size: 1.1em;
+    box-shadow: 0 4px 20px rgba(98, 63, 188, 0.5);
+  }
+}
+
+.guest-welcome-cta-bottom {
+  display: block;
+  margin-top: 56px;
+  padding-top: 40px;
+  border-top: 1px solid $border-dark;
+}
+
+.guest-welcome-cta-lead {
+  color: $text-primary;
+  font-weight: bold;
+  font-size: 1.05em;
+  margin-bottom: 16px;
 }
 
 .login-hint {
@@ -681,15 +784,26 @@ h2 { color: $text-muted-dark; }
 }
 
 .jumbotron {
-  background-color: #110027;
+  background: radial-gradient(ellipse at top, #2a1257 0%, #110027 65%);
   color: $text-primary;
-  padding-top: 20px;
-  padding-bottom: 20px;
+  padding-top: 56px;
+  padding-bottom: 44px;
   margin-top: -9px;
   margin-left: calc(-50vw + 50%);
   margin-right: calc(-50vw + 50%);
   padding-left: calc(50vw - 50%);
   padding-right: calc(50vw - 50%);
+
+  h1 {
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-shadow: 0 0 24px rgba(155, 109, 255, 0.45);
+  }
+
+  h2 {
+    color: $text-muted-dark;
+    font-size: 1.3em;
+  }
 }
 
 .container, .container-fluid {

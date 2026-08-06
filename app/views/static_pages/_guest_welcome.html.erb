@@ -5,19 +5,32 @@
       アカウントをお持ちの方は<%= link_to "こちら", login_path, class: "login-hint-link" %>
     </p>
   </div>
-  <p class="guest-welcome-intro">HIT'EMSは、テニストーナメントの結果を予想し合って、大会をより楽しくするサービスです。</p>
+  <p class="guest-welcome-intro"><span class="guest-welcome-intro-text">試合結果を予想して、<br>選手を見る目を競う合う。</span></p>
   <div class="guest-welcome-features">
+    <h2 class="guest-welcome-features-heading">使い方</h2>
     <div class="guest-welcome-features-row">
       <div class="guest-welcome-feature">
-        <h3>1. 結果予想を競い合って楽しむ！</h3>
-        <p>大会が「開催前」の間、トーナメント表の各試合の勝者を予想（ピッケム）できます。予想が的中するとポイントを獲得し、他の参加者とランキングを競えます。</p>
         <%= image_tag "prediction.png", alt: "結果予想の画面イメージ", class: "guest-welcome-feature-image" %>
+        <div class="guest-welcome-feature-body">
+          <span class="guest-welcome-feature-badge">1</span>
+          <h3>結果予想を競い合って楽しむ！</h3>
+          <p>大会が「開催前」の間、トーナメント表の各試合の勝者を予想（ピッケム）できます。予想が的中するとポイントを獲得し、他の参加者とランキングを競えます。</p>
+        </div>
       </div>
       <div class="guest-welcome-feature">
-        <h3>2. 大会の進行状況をリアルタイムでチェックする！</h3>
-        <p>大会が「開催中」になると、各試合の結果やコートの使用状況がトーナメント表に反映されます。自分の予想が当たっているかをその場で確認できます。</p>
-        <%= image_tag "tournament.png", alt: "大会進行状況の画面イメージ", class: "guest-welcome-feature-image" %>  
+        <%= image_tag "tournament.png", alt: "大会進行状況の画面イメージ", class: "guest-welcome-feature-image" %>
+        <div class="guest-welcome-feature-body">
+          <span class="guest-welcome-feature-badge">2</span>
+          <h3>大会の進行状況をリアルタイムでチェックする！</h3>
+          <p>大会が「開催中」になると、各試合の結果やコートの使用状況がトーナメント表に反映されます。自分の予想が当たっているかをその場で確認できます。</p>
+        </div>
       </div>
     </div>
+  </div>
+  <div class="signup-cta guest-welcome-cta-bottom">
+    <%= link_to "はじめる", signup_path, class: "btn btn-lg btn-primary" %>
+    <p class="text-center login-hint">
+      アカウントをお持ちの方は<%= link_to "こちら", login_path, class: "login-hint-link" %>
+    </p>
   </div>
 </div>
