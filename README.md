@@ -9,7 +9,7 @@
 
 - Language: Ruby 3.4
 - Framework: Rails 8.1
-- Database: SQLite (development/test) / PostgreSQL (production)
+- Database: SQLite (all environments, incl. production via a Kamal-managed persistent volume)
 - Frontend: Bootstrap 3 (bootstrap-sass) + Sprockets + importmap + Turbo + Stimulus
 - Bracket rendering: Bracketry (JS)
 - Auth: bcrypt + session, Google OAuth2
@@ -49,3 +49,6 @@ bin/rails test
 
 大
 - 選手アイコンの自動生成（適当にかっこいいアイコンの自動生成）
+- アプリアイコンの作成
+- デプロイ
+- 大会検索機能の追加

@@ -25,7 +25,7 @@ Rails.application.configure do
   config.active_storage.service = :local
 
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
-  # config.assume_ssl = true
+  config.assume_ssl = true
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   config.force_ssl = true
@@ -57,8 +57,8 @@ Rails.application.configure do
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.delivery_method = :smtp
-  host = "https://sample_app/onrender.com"
-  config.action_mailer.default_url_options = { host: host }
+  host = "hit-thems.com"
+  config.action_mailer.default_url_options = { host: host, protocol: "https" }
   ActionMailer::Base.smtp_settings = {
     port: 2525,
     address: "smtp.mailgun.org",

@@ -2,12 +2,12 @@
 service: sample_app
 
 # Name of the container image (use your-user/app-name on external registries).
-image: sample_app
+image: yuwaga3220/sample_app
 
 # Deploy to these servers.
 servers:
   web:
-    - 192.168.0.1
+    - 52.197.251.31
   # job:
   #   hosts:
   #     - 192.168.0.1
@@ -20,21 +20,18 @@ servers:
 #
 # Don't use this when deploying to multiple web servers (then you have to terminate SSL at your load balancer).
 #
-# proxy:
-#   ssl: true
-#   host: app.example.com
+proxy:
+  ssl: true
+  host: hit-thems.com
 
 # Where you keep your container images.
 registry:
-  # Alternatives: hub.docker.com / registry.digitalocean.com / ghcr.io / ...
-  server: localhost:5555
-
-  # Needed for authenticated registries.
-  # username: your-user
+  # Docker Hub is the default registry, so no `server:` needed.
+  username: yuwaga3220
 
   # Always use an access token rather than real password when possible.
-  # password:
-  #   - KAMAL_REGISTRY_PASSWORD
+  password:
+    - KAMAL_REGISTRY_PASSWORD
 
 # Inject ENV variables into containers (secrets come from .kamal/secrets).
 env:
@@ -42,6 +39,8 @@ env:
     - RAILS_MASTER_KEY
     - GOOGLE_CLIENT_ID
     - GOOGLE_CLIENT_SECRET
+    - MAILGUN_SMTP_LOGIN
+    - MAILGUN_SMTP_PASSWORD
   clear:
     # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
     # When you start using multiple servers, you should split out job processing to a dedicated machine.
@@ -79,8 +78,9 @@ volumes:
 asset_path: /rails/public/assets
 
 # Configure the image builder.
+# t4g.micro (EC2 free-tier eligible) is Graviton (arm64)
 builder:
-  arch: amd64
+  arch: arm64
 
   # # Build image via remote server (useful for faster amd64 builds on arm64 computers)
   # remote: ssh://docker@docker-builder-server
