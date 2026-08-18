@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
   mount ActionCable.server => "/cable"
 
+  # Kamal/kamal-proxyがコンテナの生存確認に使うヘルスチェック用エンドポイント
+  get "up" => "rails/health#show", as: :rails_health_check
+
   root "static_pages#home"
   get  "/help",     to: "static_pages#help"
   get  "/contact",  to: "static_pages#contact"
