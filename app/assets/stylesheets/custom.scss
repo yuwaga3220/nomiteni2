@@ -577,7 +577,7 @@ h2 { color: $text-muted-dark; }
   display: flex;
   align-items: center;
   max-width: 480px;
-  margin: 48px auto 0;
+  margin: 8px auto 120px;
   color: $accent-purple-light;
   font-weight: bold;
   font-size: 1.15em;
@@ -605,6 +605,10 @@ h2 { color: $text-muted-dark; }
 .guest-welcome-features {
   max-width: 800px;
   margin: 80px auto 0;
+}
+
+.guest-welcome-features-pushed {
+  margin-top: 12vh;
 }
 
 .guest-welcome-features-heading {
