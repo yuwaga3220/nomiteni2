@@ -328,6 +328,8 @@ input {
   border-left: 3px solid $accent-purple-light;
   margin-top: 36px;
   margin-bottom: 16px;
+  font-size: 1.3em;
+  color: #ffffff;
 }
 
 .profile-summary-header {
@@ -342,7 +344,7 @@ input {
   }
 }
 
-.profile-summary-name, .user-name-link {
+.profile-summary-name, .user-name-link, .profile-tournament-link {
   color: #ffffff;
   &:hover { color: #ffffff; }
 }
@@ -575,7 +577,7 @@ h2 { color: $text-muted-dark; }
   display: flex;
   align-items: center;
   max-width: 480px;
-  margin: 28px auto 0;
+  margin: 48px auto 0;
   color: $accent-purple-light;
   font-weight: bold;
   font-size: 1.15em;
@@ -601,13 +603,13 @@ h2 { color: $text-muted-dark; }
 }
 
 .guest-welcome-features {
-  max-width: 760px;
-  margin: 56px auto 0;
+  max-width: 800px;
+  margin: 80px auto 0;
 }
 
 .guest-welcome-features-heading {
   color: #ffffff;
-  margin-bottom: 28px;
+  margin-bottom: 40px;
   position: relative;
 
   &::after {
@@ -626,12 +628,12 @@ h2 { color: $text-muted-dark; }
   flex-wrap: wrap;
   justify-content: center;
   align-items: stretch;
-  gap: 28px;
+  gap: 40px;
 }
 
 .guest-welcome-feature {
   flex: 1 1 300px;
-  max-width: 320px;
+  max-width: 340px;
   text-align: left;
   background-color: #1a1a1a;
   border: 1px solid $border-dark;
@@ -653,7 +655,7 @@ h2 { color: $text-muted-dark; }
 
 .guest-welcome-feature-body {
   position: relative;
-  padding: 24px 18px 20px;
+  padding: 30px 24px 26px;
 }
 
 .guest-welcome-feature-badge {
@@ -703,8 +705,8 @@ h2 { color: $text-muted-dark; }
 
 .guest-welcome-cta-bottom {
   display: block;
-  margin-top: 56px;
-  padding-top: 40px;
+  margin-top: 80px;
+  padding-top: 56px;
   border-top: 1px solid $border-dark;
 }
 
@@ -786,9 +788,10 @@ h2 { color: $text-muted-dark; }
 .jumbotron {
   background: radial-gradient(ellipse at top, #2a1257 0%, #110027 65%);
   color: $text-primary;
-  padding-top: 56px;
-  padding-bottom: 44px;
+  padding-top: 80px;
+  padding-bottom: 64px;
   margin-top: -9px;
+  margin-bottom: 40px;
   margin-left: calc(-50vw + 50%);
   margin-right: calc(-50vw + 50%);
   padding-left: calc(50vw - 50%);
@@ -798,6 +801,18 @@ h2 { color: $text-muted-dark; }
     font-weight: bold;
     letter-spacing: 1px;
     text-shadow: 0 0 24px rgba(155, 109, 255, 0.45);
+  }
+
+  .jumbotron-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .jumbotron-title-icon {
+    width: 48px;
+    height: 48px;
+    margin-right: 14px;
   }
 
   h2 {

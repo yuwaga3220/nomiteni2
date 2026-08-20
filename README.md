@@ -36,6 +36,12 @@ bin/rails server
 bin/rails test
 ```
 
+## こだわり
+
+- トーナメント表の描画にBracketryを採用
+- アプリアイコンはRikyuで生成した幾何学的なアイコン
+- Turbo Streams + Action Cableによるリアルタイム更新機能
+
 ## Memo
 
 - トーナメントの状態管理（`status`: before / during / after）

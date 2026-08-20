@@ -5,7 +5,7 @@
   </aside>
   <div class="col-md-8">
     <% if @user.tournaments.any? %>
-      <h3>作成した大会 (<%= @user.tournaments.count %>)</h3>
+      <h3 class="tournament-list-heading">作成した大会 (<%= @user.tournaments.count %>)</h3>
       <div class="row">
         <%= render @tournaments %>
       </div>
@@ -13,11 +13,11 @@
     <% end %>
 
     <% if @predicted_tournaments.any? %>
-      <h3>過去の予想 (<%= @predicted_tournaments.count %>)</h3>
+      <h3 class="tournament-list-heading">過去の予想 (<%= @predicted_tournaments.count %>)</h3>
       <ul class="list-group profile-tournament-stats-list">
         <% @predicted_tournaments.each do |tournament| %>
           <li class="list-group-item">
-            <%= link_to tournament.title, tournament %>
+            <%= link_to tournament.title, tournament, class: "profile-tournament-link" %>
             <%= render "users/profile_stats", user: @user, tournament: tournament %>
           </li>
         <% end %>
