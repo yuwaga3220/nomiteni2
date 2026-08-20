@@ -39,11 +39,11 @@ class ActionDispatch::IntegrationTest
                                       }
   end
 
-  def mock_google_auth(email:, name: "Google User", uid: "123545")
+  def mock_google_auth(email:, name: "Google User", uid: "123545", image: "https://example.com/avatar.png")
     OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
       provider: "google_oauth2",
       uid: uid,
-      info: OmniAuth::AuthHash::InfoHash.new(email: email, name: name)
+      info: OmniAuth::AuthHash::InfoHash.new(email: email, name: name, image: image)
     )
     Rails.application.env_config["omniauth.auth"] = OmniAuth.config.mock_auth[:google_oauth2]
   end

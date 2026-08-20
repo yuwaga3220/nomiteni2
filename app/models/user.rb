@@ -39,7 +39,8 @@ class User < ApplicationRecord
     if user
       # 既存のメール/パスワードアカウントに自動連携する
       user.update_columns(provider: auth.provider, uid: auth.uid,
-                           activated: true, activated_at: Time.zone.now)
+                           activated: true, activated_at: Time.zone.now,
+                           avatar_url: auth.info.image)
       user
     else
       # Googleアカウントの情報から新規ユーザーを作成する
@@ -50,7 +51,8 @@ class User < ApplicationRecord
         provider: auth.provider,
         uid: auth.uid,
         activated: true,
-        activated_at: Time.zone.now
+        activated_at: Time.zone.now,
+        avatar_url: auth.info.image
       )
     end
   end
