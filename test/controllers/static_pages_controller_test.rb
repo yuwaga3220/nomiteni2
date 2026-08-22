@@ -15,4 +15,9 @@ class StaticPagesControllerTest < ActionDispatch::IntegrationTest
     get contact_path
     assert_response :success
   end
+
+  test "should get privacy" do
+    get privacy_path
+    assert_response :success
+  end
 end
