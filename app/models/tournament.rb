@@ -1,7 +1,8 @@
 class Tournament < ApplicationRecord
   belongs_to :user
-  has_many :participants, dependent: :destroy
+  # matchesがparticipantsを外部キーで参照しているため、削除時はmatches→participantsの順である必要がある
   has_many :matches, dependent: :destroy
+  has_many :participants, dependent: :destroy
   has_one_attached :image do |attachable|
     attachable.variant :display, resize_to_limit: [ 500, 500 ]
     # 大会一覧カードの背景に使うモザイク（ぼかし）画像。極小サイズにし、CSS側で

@@ -30,6 +30,16 @@ class TournamentTest < ActiveSupport::TestCase
     assert_equal tournaments(:most_recent), Tournament.first
   end
 
+  test "should destroy tournament with matches without foreign key violation" do
+    tournament = tournaments(:orange)
+    alice = participants(:alice)
+    bob = participants(:bob)
+    tournament.matches.create!(round: 1, participant1: alice, participant2: bob, winner: alice)
+    assert_difference "Tournament.count", -1 do
+      tournament.destroy
+    end
+  end
+
   test "champion should be nil before the tournament ends" do
     tournament = tournaments(:orange)
     alice = participants(:alice)
