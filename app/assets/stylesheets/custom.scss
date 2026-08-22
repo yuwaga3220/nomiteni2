@@ -346,6 +346,14 @@ input {
   }
 }
 
+.profile-summary-edit-link {
+  margin-left: 12px;
+  font-size: 0.85em;
+  color: $text-muted-dark;
+  text-decoration: underline;
+  &:hover { color: $text-primary; }
+}
+
 .profile-summary-name, .user-name-link, .profile-tournament-link {
   color: #ffffff;
   &:hover { color: #ffffff; }

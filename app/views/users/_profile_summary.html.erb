@@ -3,6 +3,9 @@
   <div class="profile-summary-header">
     <%= gravatar_for user, size: 70 %>
     <h3><%= link_to user.name, user, class: "profile-summary-name" %></h3>
+    <% if current_user?(user) %>
+      <%= link_to "編集", edit_user_path(user), class: "profile-summary-edit-link" %>
+    <% end %>
   </div>
   <% if current_tournament.present? %>
     <%= render "users/profile_stats", user: user, tournament: current_tournament %>
