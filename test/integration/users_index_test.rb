@@ -57,9 +57,9 @@ class UsersIndexAdminTest < UsersIndexAdmin
 end
 
 class UsersNonAdminIndexTest < UsersIndex
-  test "should not have delete links as non-admin" do
+  test "should redirect index when logged in as non-admin" do
     log_in_as(@non_admin)
     get users_path
-    assert_select "a", text: "削除", count: 0
+    assert_redirected_to root_url
   end
 end

@@ -18,7 +18,6 @@
           <li><%= link_to "ホーム", root_path %></li>
         <% end %>
         <% if logged_in? %>
-          <li><%= link_to "すべてのユーザー", users_path %></li>
           <li><%= link_to "プロフィール", current_user %></li>
           <li>
             <%= link_to "ログアウト", logout_path,
