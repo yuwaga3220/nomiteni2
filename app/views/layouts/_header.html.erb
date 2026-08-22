@@ -22,7 +22,7 @@
           <li><%= link_to "プロフィール", current_user %></li>
           <li>
             <%= link_to "ログアウト", logout_path,
-              data: { "turbo-method": :delete }
+              data: { "turbo-method": :delete, turbo_confirm: "ログアウトしますか？" }
             %>
           </li>
         <% else %>
