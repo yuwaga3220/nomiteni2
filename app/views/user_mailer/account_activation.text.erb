@@ -1,5 +1,5 @@
 <%= @user.name %>様
 
-Hit'Emsへようこそ！以下のリンクをクリックしてアカウントを有効化してください:
+Hit'Emsへようこそ。アカウントを有効化するには、以下のURLにアクセスしてください。
 
 <%= edit_account_activation_url(@user.activation_token, email: @user.email) %>

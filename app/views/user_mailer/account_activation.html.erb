@@ -1,10 +1,15 @@
-<h2>Hit'Ems</h2>
-
 <p><%= @user.name %>様</p>
 
 <p>
-Hit'Emsへようこそ！以下のリンクをクリックしてアカウントを有効化してください:
+Hit'Emsへようこそ。アカウントを有効化するには、以下のボタンをクリックしてください。
 </p>
 
-<%= link_to "有効化する", edit_account_activation_url(@user.activation_token,
-                                                    email: @user.email) %>
+<p style="text-align: center; margin: 28px 0;">
+  <%= link_to "アカウントを有効化する", edit_account_activation_url(@user.activation_token, email: @user.email),
+        style: "display: inline-block; padding: 10px 24px; background-color: #442c81; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;" %>
+</p>
+
+<p style="color: #666666; font-size: 12px;">
+ボタンが機能しない場合は、以下のURLをブラウザに直接貼り付けてください。<br>
+<%= edit_account_activation_url(@user.activation_token, email: @user.email) %>
+</p>

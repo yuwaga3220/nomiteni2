@@ -7,7 +7,31 @@
     </style>
   </head>
 
-  <body>
-    <%= yield %>
+  <body style="margin: 0; padding: 0; background-color: #f4f4f4;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 24px 0;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border: 1px solid #dddddd; border-radius: 6px;">
+            <tr>
+              <td style="padding: 20px 32px; border-bottom: 1px solid #eeeeee;">
+                <span style="font-size: 18px; font-weight: bold; color: #442c81;">Hit'Ems</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 24px 32px; color: #333333; font-size: 14px; line-height: 1.7;">
+                <%= yield %>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 16px 32px; border-top: 1px solid #eeeeee; color: #999999; font-size: 12px; line-height: 1.6;">
+                このメールはHit'Emsから自動送信されています。心当たりがない場合は破棄してください。<br>
+                本メールに直接返信いただいても対応できません。<br>
+                &copy; Hit'Ems - <%= link_to "https://hit-thems.com", "https://hit-thems.com", style: "color: #999999;" %>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>
