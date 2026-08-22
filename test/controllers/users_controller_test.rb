@@ -72,4 +72,18 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_response :see_other
     assert_redirected_to root_url
   end
+
+  test "should attach avatar when uploaded by owner" do
+    log_in_as(@user)
+    assert_not @user.avatar.attached?
+    patch user_path(@user), params: {
+      user: {
+        name: @user.name,
+        email: @user.email,
+        avatar: fixture_file_upload("kitten.jpg", "image/jpeg")
+      }
+    }
+    assert_redirected_to @user
+    assert @user.reload.avatar.attached?
+  end
 end

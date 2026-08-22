@@ -13,5 +13,10 @@
   <%= f.label :password_confirmation %>
   <%= f.password_field :password_confirmation, class: 'form-control' %>
 
+  <% if f.object.persisted? %>
+    <%= f.label :avatar, "アイコン画像（任意）" %>
+    <%= f.file_field :avatar, accept: "image/png,image/jpeg,image/gif,image/webp" %>
+  <% end %>
+
   <%= f.submit yield(:button_text), class: "btn btn-primary" %>
 <% end %>

@@ -1,10 +1,13 @@
 module UsersHelper
     # 引数で与えられたユーザーのアイコン画像を返す
-    # Googleアカウントのプロフィール画像があればそちらを優先し、なければGravatarを使う
+    # 自前でアップロードした画像があればそれを優先し、次にGoogleアカウントのプロフィール画像、
+    # どちらもなければGravatarを使う
     def gravatar_for(user, options = { size: 80 })
       size = options[:size]
       image_style = "width: #{size}px; height: #{size}px; object-fit: cover;"
-      if user.avatar_url.present?
+      if user.avatar.attached?
+        image_tag(user.avatar.variant(:display), alt: user.name, class: "gravatar", style: image_style)
+      elsif user.avatar_url.present?
         image_tag(user.avatar_url, alt: user.name, class: "gravatar", style: image_style)
       else
         gravatar_id  = Digest::MD5.hexdigest(user.email.downcase)

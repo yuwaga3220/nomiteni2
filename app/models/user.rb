@@ -1,6 +1,9 @@
 class User < ApplicationRecord
   has_many :tournaments, dependent: :destroy
   has_many :predictions, dependent: :destroy
+  has_one_attached :avatar do |attachable|
+    attachable.variant :display, resize_to_fill: [ 200, 200 ]
+  end
   attr_accessor :remember_token, :activation_token, :reset_token
   before_save   :downcase_email
   before_create :create_activation_digest
@@ -15,6 +18,10 @@ class User < ApplicationRecord
     uniqueness: true
   has_secure_password
   validates :password, presence: true, length: { minimum: 8 }, allow_nil: true
+  validates :avatar, content_type: { in: %w[image/jpeg image/gif image/png image/webp],
+                                     message: "must be a valid image format" },
+                     size:         { less_than: 5.megabytes,
+                                     message:   "should be less than 5MB" }
 
   # 渡された文字列のハッシュ値を返す
   def self.digest(string)
