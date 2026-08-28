@@ -44,7 +44,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Load SSH key
-        uses: webfactory/ssh-agent@v0.9.0
+        uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
 
