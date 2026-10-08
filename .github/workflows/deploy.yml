@@ -49,8 +49,10 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
 
+      # -H（ハッシュ化）を付けると、Kamal が使う SSHKit が鍵を1種類しか読み込まず
+      # HostKeyMismatch になるため、ハッシュ化せずに登録する
       - name: Add EC2 host to known_hosts
-        run: ssh-keyscan -H 52.197.251.31 >> ~/.ssh/known_hosts
+        run: ssh-keyscan 52.197.251.31 >> ~/.ssh/known_hosts
 
       - name: Write master key
         run: echo "${{ secrets.RAILS_MASTER_KEY }}" > config/master.key
