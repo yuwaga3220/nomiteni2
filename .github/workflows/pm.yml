@@ -1,0 +1,75 @@
+name: PM
+
+# 毎週月曜 9:00 (JST) に Claude(pm) が課題を洗い出し、proposed の Issue を起票する。
+# 起票された Issue に approved を付けるかどうかは事業責任者が判断する。
+
+on:
+  schedule:
+    - cron: "0 0 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  GH_REPO: ${{ github.repository }}
+  # 判断待ち（proposed）がこの件数以上なら、新規起票しない
+  MAX_PROPOSED: 5
+
+jobs:
+  pm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: 判断待ちが溜まっていないか確認する
+        id: gate
+        run: |
+          n=$(gh issue list --state open --label proposed --json number --jq 'length')
+          if [ "$n" -ge "$MAX_PROPOSED" ]; then
+            echo "判断待ちが ${n} 件あるためスキップ"
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "started=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout code
+        if: steps.gate.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install packages
+        if: steps.gate.outputs.run == 'true'
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libvips
+
+      - name: Set up Ruby
+        if: steps.gate.outputs.run == 'true'
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Claude (pm) を実行する
+        if: steps.gate.outputs.run == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ github.token }}
+          prompt: |
+            .claude/agents/pm.md を読み、その手順とルールに従って課題を洗い出し、Issue を起票してください。
+            GitHub Actions 上の非対話実行です。コードの編集・commit・push はしないでください。
+            起票は最大3件、必ず proposed ラベルを付け、approved は付けないでください。
+          claude_args: |
+            --max-turns 40
+            --allowedTools "Read,Glob,Grep,Bash(git log:*),Bash(git diff:*),Bash(bin/rubocop:*),Bash(bin/brakeman:*),Bash(bin/bundler-audit:*),Bash(gh issue list:*),Bash(gh issue view:*),Bash(gh issue create:*),Bash(gh pr list:*),Bash(gh run list:*)"
+
+      - name: 起票された Issue を事業責任者に知らせる
+        if: success() && steps.gate.outputs.run == 'true'
+        env:
+          STARTED: ${{ steps.gate.outputs.started }}
+        run: |
+          for n in $(gh issue list --state open --label proposed --search "created:>=${STARTED}" --json number --jq '.[].number'); do
+            gh issue comment "$n" --body "@${GITHUB_REPOSITORY_OWNER} PM が起票しました。着手するなら approved ラベルを付けてください（自動で実装・QA まで進みます）。見送るなら close してください。"
+          done

@@ -1,0 +1,100 @@
+name: QA
+
+# coder.yml から PR 番号付きで呼ばれる。Claude(qa) が検証し、qa-ok / qa-ng を付ける。
+# qa-ng なら最大2回まで coder.yml に差し戻し、超えたら needs-human で止めて事業責任者に知らせる。
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: 検証する PR 番号
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  actions: write
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  GH_REPO: ${{ github.repository }}
+  PR: ${{ inputs.pr }}
+  # QA 差し戻しの上限
+  MAX_REWORK: 2
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    concurrency:
+      group: qa-pr-${{ inputs.pr }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ inputs.pr }}/head
+          fetch-depth: 0
+
+      - name: main ブランチを用意する
+        run: git fetch origin main:refs/heads/main
+
+      - name: 前回の判定ラベルを外す
+        run: gh pr edit "$PR" --remove-label qa-ok --remove-label qa-ng || true
+
+      - name: Install packages
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libvips
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Claude (qa) を実行する
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ github.token }}
+          prompt: |
+            .claude/agents/qa.md を読み、その手順と判定基準に従って PR #${{ inputs.pr }} を QA してください。
+            GitHub Actions 上の非対話実行です。コードは修正しないでください。
+            結果は gh pr comment で PR に投稿し、コメント本文の1行目は必ず
+            「## QA 結果: ✅ qa-ok」または「## QA 結果: ❌ qa-ng」にしてください。
+            最後に PR へ qa-ok または qa-ng のラベルを付けてください。
+          claude_args: |
+            --max-turns 60
+            --allowedTools "Read,Glob,Grep,Bash(git:*),Bash(bin/rails:*),Bash(bin/rubocop:*),Bash(bin/brakeman:*),Bash(bundle:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(gh pr edit:*),Bash(gh issue view:*),Bash(ls:*),Bash(cat:*)"
+
+      - name: 判定に応じて次へ進める
+        run: |
+          labels=",$(gh pr view "$PR" --json labels --jq '[.labels[].name] | join(",")'),"
+          issue=$(gh pr view "$PR" --json closingIssuesReferences --jq '.closingIssuesReferences[0].number // empty')
+          run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          owner="@${GITHUB_REPOSITORY_OWNER}"
+
+          case "$labels" in
+            *,qa-ok,*)
+              gh pr comment "$PR" --body "${owner} QA に合格しました。内容を確認して、マージするか判断してください（マージすると本番へ自動デプロイされます）。"
+              ;;
+            *,qa-ng,*)
+              ng_count=$(gh pr view "$PR" --json comments --jq '[.comments[] | select(.body | contains("QA 結果: ❌"))] | length')
+              if [ "$ng_count" -le "$MAX_REWORK" ] && [ -n "$issue" ]; then
+                gh workflow run coder.yml -f issue="$issue" -f pr="$PR"
+              else
+                gh pr edit "$PR" --add-label needs-human
+                [ -z "$issue" ] || gh issue edit "$issue" --add-label needs-human
+                gh pr comment "$PR" --body "${owner} QA 差し戻しが上限（${MAX_REWORK}回）を超えたため停止しました。判断をお願いします。"
+              fi
+              ;;
+            *)
+              gh pr edit "$PR" --add-label needs-human
+              gh pr comment "$PR" --body "${owner} QA の判定ラベルが付きませんでした。ログ: ${run_url}"
+              ;;
+          esac
+
+      - name: 失敗時は needs-human で止める
+        if: failure()
+        run: |
+          gh pr edit "$PR" --add-label needs-human
+          gh pr comment "$PR" --body "@${GITHUB_REPOSITORY_OWNER} QA の自動実行が失敗しました。ログ: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"

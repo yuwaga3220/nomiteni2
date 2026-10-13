@@ -1,0 +1,60 @@
+name: タスク（PM起票・人間起票 共通）
+description: 1つの PR で完結する作業単位。受け入れ条件は必須。
+title: "[タスク] "
+labels: ["proposed"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        `proposed` → 事業責任者が `approved` を付ける → コーダーが着手、の流れです。
+        `approved` を付けられるのは事業責任者だけです。
+  - type: textarea
+    id: background
+    attributes:
+      label: 背景・課題
+      description: 何が問題か。どこでそれを確認したか（ファイル、テスト結果、再現手順など）。
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 提案内容
+      description: 何をするか。やらないこと（スコープ外）も書く。
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 受け入れ条件
+      description: QA がそのまま検証できる、合否が判定できる条件をチェックリストで。曖昧な表現は禁止。
+      placeholder: |
+        - [ ] ログイン済みユーザーが ◯◯ すると △△ が表示される
+        - [ ] 未ログインの場合はログイン画面へリダイレクトされる
+        - [ ] 上記に対応する Minitest が追加され、`bin/rails test` が通る
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 優先度
+      options: ["高", "中", "低"]
+    validations:
+      required: true
+  - type: dropdown
+    id: risk
+    attributes:
+      label: 本番への影響
+      options:
+        - なし（テスト・ドキュメントのみ）
+        - 小（見た目・軽微な挙動）
+        - 中（機能変更・マイグレーションあり）
+        - 大（認証・データ・セキュリティに関わる）
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: 補足
+      description: 関連 Issue / PR、参考リンクなど。
+    validations:
+      required: false

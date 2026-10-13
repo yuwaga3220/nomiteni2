@@ -1,0 +1,72 @@
+name: Post Deploy
+
+# Deploy ワークフローの完了後に、結果の確認と本番のスモークテストを行い、マージした PR に報告する。
+# 決まった確認だけなので Claude は使わず、シェルで行う。
+
+on:
+  workflow_run:
+    workflows: [ Deploy ]
+    types: [ completed ]
+    branches: [ main ]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  GH_REPO: ${{ github.repository }}
+  BASE_URL: https://hit-thems.com
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+      SHA: ${{ github.event.workflow_run.head_sha }}
+      RUN_URL: ${{ github.event.workflow_run.html_url }}
+    steps:
+      - name: スモークテスト
+        id: smoke
+        if: env.CONCLUSION == 'success'
+        run: |
+          ok=true
+          for path in / /login; do
+            code=000
+            for i in 1 2 3 4 5; do
+              code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "${BASE_URL}${path}" || true)
+              [ "$code" = "200" ] && break
+              sleep 15
+            done
+            echo "${path}: ${code}"
+            echo "result_${path//\//_}=${code}" >> "$GITHUB_OUTPUT"
+            [ "$code" = "200" ] || ok=false
+          done
+          echo "ok=${ok}" >> "$GITHUB_OUTPUT"
+
+      - name: マージした PR に報告する
+        if: always()
+        run: |
+          pr=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${SHA}/pulls" --jq '.[0].number // empty')
+          [ -n "$pr" ] || { echo "対応する PR が見つからないため報告をスキップ"; exit 0; }
+          owner="@${GITHUB_REPOSITORY_OWNER}"
+          if [ "$CONCLUSION" != "success" ]; then
+            body="## デプロイ結果: ❌ 失敗
+          ${owner} デプロイが失敗しました（${CONCLUSION}）。ロールバックや再実行の判断をお願いします。
+          - コミット: ${SHA}
+          - 実行: ${RUN_URL}"
+          elif [ "${{ steps.smoke.outputs.ok }}" = "true" ]; then
+            body="## デプロイ結果: ✅ 成功
+          - コミット: ${SHA}
+          - 実行: ${RUN_URL}
+          - スモークテスト: トップ OK / ログイン画面 OK"
+          else
+            body="## デプロイ結果: ⚠️ デプロイは成功、スモークテストが NG
+          ${owner} 本番の表示に問題がある可能性があります。確認をお願いします。
+          - コミット: ${SHA}
+          - 実行: ${RUN_URL}
+          - トップ: ${{ steps.smoke.outputs.result__ }} / ログイン画面: ${{ steps.smoke.outputs.result__login }}"
+          fi
+          gh pr comment "$pr" --body "$body"

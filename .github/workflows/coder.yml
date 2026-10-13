@@ -1,0 +1,153 @@
+name: Coder
+
+# Issue に approved が付く → Claude(coder) が実装して PR を作成 → QA を起動する。
+# QA 差し戻し時は qa.yml からこのワークフローが pr 付きで呼ばれる。
+# 人間の判断は「approved を付ける」と「PR をマージする」の2つだけ。
+
+on:
+  issues:
+    types: [ labeled ]
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: 対象の Issue 番号
+        required: true
+      pr:
+        description: QA 差し戻し時の PR 番号（新規実装なら空）
+        required: false
+  pull_request:
+    types: [ closed ]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: write
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  GH_REPO: ${{ github.repository }}
+  # WIP 制限（同時に進める Issue の最大数）
+  MAX_WIP: 2
+
+jobs:
+  code:
+    # approved を付けたのが事業責任者（リポジトリ所有者）のときだけ着手する
+    if: >-
+      (github.event_name == 'issues' && github.event.label.name == 'approved'
+        && github.event.sender.login == github.repository_owner)
+      || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    concurrency:
+      group: coder-issue-${{ github.event.issue.number || inputs.issue }}
+      cancel-in-progress: false
+    env:
+      ISSUE: ${{ github.event.issue.number || inputs.issue }}
+      PR: ${{ inputs.pr }}
+    steps:
+      - name: 着手してよいか判定する
+        id: gate
+        run: |
+          if [ -n "$PR" ]; then
+            # QA 差し戻しの再作業。すでに in-progress なので判定不要
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          labels=",$(gh issue view "$ISSUE" --json labels --jq '[.labels[].name] | join(",")'),"
+          case "$labels" in
+            *,approved,*) ;;
+            *) echo "approved が付いていないため着手しない"; echo "run=false" >> "$GITHUB_OUTPUT"; exit 0 ;;
+          esac
+          case "$labels" in
+            *,in-progress,*|*,needs-human,*)
+              echo "着手済みまたは停止中のためスキップ"; echo "run=false" >> "$GITHUB_OUTPUT"; exit 0 ;;
+          esac
+          wip=$(gh issue list --state open --label in-progress --json labels \
+            --jq '[.[] | select(all(.labels[]; .name != "needs-human"))] | length')
+          if [ "$wip" -ge "$MAX_WIP" ]; then
+            gh issue comment "$ISSUE" --body "WIP 上限（${MAX_WIP}件）のため待機します。他の PR がマージされたら自動で着手します。"
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          gh issue edit "$ISSUE" --add-label in-progress
+          echo "run=true" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout code
+        if: steps.gate.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 差し戻し対象の PR ブランチに切り替える
+        if: steps.gate.outputs.run == 'true' && env.PR != ''
+        run: gh pr checkout "$PR"
+
+      - name: Install packages
+        if: steps.gate.outputs.run == 'true'
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libvips
+
+      - name: Set up Ruby
+        if: steps.gate.outputs.run == 'true'
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Claude (coder) を実行する
+        if: steps.gate.outputs.run == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ github.token }}
+          prompt: |
+            .claude/agents/coder.md を読み、その手順と制約に従って作業してください。
+            GitHub Actions 上の非対話実行です。確認はできないため、迷う点や基準を満たせない場合は
+            Issue にコメントして needs-human ラベルを付け、PR を出さずに停止してください。
+
+            ${{ env.PR == '' && format('対象: Issue #{0}（新規実装）。PR を作成してください。', env.ISSUE) || format('対象: Issue #{0} の PR #{1} への QA 差し戻し対応。PR のコメントの指摘に対応して、このブランチへ再 push してください（新しい PR は作らない）。', env.ISSUE, env.PR) }}
+
+            PR のマージ・main への push・デプロイは行わないでください。
+          claude_args: |
+            --max-turns 80
+            --allowedTools "Read,Write,Edit,Glob,Grep,Bash(git:*),Bash(bin/rails:*),Bash(bin/rubocop:*),Bash(bin/brakeman:*),Bash(bundle:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh issue edit:*),Bash(gh pr create:*),Bash(gh pr view:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(ls:*),Bash(cat:*)"
+
+      - name: QA を起動する
+        if: success() && steps.gate.outputs.run == 'true'
+        run: |
+          labels=",$(gh issue view "$ISSUE" --json labels --jq '[.labels[].name] | join(",")'),"
+          case "$labels" in
+            *,needs-human,*) echo "needs-human のため QA は起動しない"; exit 0 ;;
+          esac
+          pr="$PR"
+          if [ -z "$pr" ]; then
+            pr=$(gh pr list --state open --json number,headRefName \
+              --jq "[.[] | select(.headRefName | startswith(\"issue-${ISSUE}-\"))][0].number // empty")
+          fi
+          if [ -z "$pr" ]; then
+            gh issue edit "$ISSUE" --add-label needs-human
+            gh issue comment "$ISSUE" --body "@${GITHUB_REPOSITORY_OWNER} PR が作成されませんでした。実行ログを確認してください: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            exit 0
+          fi
+          gh workflow run qa.yml -f pr="$pr"
+
+      - name: 失敗時は needs-human で止める
+        if: failure() && steps.gate.outputs.run == 'true'
+        run: |
+          gh issue edit "$ISSUE" --add-label needs-human
+          gh issue comment "$ISSUE" --body "@${GITHUB_REPOSITORY_OWNER} 実装の自動実行が失敗しました。ログ: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+  # PR がマージされて WIP に空きができたら、待機中の approved Issue に着手する
+  next:
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: 待機中の Issue を起動する
+        run: |
+          sleep 10
+          wip=$(gh issue list --state open --label in-progress --json labels \
+            --jq '[.[] | select(all(.labels[]; .name != "needs-human"))] | length')
+          [ "$wip" -lt "$MAX_WIP" ] || exit 0
+          next=$(gh issue list --state open --label approved --json number,labels \
+            --jq '[.[] | select(all(.labels[]; .name != "in-progress" and .name != "needs-human"))] | sort_by(.number) | .[0].number // empty')
+          [ -n "$next" ] || exit 0
+          gh workflow run coder.yml -f issue="$next"
