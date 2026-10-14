@@ -49,6 +49,28 @@ class PredictionsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".prediction-log-hit-rate", count: 0
   end
 
+  test "should show own prediction as yours and others' predictions with their names in prediction log" do
+    @tournament.update!(status: :during)
+    @match.update!(winner: @alice, winner_games: 6, loser_games: 3, status: :finished)
+    Prediction.create!(user: users(:michael), match: @match, predicted_participant: @alice, points: 10)
+    Prediction.create!(user: users(:archer), match: @match, predicted_participant: @bob, points: 0)
+    log_in_as(users(:michael))
+    get new_tournament_prediction_path(@tournament)
+    assert_select ".prediction-log-item", count: 2
+    assert_select ".prediction-log-user", text: "あなたの予想:", count: 1
+    assert_select ".prediction-log-user", text: "#{users(:archer).name}の予想:", count: 1
+    assert_select ".prediction-log-user", text: "#{users(:michael).name}の予想:", count: 0
+    # 的中/不的中のアイコンと勝者は全ての行に表示される
+    css_select(".prediction-log-item").each do |item|
+      assert_equal 1, item.css(".glyphicon-ok, .glyphicon-remove").size
+      assert_includes item.text, "勝者: #{@alice.name}"
+    end
+    yours = css_select(".prediction-log-item").find { |li| li.text.include?("あなたの予想") }
+    archers = css_select(".prediction-log-item").find { |li| li.text.include?("#{users(:archer).name}の予想") }
+    assert yours.css(".glyphicon-ok").any?
+    assert archers.css(".glyphicon-remove").any?
+  end
+
   test "should not show prediction log before tournament starts" do
     log_in_as(users(:michael))
     get new_tournament_prediction_path(@tournament)
