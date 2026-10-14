@@ -99,6 +99,8 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ github.token }}
+          # ワークフロー同士の起動は github-actions（Bot）が起動元になるため許可する
+          allowed_bots: github-actions
           prompt: |
             .claude/agents/coder.md を読み、その手順と制約に従って作業してください。
             GitHub Actions 上の非対話実行です。確認はできないため、迷う点や基準を満たせない場合は
