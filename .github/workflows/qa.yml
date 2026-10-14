@@ -56,6 +56,8 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ github.token }}
+          # ワークフロー同士の起動は github-actions（Bot）が起動元になるため許可する
+          allowed_bots: github-actions
           prompt: |
             .claude/agents/qa.md を読み、その手順と判定基準に従って PR #${{ inputs.pr }} を QA してください。
             GitHub Actions 上の非対話実行です。コードは修正しないでください。
