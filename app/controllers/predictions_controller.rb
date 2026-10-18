@@ -5,15 +5,7 @@ class PredictionsController < ApplicationController
   def new
     return if block_unless_tournament_accessible(@tournament)
 
-    @existing_predictions = current_user.predictions
-                                        .where(match: @tournament.matches)
-                                        .includes(:predicted_participant)
-                                        .index_by(&:match_id)
-    @all_matches = @tournament.matches.includes(:participant1, :participant2).to_a
-    @feeder_matches = @all_matches.each_with_object({}) do |m, h|
-      next unless m.next_match_id
-      h[[ m.next_match_id, m.next_slot ]] = m
-    end
+    set_bracket
     @ranking = @tournament.ranking unless @tournament.before?
     @prediction_log = prediction_log unless @tournament.before?
 
@@ -38,10 +30,27 @@ class PredictionsController < ApplicationController
                   .update!(predicted_participant_id: params[:participant_id])
       delete_downstream_predictions(match)
     end
-    redirect_to new_tournament_prediction_path(@tournament)
+    respond_to do |format|
+      format.html { redirect_to new_tournament_prediction_path(@tournament) }
+      # ブラケット部分だけを差し替え、投票前のスクロール位置を維持する
+      format.turbo_stream { set_bracket }
+    end
   end
 
   private
+
+  # 予想ブラケットの描画に必要なデータを用意する
+  def set_bracket
+    @existing_predictions = current_user.predictions
+                                        .where(match: @tournament.matches)
+                                        .includes(:predicted_participant)
+                                        .index_by(&:match_id)
+    @all_matches = @tournament.matches.includes(:participant1, :participant2).to_a
+    @feeder_matches = @all_matches.each_with_object({}) do |m, h|
+      next unless m.next_match_id
+      h[[ m.next_match_id, m.next_slot ]] = m
+    end
+  end
 
   # 終了した試合に対する全員の予想結果を、新しい順に並べて返す
   def prediction_log

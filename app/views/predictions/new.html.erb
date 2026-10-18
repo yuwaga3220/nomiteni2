@@ -26,7 +26,9 @@
             <div class="upset-highlight-winner"><h3><%= @best_predictor.name %></h3></div>
           </div>
         <% end %>
-      <%= render "tournaments/prediction_bracket" %>
+      <div id="prediction-bracket">
+        <%= render "tournaments/prediction_bracket" %>
+      </div>
     </div>
     <div class="col-md-3">
       <% if @tournament.participants.any? %>
