@@ -145,6 +145,67 @@ class PredictionsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_url
   end
 
+  test "should replace only the bracket with turbo stream and show the selected participant" do
+    log_in_as(users(:michael))
+    assert_difference "Prediction.count", 1 do
+      post tournament_prediction_path(@tournament), params: { match_id: @match.id, participant_id: @alice.id },
+                                                    as: :turbo_stream
+    end
+    assert_response :success
+    assert_equal "text/vnd.turbo-stream.html", response.media_type
+    assert_turbo_stream action: "update", target: "prediction-bracket" do
+      assert_select "template .bracket-wrapper[data-bracket-preserve-scroll-value=?]", "true"
+      assert_select "template button.bracket-slot-selected", text: @alice.name, count: 1
+    end
+  end
+
+  test "should delete downstream predictions and reflect them in the turbo stream" do
+    carol = participants(:carol)
+    dave = participants(:dave)
+    final = @tournament.matches.create!(round: 2)
+    @match.update!(next_match: final, next_slot: 1)
+    other_match = @tournament.matches.create!(round: 1, participant1: carol, participant2: dave,
+                                              next_match: final, next_slot: 2)
+    michael = users(:michael)
+    Prediction.create!(user: michael, match: @match, predicted_participant: @alice)
+    Prediction.create!(user: michael, match: other_match, predicted_participant: carol)
+    Prediction.create!(user: michael, match: final, predicted_participant: @alice)
+    log_in_as(michael)
+    post tournament_prediction_path(@tournament), params: { match_id: @match.id, participant_id: @bob.id },
+                                                  as: :turbo_stream
+    assert_nil michael.predictions.find_by(match: final)
+    assert_equal @bob, michael.predictions.find_by(match: @match).predicted_participant
+    assert_turbo_stream action: "update", target: "prediction-bracket" do
+      # 決勝の予想は消え、選択済みは1回戦の2試合（ボブとキャロル）だけになる
+      assert_select "template button.bracket-slot-selected", count: 2
+      assert_select "template button.bracket-slot-selected", text: @bob.name, count: 1
+      assert_select "template button.bracket-slot-selected", text: carol.name, count: 1
+    end
+  end
+
+  test "should redirect with an error when predicting via turbo stream outside before status" do
+    @tournament.update!(status: :during)
+    log_in_as(users(:michael))
+    assert_no_difference "Prediction.count" do
+      post tournament_prediction_path(@tournament), params: { match_id: @match.id, participant_id: @alice.id },
+                                                    as: :turbo_stream
+    end
+    assert_redirected_to new_tournament_prediction_path(@tournament)
+    assert_equal "開催前以外は予想を入力できません", flash[:danger]
+  end
+
+  test "should still redirect to predictions page on html request" do
+    log_in_as(users(:michael))
+    post tournament_prediction_path(@tournament), params: { match_id: @match.id, participant_id: @alice.id }
+    assert_redirected_to new_tournament_prediction_path(@tournament)
+  end
+
+  test "should wrap the bracket with a target for turbo stream on predictions page" do
+    log_in_as(users(:michael))
+    get new_tournament_prediction_path(@tournament)
+    assert_select "#prediction-bracket .bracket-wrapper[data-bracket-preserve-scroll-value=?]", "false"
+  end
+
   test "should allow predictions page once session is authorized via passcode" do
     @tournament.update!(passcode: "1234")
     log_in_as(users(:archer))

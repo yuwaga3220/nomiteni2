@@ -56,4 +56,4 @@
     <% end %>
   <% end %>
 </div>
-<div class="bracket-wrapper" data-controller="bracket" data-bracket-data-value="<%= bracket_data.to_json %>"></div>
+<div class="bracket-wrapper" data-controller="bracket" data-bracket-data-value="<%= bracket_data.to_json %>" data-bracket-preserve-scroll-value="<%= local_assigns.fetch(:preserve_scroll, false) %>"></div>
