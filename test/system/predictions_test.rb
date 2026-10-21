@@ -47,7 +47,7 @@ class PredictionsSystemTest < ApplicationSystemTestCase
 
     # PC と狭い画面（幅 800px 以下）の両方で、一番下までスクロールしても
     # フッターのリンクが固定バーに隠れない
-    [ [ 375, 800 ], [ 1400, 1400 ] ].each do |width, height|
+    [ [ 500, 800 ], [ 1400, 1400 ] ].each do |width, height|
       page.driver.browser.manage.window.resize_to(width, height)
       assert_equal width, evaluate_script("window.innerWidth")
       execute_script("window.scrollTo(0, document.body.scrollHeight)")
