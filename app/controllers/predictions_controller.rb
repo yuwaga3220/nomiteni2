@@ -52,6 +52,26 @@ class PredictionsController < ApplicationController
       next unless m.next_match_id
       h[[ m.next_match_id, m.next_slot ]] = m
     end
+    @next_match, @next_participants = next_unpredicted_match if @tournament.before?
+  end
+
+  # 未予想の試合のうち、トーナメント表の左上から順（回戦の若い順→上から順）で最初の1試合と、
+  # その対戦する2人を返す。両方の選手が確定していない試合は飛ばす
+  def next_unpredicted_match
+    @all_matches.group_by(&:round).sort.flat_map(&:last).each do |match|
+      next if @existing_predictions.key?(match.id)
+      if match.round == 1
+        participants = [ match.participant1, match.participant2 ]
+      else
+        # 2回戦以降は、前の試合で自分が予想した勝者が対戦する
+        participants = [ 1, 2 ].map do |slot|
+          feeder = @feeder_matches[[ match.id, slot ]]
+          @existing_predictions[feeder&.id]&.predicted_participant
+        end
+      end
+      return [ match, participants ] if participants.all?(&:present?)
+    end
+    nil
   end
 
   # 終了した試合に対する自分の予想結果を、新しい順に並べて返す

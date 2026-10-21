@@ -1,0 +1,18 @@
+<div class="panel panel-default">
+  <div class="panel-heading">順番に予想する</div>
+  <div class="panel-body">
+    <% if @next_match %>
+      <p>R<%= @next_match.round %> の勝者を選んでください。</p>
+      <% @next_participants.each do |participant| %>
+        <%= button_to participant.name,
+              tournament_prediction_path(@tournament),
+              params: { match_id: @next_match.id, participant_id: participant.id },
+              method: :post,
+              form: { style: "display: inline-block; margin: 0 5px 5px 0;" },
+              class: "btn btn-default next-prediction-button" %>
+      <% end %>
+    <% else %>
+      <p class="text-success" style="margin: 0;">すべての試合を予想しました</p>
+    <% end %>
+  </div>
+</div>

@@ -283,4 +283,105 @@ class PredictionsControllerTest < ActionDispatch::IntegrationTest
     get new_tournament_prediction_path(@tournament)
     assert_response :success
   end
+
+  # 4人のトーナメント（1回戦2試合＋決勝）を作る。@matchを1回戦の上の試合にする
+  def build_four_player_bracket
+    @carol = participants(:carol)
+    @dave = participants(:dave)
+    @final = @tournament.matches.create!(round: 2)
+    @match.update!(next_match: @final, next_slot: 1)
+    @other_match = @tournament.matches.create!(round: 1, participant1: @carol, participant2: @dave,
+                                               next_match: @final, next_slot: 2)
+  end
+
+  test "should show the first unpredicted match from the top left in the next prediction card" do
+    build_four_player_bracket
+    log_in_as(users(:michael))
+    get new_tournament_prediction_path(@tournament)
+    assert_select "#next-prediction-card button.next-prediction-button", count: 2
+    assert_select "#next-prediction-card input[name=match_id][value=?]", @match.id.to_s, count: 2
+    assert_select "#next-prediction-card button.next-prediction-button", text: @alice.name
+    assert_select "#next-prediction-card button.next-prediction-button", text: @bob.name
+  end
+
+  test "should switch the next prediction card to the next unpredicted match via turbo stream" do
+    build_four_player_bracket
+    log_in_as(users(:michael))
+    assert_difference "Prediction.count", 1 do
+      post tournament_prediction_path(@tournament), params: { match_id: @match.id, participant_id: @alice.id },
+                                                    as: :turbo_stream
+    end
+    assert_turbo_stream action: "update", target: "next-prediction-card" do
+      assert_select "template input[name=match_id][value=?]", @other_match.id.to_s, count: 2
+      assert_select "template button.next-prediction-button", text: @carol.name
+      assert_select "template button.next-prediction-button", text: @dave.name
+    end
+    # 保存した予想はトーナメント表にも反映される
+    assert_turbo_stream action: "update", target: "prediction-bracket" do
+      assert_select "template button.bracket-slot-selected", text: @alice.name, count: 1
+    end
+  end
+
+  test "should show the next round match with both predicted participants in the next prediction card" do
+    build_four_player_bracket
+    michael = users(:michael)
+    Prediction.create!(user: michael, match: @match, predicted_participant: @alice)
+    log_in_as(michael)
+    post tournament_prediction_path(@tournament), params: { match_id: @other_match.id, participant_id: @dave.id },
+                                                  as: :turbo_stream
+    assert_turbo_stream action: "update", target: "next-prediction-card" do
+      assert_select "template input[name=match_id][value=?]", @final.id.to_s, count: 2
+      assert_select "template button.next-prediction-button", text: @alice.name
+      assert_select "template button.next-prediction-button", text: @dave.name
+    end
+  end
+
+  test "should skip matches already predicted on the bracket in the next prediction card" do
+    build_four_player_bracket
+    Prediction.create!(user: users(:michael), match: @match, predicted_participant: @bob)
+    log_in_as(users(:michael))
+    get new_tournament_prediction_path(@tournament)
+    assert_select "#next-prediction-card input[name=match_id][value=?]", @other_match.id.to_s, count: 2
+    assert_select "#next-prediction-card button.next-prediction-button", text: @carol.name
+  end
+
+  test "should not show undetermined matches in the next prediction card" do
+    build_four_player_bracket
+    # 決勝だけ予想済みのデータがあっても、対戦カードが未定の試合は出さない
+    Prediction.create!(user: users(:michael), match: @other_match, predicted_participant: @carol)
+    log_in_as(users(:michael))
+    get new_tournament_prediction_path(@tournament)
+    assert_select "#next-prediction-card input[name=match_id][value=?]", @match.id.to_s, count: 2
+    assert_select "#next-prediction-card input[name=match_id][value=?]", @final.id.to_s, count: 0
+  end
+
+  test "should show completion message when all matches are predicted" do
+    log_in_as(users(:michael))
+    post tournament_prediction_path(@tournament), params: { match_id: @match.id, participant_id: @alice.id },
+                                                  as: :turbo_stream
+    assert_turbo_stream action: "update", target: "next-prediction-card" do
+      assert_select "template button.next-prediction-button", count: 0
+      assert_select "template p", text: "すべての試合を予想しました"
+    end
+    get new_tournament_prediction_path(@tournament)
+    assert_select "#next-prediction-card", text: /すべての試合を予想しました/
+  end
+
+  test "should not show the next prediction card during or after tournament" do
+    log_in_as(users(:michael))
+    %i[during after].each do |status|
+      @tournament.update!(status: status)
+      get new_tournament_prediction_path(@tournament)
+      assert_response :success
+      assert_select "#next-prediction-card", count: 0
+    end
+  end
+
+  test "should not show the next prediction card without error when no matches exist" do
+    @tournament.matches.destroy_all
+    log_in_as(users(:michael))
+    get new_tournament_prediction_path(@tournament)
+    assert_response :success
+    assert_select "#next-prediction-card", count: 0
+  end
 end
