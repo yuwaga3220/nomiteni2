@@ -181,6 +181,50 @@ class PredictionsControllerTest < ActionDispatch::IntegrationTest
       assert_select "template button.bracket-slot-selected", text: @bob.name, count: 1
       assert_select "template button.bracket-slot-selected", text: carol.name, count: 1
     end
+    # 決勝の予想が消えた分、進捗も 3 から 2 に減る
+    assert_turbo_stream action: "update", target: "prediction-progress" do
+      assert_select "template", text: "予想済み 2 / 3 試合"
+    end
+  end
+
+  test "should show own prediction progress before tournament starts" do
+    other_match = @tournament.matches.create!(round: 1, participant1: participants(:carol),
+                                              participant2: participants(:dave))
+    Prediction.create!(user: users(:michael), match: @match, predicted_participant: @alice)
+    # 他のユーザーの予想は進捗に含まれない
+    Prediction.create!(user: users(:archer), match: other_match, predicted_participant: participants(:carol))
+    log_in_as(users(:michael))
+    get new_tournament_prediction_path(@tournament)
+    assert_select "#prediction-progress", text: "予想済み 1 / 2 試合"
+  end
+
+  test "should update prediction progress with turbo stream when predicting" do
+    log_in_as(users(:michael))
+    get new_tournament_prediction_path(@tournament)
+    assert_select "#prediction-progress", text: "予想済み 0 / 1 試合"
+    post tournament_prediction_path(@tournament), params: { match_id: @match.id, participant_id: @alice.id },
+                                                  as: :turbo_stream
+    assert_turbo_stream action: "update", target: "prediction-progress" do
+      assert_select "template", text: "予想済み 1 / 1 試合"
+    end
+  end
+
+  test "should show prediction progress without error when no matches exist" do
+    @tournament.matches.destroy_all
+    log_in_as(users(:michael))
+    get new_tournament_prediction_path(@tournament)
+    assert_response :success
+    assert_select "#prediction-progress", text: "予想済み 0 / 0 試合"
+  end
+
+  test "should not show prediction progress during or after tournament" do
+    log_in_as(users(:michael))
+    %i[during after].each do |status|
+      @tournament.update!(status: status)
+      get new_tournament_prediction_path(@tournament)
+      assert_response :success
+      assert_select "#prediction-progress", count: 0
+    end
   end
 
   test "should redirect with an error when predicting via turbo stream outside before status" do
