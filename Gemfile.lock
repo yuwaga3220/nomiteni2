@@ -136,7 +136,7 @@ GEM
     et-orbi (1.4.0)
       tzinfo
     execjs (2.10.1)
-    faker (2.21.0)
+    faker (3.8.0)
       i18n (>= 1.8.11, < 2)
     faraday (2.14.3)
       faraday-net_http (>= 2.0, < 3.5)
@@ -529,7 +529,7 @@ DEPENDENCIES
   capybara
   debug
   dotenv-rails
-  faker (= 2.21.0)
+  faker (= 3.8.0)
   guard
   guard-minitest
   image_processing (= 1.12.2)
@@ -604,7 +604,7 @@ CHECKSUMS
   erubi (1.13.1) sha256=a082103b0885dbc5ecf1172fede897f9ebdb745a4b97a5e8dc63953db1ee4ad9
   et-orbi (1.4.0) sha256=6c7e3c90779821f9e3b324c5e96fda9767f72995d6ae435b96678a4f3e2de8bc
   execjs (2.10.1) sha256=abe0ae028467eb8e30c10814eb934d07876a691aae7e803d813b7ce5a75e73f1
-  faker (2.21.0) sha256=176534cffc3ae4014d9bfc4c4897db3e607cfd37cd0bf7c8590df05ee355b408
+  faker (3.8.0) sha256=c147b308df73a90f27a4fc84f18d4c22ef0ad9c2a64b2b61c86fd0ca71753efc
   faraday (2.14.3) sha256=1882247e6766615c8220b4392bf1d27f6ebb63d8e28267587cef1fb0bf37f278
   faraday-net_http (3.4.4) sha256=0e78af151747ed1b00f33e25973b4bc220d7f16c00c39676817c8b12331eb588
   ffi (1.17.4-aarch64-linux-gnu) sha256=b208f06f91ffd8f5e1193da3cae3d2ccfc27fc36fba577baf698d26d91c080df
