@@ -283,4 +283,22 @@ class PredictionsControllerTest < ActionDispatch::IntegrationTest
     get new_tournament_prediction_path(@tournament)
     assert_response :success
   end
+
+  test "should show tap guide above the bracket before tournament starts" do
+    log_in_as(users(:michael))
+    get new_tournament_prediction_path(@tournament)
+    assert_select ".prediction-guide", text: /参加者名をタップして勝者を予想しよう/, count: 1
+    # 案内はブラケットの外に置き、投票ボタンとは別の要素にする
+    assert_select "#prediction-bracket .prediction-guide", count: 0
+  end
+
+  test "should not show tap guide during or after tournament" do
+    log_in_as(users(:michael))
+    %i[during after].each do |status|
+      @tournament.update!(status: status)
+      get new_tournament_prediction_path(@tournament)
+      assert_response :success
+      assert_select ".prediction-guide", count: 0
+    end
+  end
 end

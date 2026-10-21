@@ -65,4 +65,29 @@ class PredictionsSystemTest < ApplicationSystemTestCase
     click_link "お問い合わせ"
     assert_current_path contact_path
   end
+
+  test "should not overlap tap guide with bracket buttons" do
+    visit login_path
+    fill_in "メールアドレス", with: users(:michael).email
+    fill_in "パスワード", with: "password"
+    click_button "ログイン"
+    assert_no_current_path login_path
+    visit new_tournament_prediction_path(@tournament)
+    assert_selector ".prediction-guide", text: "参加者名をタップして勝者を予想しよう"
+    assert_selector ".matches-scroller button"
+
+    # PC と狭い画面の両方で、案内（吹き出しの三角を含む）がブラケットより上に収まる
+    [ [ 500, 800 ], [ 1400, 1400 ] ].each do |width, height|
+      page.driver.browser.manage.window.resize_to(width, height)
+      assert_equal width, evaluate_script("window.innerWidth")
+      guide_bottom = evaluate_script(<<~JS)
+        (() => {
+          const guide = document.querySelector(".prediction-guide");
+          return guide.getBoundingClientRect().bottom + parseFloat(getComputedStyle(guide, "::after").borderTopWidth);
+        })()
+      JS
+      bracket_top = evaluate_script("document.querySelector('#prediction-bracket').getBoundingClientRect().top")
+      assert_operator guide_bottom, :<=, bracket_top, "幅 #{width}px で案内がブラケットに重なっている"
+    end
+  end
 end
