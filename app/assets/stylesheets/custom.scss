@@ -560,6 +560,24 @@ a { color: $accent-purple; &:hover { color: $accent-purple-light; } }
   &:hover { color: $accent-purple-light; }
 }
 
+/* 予想画面下部に固定表示する予想の進捗 */
+.prediction-progress-footer {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  padding: 10px 15px;
+  background-color: $bg-navbar;
+  border-top: 1px solid $border-dark;
+  color: $text-primary;
+  text-align: center;
+}
+
+.prediction-progress-spacer {
+  height: 45px;
+}
+
 h1, h2, h3, h4, h5, h6 { color: $text-primary; }
 
 h2 { color: $text-muted-dark; }
