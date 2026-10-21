@@ -10,9 +10,11 @@ class PredictionsController < ApplicationController
     @prediction_log = prediction_log unless @tournament.before?
 
     # 波乱の勝者・最優秀予想者は、全試合が終了してから計算・表示する
+    # 的中率は全ユーザーの予想で集計する（ログ表示用の@prediction_logとは分ける）
     if @tournament.after?
-      hit_rates = match_hit_rates(@prediction_log)
-      @biggest_upset_match = biggest_upset_match(@prediction_log, hit_rates)
+      finished_predictions = all_finished_predictions
+      hit_rates = match_hit_rates(finished_predictions)
+      @biggest_upset_match = biggest_upset_match(finished_predictions, hit_rates)
       @best_predictor = @tournament.best_predictor
     end
   end
@@ -52,11 +54,17 @@ class PredictionsController < ApplicationController
     end
   end
 
-  # 終了した試合に対する全員の予想結果を、新しい順に並べて返す
+  # 終了した試合に対する自分の予想結果を、新しい順に並べて返す
   def prediction_log
-    Prediction.where(match: @tournament.matches.finished)
-              .includes(:user, :predicted_participant, match: [ :participant1, :participant2, :winner ])
-              .order(updated_at: :desc)
+    current_user.predictions
+                .where(match: @tournament.matches.finished)
+                .includes(:predicted_participant, match: [ :participant1, :participant2, :winner ])
+                .order(updated_at: :desc)
+  end
+
+  # 終了した試合に対する全ユーザーの予想を返す（的中率などの集計用）
+  def all_finished_predictions
+    Prediction.where(match: @tournament.matches.finished).includes(:match)
   end
 
   # 試合ごとに、全ユーザーの予想のうち何%が的中したかを返す
