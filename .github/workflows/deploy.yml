@@ -1,10 +1,13 @@
 name: Deploy
 
+# 手動実行のみ（main へのマージでは自動デプロイしない）。実行: gh workflow run deploy.yml --ref main
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+
+# デプロイを同時に2つ走らせない（後続は待機。進行中のデプロイは中断しない）
+concurrency:
+  group: deploy
+  cancel-in-progress: false
 
 jobs:
   test:

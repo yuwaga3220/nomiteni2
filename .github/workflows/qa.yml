@@ -77,7 +77,7 @@ jobs:
 
           case "$labels" in
             *,qa-ok,*)
-              gh pr comment "$PR" --body "${owner} QA に合格しました。内容を確認して、マージするか判断してください（マージすると本番へ自動デプロイされます）。"
+              gh pr comment "$PR" --body "${owner} QA に合格しました。内容を確認して、マージするか判断してください（マージしても本番には反映されません。リリース時にデプロイを実行してください）。"
               ;;
             *,qa-ng,*)
               ng_count=$(gh pr view "$PR" --json comments --jq '[.comments[] | select(.body | contains("QA 結果: ❌"))] | length')
