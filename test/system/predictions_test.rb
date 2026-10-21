@@ -35,4 +35,27 @@ class PredictionsSystemTest < ApplicationSystemTestCase
     assert_equal before_window, evaluate_script("window.scrollY")
     assert_equal before_scroller, evaluate_script("document.querySelector('.matches-scroller').scrollTop")
   end
+
+  test "should not cover footer links with prediction progress bar" do
+    visit login_path
+    fill_in "メールアドレス", with: users(:michael).email
+    fill_in "パスワード", with: "password"
+    click_button "ログイン"
+    assert_no_current_path login_path
+    visit new_tournament_prediction_path(@tournament)
+    assert_selector "#prediction-progress"
+
+    # 一番下までスクロールしても、フッターのリンクが固定バーに隠れない
+    execute_script("window.scrollTo(0, document.body.scrollHeight)")
+    covered = evaluate_script(<<~JS)
+      (() => {
+        const link = Array.from(document.querySelectorAll("footer a")).find(a => a.textContent.trim() === "お問い合わせ");
+        const rect = link.getBoundingClientRect();
+        return document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2) !== link;
+      })()
+    JS
+    assert_not covered
+    click_link "お問い合わせ"
+    assert_current_path contact_path
+  end
 end

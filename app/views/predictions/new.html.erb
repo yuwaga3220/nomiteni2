@@ -41,8 +41,7 @@
   <% end %>
 </div>
 <% if @tournament.before? %>
-  <%# 予想の進捗は画面下部に固定表示する。スペーサーで固定バーの分だけ余白を確保する %>
-  <div class="prediction-progress-spacer"></div>
+  <%# 予想の進捗は画面下部に固定表示する（フッターが隠れないよう custom.scss で body に余白を付ける） %>
   <div id="prediction-progress" class="prediction-progress-footer">
     <%= render "progress" %>
   </div>
