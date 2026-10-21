@@ -4,6 +4,10 @@ service: sample_app
 # Name of the container image (use your-user/app-name on external registries).
 image: yuwaga3220/sample_app
 
+# 新しいコンテナがヘルスチェックに通るまでの待ち時間（秒）。既定は30秒。
+# 本番サーバーでの起動に約1分かかり、既定のままだとデプロイが失敗するため延ばしている。
+deploy_timeout: 120
+
 # Deploy to these servers.
 servers:
   web:
