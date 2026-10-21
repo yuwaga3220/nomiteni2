@@ -35,40 +35,51 @@ class PredictionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should show prediction log with correct and incorrect results after a match finishes" do
+    other_match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
     @tournament.update!(status: :during)
     @match.update!(winner: @alice, winner_games: 6, loser_games: 3, status: :finished)
+    other_match.update!(winner: @bob, winner_games: 6, loser_games: 3, status: :finished)
     Prediction.create!(user: users(:michael), match: @match, predicted_participant: @alice, points: 10)
-    Prediction.create!(user: users(:archer), match: @match, predicted_participant: @bob, points: 0)
+    Prediction.create!(user: users(:michael), match: other_match, predicted_participant: @alice, points: 0)
     log_in_as(users(:michael))
     get new_tournament_prediction_path(@tournament)
     assert_response :success
     assert_select ".prediction-log"
     assert_select ".prediction-log-item", count: 2
-    assert_select ".glyphicon-ok"
-    assert_select ".glyphicon-remove"
+    assert_select ".prediction-log .glyphicon-ok", count: 1
+    assert_select ".prediction-log .glyphicon-remove", count: 1
     assert_select ".prediction-log-hit-rate", count: 0
   end
 
-  test "should show own prediction as yours and others' predictions with their names in prediction log" do
+  test "should show only own predictions in prediction log when two users predict differently" do
     @tournament.update!(status: :during)
     @match.update!(winner: @alice, winner_games: 6, loser_games: 3, status: :finished)
     Prediction.create!(user: users(:michael), match: @match, predicted_participant: @alice, points: 10)
     Prediction.create!(user: users(:archer), match: @match, predicted_participant: @bob, points: 0)
     log_in_as(users(:michael))
     get new_tournament_prediction_path(@tournament)
-    assert_select ".prediction-log-item", count: 2
+    assert_select ".prediction-log-item", count: 1
     assert_select ".prediction-log-user", text: "あなたの予想:", count: 1
-    assert_select ".prediction-log-user", text: "#{users(:archer).name}の予想:", count: 1
-    assert_select ".prediction-log-user", text: "#{users(:michael).name}の予想:", count: 0
-    # 的中/不的中のアイコンと勝者は全ての行に表示される
-    css_select(".prediction-log-item").each do |item|
-      assert_equal 1, item.css(".glyphicon-ok, .glyphicon-remove").size
-      assert_includes item.text, "勝者: #{@alice.name}"
+    assert_select ".prediction-log .glyphicon-ok", count: 1
+    assert_select ".prediction-log .glyphicon-remove", count: 0
+    # 他ユーザーの名前や予想内容はログのHTMLに含まれない
+    assert_select ".prediction-log" do |log|
+      assert_not_includes log.to_html, users(:archer).name
     end
-    yours = css_select(".prediction-log-item").find { |li| li.text.include?("あなたの予想") }
-    archers = css_select(".prediction-log-item").find { |li| li.text.include?("#{users(:archer).name}の予想") }
-    assert yours.css(".glyphicon-ok").any?
-    assert archers.css(".glyphicon-remove").any?
+    assert_select ".prediction-log-detail" do |detail|
+      assert_includes detail.text, "あなたの予想: #{@alice.name}"
+      assert_not_includes detail.text, @bob.name
+    end
+  end
+
+  test "should not show matches without own prediction in prediction log" do
+    @tournament.update!(status: :during)
+    @match.update!(winner: @alice, winner_games: 6, loser_games: 3, status: :finished)
+    Prediction.create!(user: users(:archer), match: @match, predicted_participant: @bob, points: 0)
+    log_in_as(users(:michael))
+    get new_tournament_prediction_path(@tournament)
+    assert_select ".prediction-log-item", count: 0
+    assert_select "p.text-muted", text: "まだ結果が出た試合はありません。"
   end
 
   test "should not show prediction log before tournament starts" do
@@ -91,6 +102,21 @@ class PredictionsControllerTest < ActionDispatch::IntegrationTest
     log_in_as(users(:michael))
     get new_tournament_prediction_path(@tournament)
     assert_select ".upset-highlight-winner", text: @bob.name
+  end
+
+  test "should calculate biggest upset from all users' predictions even if own prediction is missing" do
+    other_match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    @match.update!(winner: @alice, winner_games: 6, loser_games: 3, status: :finished)
+    other_match.update!(winner: @bob, winner_games: 6, loser_games: 3, status: :finished)
+    @tournament.update!(status: :after)
+    # @matchはmichaelのみ予想して的中（的中率100%）
+    Prediction.create!(user: users(:michael), match: @match, predicted_participant: @alice, points: 10)
+    # other_matchはarcherのみ予想して外れ（的中率0%）。michaelは予想していない
+    Prediction.create!(user: users(:archer), match: other_match, predicted_participant: @alice, points: 0)
+    log_in_as(users(:michael))
+    get new_tournament_prediction_path(@tournament)
+    assert_select ".upset-highlight-winner", text: @bob.name
+    assert_select ".prediction-log-item", count: 1
   end
 
   test "should show the user with the most points as the best predictionor after all matches finish" do
