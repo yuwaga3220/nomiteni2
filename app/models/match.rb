@@ -16,6 +16,36 @@ class Match < ApplicationRecord
     next_match.present? && !next_match.pending?
   end
 
+  # 棄権した選手を含む試合（不戦勝の試合）かどうか
+  def walkover?
+    !!(participant1&.withdrawn? || participant2&.withdrawn?)
+  end
+
+  # 勝者を次の試合の対応する枠へ進める
+  def advance_winner!
+    return unless next_match && next_slot
+    next_match.update!(next_slot == 1 ? { participant1: winner } : { participant2: winner })
+  end
+
+  # 棄権者を含む試合なら、相手を勝者として不戦勝で確定し、勝者を次の試合へ進める。
+  # 不戦勝の試合は予想の対象外なので予想は削除する。進出先も不戦勝なら連鎖して確定する
+  def apply_walkover!
+    return unless walkover? && winner_id.nil?
+    walkover_winner = participant1&.withdrawn? ? participant2 : participant1
+    return if walkover_winner.nil? || walkover_winner.withdrawn?
+    predictions.destroy_all
+    update!(winner: walkover_winner, winner_games: nil, loser_games: nil, status: :finished)
+    advance_winner!
+    next_match&.apply_walkover!
+  end
+
+  # 不戦勝の結果と、そこから次の試合へ進出した選手を取り消す
+  def cancel_walkover!
+    return unless finished?
+    next_match.update!(next_slot == 1 ? { participant1: nil } : { participant2: nil }) if next_match && next_slot
+    update!(winner: nil, status: :pending)
+  end
+
   private
 
   def winner_games_must_exceed_loser_games

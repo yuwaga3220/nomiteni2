@@ -1,1 +1,2 @@
-予想済み <strong><%= @existing_predictions.size %></strong> / <%= @all_matches.size %> 試合
+<%# 棄権者を含む試合（不戦勝）は予想できないため、試合数に含めない %>
+予想済み <strong><%= @existing_predictions.size %></strong> / <%= @all_matches.count { |m| !m.walkover? } %> 試合

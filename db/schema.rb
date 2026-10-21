@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_20_135904) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_21_000000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.integer "blob_id", null: false
     t.datetime "created_at", null: false
@@ -66,6 +66,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_20_135904) do
     t.integer "position"
     t.integer "tournament_id", null: false
     t.datetime "updated_at", null: false
+    t.boolean "withdrawn", default: false, null: false
     t.index ["tournament_id", "name"], name: "index_participants_on_tournament_id_and_name", unique: true
     t.index ["tournament_id"], name: "index_participants_on_tournament_id"
   end

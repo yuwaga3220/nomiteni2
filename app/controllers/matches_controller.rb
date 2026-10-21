@@ -13,10 +13,18 @@ class MatchesController < ApplicationController
     # 表示順（ドラッグ&ドロップで並び替えられたposition）をそのままポジションとして割り当てる
     ordered_participants = @tournament.participants.order(:position, :id).to_a
 
+    # 1回戦で両選手が棄権していると勝者を決められないため作成しない
+    if ordered_participants.each_slice(2).any? { |pair| pair.all?(&:withdrawn?) }
+      flash[:danger] = "1回戦で両選手が棄権している試合があるため、トーナメントツリーを作成できません"
+      redirect_to tournament_path(@tournament) and return
+    end
+
     Match.transaction do
       @tournament.matches.update_all(next_match_id: nil)
       @tournament.matches.destroy_all
       build_bracket(ordered_participants)
+      # 棄権済みの選手がいれば不戦勝を反映する
+      @tournament.matches.where(round: 1).each(&:apply_walkover!)
     end
     broadcast_tournament_status!(@tournament)
     flash[:success] = "トーナメントツリーを作成しました"
@@ -29,6 +37,10 @@ class MatchesController < ApplicationController
       redirect_to tournament_path(@tournament) and return
     end
     match = @tournament.matches.find(params[:id])
+    if match.walkover?
+      flash[:danger] = "棄権者を含む試合には結果を入力できません"
+      redirect_to tournament_path(@tournament) and return
+    end
     unless match.participant1 && match.participant2
       flash[:danger] = "両方の選手が決まっていない試合には結果を入力できません"
       redirect_to tournament_path(@tournament) and return
@@ -51,14 +63,9 @@ class MatchesController < ApplicationController
 
     Match.transaction do
       match.update!(winner: winner, winner_games: winner_games, loser_games: loser_games, status: :finished)
-      if match.next_match && match.next_slot
-        next_match = match.next_match
-        if match.next_slot == 1
-          next_match.update!(participant1: winner)
-        else
-          next_match.update!(participant2: winner)
-        end
-      end
+      match.advance_winner!
+      # 進出先の相手が棄権済みなら、連鎖して不戦勝にする
+      match.next_match&.apply_walkover!
       match.predictions.each do |prediction|
         points = prediction.predicted_participant_id == winner.id ? 10 : 0
         prediction.update!(points: points)
@@ -74,6 +81,10 @@ class MatchesController < ApplicationController
       redirect_to tournament_path(@tournament) and return
     end
     match = @tournament.matches.find(params[:id])
+    if match.walkover?
+      flash[:danger] = "棄権者を含む試合の状況は変更できません"
+      redirect_to tournament_path(@tournament) and return
+    end
     unless Match.statuses.key?(params[:status])
       flash[:danger] = "不正な試合状況です"
       redirect_to tournament_path(@tournament) and return

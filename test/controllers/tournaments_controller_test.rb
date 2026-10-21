@@ -58,6 +58,47 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "during", @tournament.reload.status
   end
 
+  test "should keep walkover results when status is changed back to before" do
+    alice = participants(:alice)
+    bob = participants(:bob)
+    carol = participants(:carol)
+    final = @tournament.matches.create!(round: 2)
+    match1 = @tournament.matches.create!(round: 1, participant1: alice, participant2: bob,
+                                          next_match: final, next_slot: 1)
+    bob.withdraw
+    @tournament.update!(status: :during)
+    final.update!(participant2: carol)
+    log_in_as(users(:michael))
+    patch update_status_tournament_path(@tournament), params: { status: "before" }
+    assert_equal alice, match1.reload.winner
+    final.reload
+    assert_equal alice, final.participant1
+    assert_nil final.participant2
+  end
+
+  test "should show withdrawn label and walkover on the bracket" do
+    final = @tournament.matches.create!(round: 2)
+    @tournament.matches.create!(round: 1, participant1: participants(:alice), participant2: participants(:bob),
+                                next_match: final, next_slot: 1)
+    participants(:bob).withdraw
+    log_in_as(users(:michael))
+    get tournament_path(@tournament)
+    assert_select ".bracket-slot", text: /#{participants(:bob).name}\s*棄権/
+    assert_select ".bracket-slot-muted", text: /#{participants(:bob).name}/
+    assert_select "div", text: "不戦勝"
+    # 不戦勝の勝者が決勝に進出している
+    assert_select ".bracket-slot:not(.bracket-slot-empty)", text: /#{participants(:alice).name}/, count: 2
+  end
+
+  test "should show withdrawal panel only to owner" do
+    log_in_as(users(:michael))
+    get tournament_path(@tournament)
+    assert_select ".withdrawal-panel"
+    log_in_as(users(:archer))
+    get tournament_path(@tournament)
+    assert_select ".withdrawal-panel", count: 0
+  end
+
   test "should not update status to during when there are no matches" do
     log_in_as(users(:michael))
     patch update_status_tournament_path(@tournament), params: { status: "during" }

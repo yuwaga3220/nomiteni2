@@ -27,6 +27,10 @@ class PredictionsController < ApplicationController
       redirect_to new_tournament_prediction_path(@tournament) and return
     end
     match = @tournament.matches.find(params[:match_id])
+    if match.walkover? || @tournament.participants.find_by(id: params[:participant_id])&.withdrawn?
+      flash[:danger] = "棄権者を含む試合は予想できません"
+      redirect_to new_tournament_prediction_path(@tournament) and return
+    end
     Prediction.transaction do
       current_user.predictions.find_or_initialize_by(match: match)
                   .update!(predicted_participant_id: params[:participant_id])
@@ -47,7 +51,7 @@ class PredictionsController < ApplicationController
                                         .where(match: @tournament.matches)
                                         .includes(:predicted_participant)
                                         .index_by(&:match_id)
-    @all_matches = @tournament.matches.includes(:participant1, :participant2).to_a
+    @all_matches = @tournament.matches.includes(:participant1, :participant2, :winner).to_a
     @feeder_matches = @all_matches.each_with_object({}) do |m, h|
       next unless m.next_match_id
       h[[ m.next_match_id, m.next_slot ]] = m
