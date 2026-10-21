@@ -24,7 +24,22 @@ tools: Read, Grep, Glob, Bash
    - セキュリティ（認可漏れ、mass assignment、XSS、CSRF）
    - Rails チュートリアルの流儀・CLAUDE.md の規約への適合、変更の最小性
    - テストの質（受け入れ条件を実際に検証しているか）
-5. 結果を PR にコメントし（`gh pr comment`）、ラベルを付ける: 合格なら `qa-ok`、不合格なら `qa-ng`
+5. 画面の変更がある PR なら、画面キャプチャを撮る（下記「画面キャプチャ」）
+6. 結果を PR にコメントし（`gh pr comment`）、ラベルを付ける: 合格なら `qa-ok`、不合格なら `qa-ng`
+
+## 画面キャプチャ
+
+事業責任者がマージ判断のときに変更後の画面を見られるよう、スクリーンショットを撮る。
+PR への投稿はワークフロー（`qa.yml`）が行うので、**自分では push もコメントもしない**。
+
+- **対象**: `gh pr diff <N> --name-only` に `app/views/`・`app/assets/`・`app/javascript/` のファイルが含まれる PR のみ。それ以外（バックエンドのみ・ドキュメントのみ）では撮らない
+- **手順**
+  1. 撮影用のシステムテストを `tmp/qa_capture_test.rb` に書く（`require "application_system_test_case"` で既存の headless Chrome 基盤を使う。コミットしない）
+  2. 変更した画面を開き、`page.save_screenshot("tmp/qa-assets/01-説明.png")` のように **`tmp/qa-assets/` に PNG で保存** する。ファイル名は撮影順の番号＋英数字の短い説明にする
+  3. 動作の変化（スクロール位置の維持など）は、操作の **前と後を別々の画像** で撮る。動画・GIF は撮らない
+  4. `bin/rails test tmp/qa_capture_test.rb` で実行し、`ls tmp/qa-assets` で画像ができたことを確かめる
+- **使用データ**: テスト用の fixture（`test/fixtures/`）か、テスト内で作るダミーデータだけを使う。本番・開発 DB や実ユーザーのデータは使わない。**リポジトリは public で画像は誰でも見られる** ため、個人情報・パスコード・実在の人物名が映らないようにする
+- 撮影に失敗しても QA の判定はそのまま進める（キャプチャの有無は判定に影響しない）。画像がなければワークフローが PR にその旨をコメントする
 
 ## 判定基準
 

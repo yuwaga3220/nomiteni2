@@ -64,9 +64,19 @@ jobs:
             結果は gh pr comment で PR に投稿し、コメント本文の1行目は必ず
             「## QA 結果: ✅ qa-ok」または「## QA 結果: ❌ qa-ng」にしてください。
             最後に PR へ qa-ok または qa-ng のラベルを付けてください。
+            画面の変更がある PR では、qa.md の「画面キャプチャ」に従って tmp/qa-assets/ に画像を保存してください（push・投稿はしない）。
           claude_args: |
             --max-turns 60
-            --allowedTools "Read,Glob,Grep,Bash(git:*),Bash(bin/rails:*),Bash(bin/rubocop:*),Bash(bin/brakeman:*),Bash(bundle:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(gh pr edit:*),Bash(gh issue view:*),Bash(ls:*),Bash(cat:*)"
+            --allowedTools "Read,Write(tmp/**),Glob,Grep,Bash(git:*),Bash(bin/rails:*),Bash(bin/rubocop:*),Bash(bin/brakeman:*),Bash(bundle:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(gh pr edit:*),Bash(gh issue view:*),Bash(ls:*),Bash(cat:*)"
+
+      - name: 画面キャプチャを保存する
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-assets
+          path: tmp/qa-assets/*.png
+          if-no-files-found: ignore
+          retention-days: 1
 
       - name: 判定に応じて次へ進める
         run: |
@@ -100,3 +110,83 @@ jobs:
         run: |
           gh pr edit "$PR" --add-label needs-human
           gh pr comment "$PR" --body "@${GITHUB_REPOSITORY_OWNER} QA の自動実行が失敗しました。ログ: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+  # QA の画面キャプチャを pr-assets ブランチ（main と共通履歴を持たない孤立ブランチ）に置き、PR に貼る。
+  # contents: write はこのジョブだけに付ける。QA の判定とは独立しており、失敗しても判定には影響しない。
+  capture:
+    needs: qa
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - name: 画面の変更があるか判定する
+        id: screen
+        run: |
+          if gh pr diff "$PR" --name-only | grep -qE '^app/(views|assets|javascript)/'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "画面の変更がないためキャプチャは扱わない"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 画面キャプチャを取り出す
+        if: steps.screen.outputs.changed == 'true'
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: qa-assets
+          path: qa-assets
+
+      - name: pr-assets ブランチに push して PR に貼る
+        if: steps.screen.outputs.changed == 'true'
+        run: |
+          shopt -s nullglob
+          images=(qa-assets/*.png)
+          if [ ${#images[@]} -eq 0 ]; then
+            gh pr comment "$PR" --body "画面キャプチャを取得できませんでした（QA の判定には影響しません）。ログ: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            exit 0
+          fi
+
+          # pr-assets だけを扱う作業用リポジトリ。なければ孤立ブランチとして作る
+          git init -q assets
+          cd assets
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git fetch -q --depth 1 origin pr-assets; then
+            git checkout -q -b pr-assets FETCH_HEAD
+          else
+            git checkout -q --orphan pr-assets
+          fi
+
+          # 再実行時は同じ PR の画像を上書きする
+          rm -rf "pr-${PR}"
+          mkdir "pr-${PR}"
+          cp ../qa-assets/*.png "pr-${PR}/"
+          git add -A "pr-${PR}"
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "PR #${PR} の QA 画面キャプチャ" || echo "画像に変更なし"
+          git push -q origin pr-assets
+          sha=$(git rev-parse HEAD)
+
+          body="## QA 画面キャプチャ"$'\n\n'"撮影: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"$'\n'
+          for f in "pr-${PR}"/*.png; do
+            name=$(basename "$f")
+            body+=$'\n'"### ${name}"$'\n\n'"![${name}](https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${sha}/${f})"$'\n'
+          done
+
+          # 前回のキャプチャコメントがあれば更新し、なければ新規に投稿する
+          comment_id=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR}/comments" --paginate \
+            --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("## QA 画面キャプチャ"))) | .id' | tail -n 1)
+          if [ -n "$comment_id" ]; then
+            gh api -X PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${comment_id}" -f body="$body" > /dev/null
+          else
+            gh pr comment "$PR" --body "$body"
+          fi
+
+      - name: 失敗時はその旨をコメントする
+        if: failure()
+        run: |
+          gh pr comment "$PR" --body "画面キャプチャの投稿に失敗しました（QA の判定には影響しません）。ログ: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
