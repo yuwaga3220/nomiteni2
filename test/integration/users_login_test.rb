@@ -12,6 +12,19 @@ class InvalidPasswordTest < UsersLogin
     assert_template "sessions/new"
   end
 
+  test "remember me checkbox with help text" do
+    get login_path
+    # ラベル全体でオン/オフできるよう、チェックボックスをラベル内に置く
+    assert_select ".remember-me label[for=?]", "session_remember_me" do
+      assert_select "input[type=checkbox]#session_remember_me[aria-describedby=?]",
+                    "remember_me_help"
+      assert_select "span", "ログインしたままにする"
+    end
+    # 初期値はチェックなし
+    assert_select "input#session_remember_me[checked]", count: 0
+    assert_select "#remember_me_help", /次回から自動でログインします/
+  end
+
   test "login with valid email/invalid password" do
     post login_path, params: { session: { email:    @user.email,
                                           password: "invalid" } }
