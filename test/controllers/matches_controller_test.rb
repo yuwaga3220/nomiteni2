@@ -221,6 +221,73 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, wrong.reload.points
   end
 
+  test "should reflect walkovers when creating bracket with withdrawn participants" do
+    tournament = tournaments(:zone)
+    participants(:grace).update!(withdrawn: true)
+    log_in_as(users(:archer))
+    post tournament_matches_path(tournament)
+    match1 = tournament.matches.find_by(round: 1, participant1: participants(:frank))
+    assert match1.finished?
+    assert_equal participants(:frank), match1.winner
+    assert_equal participants(:frank), match1.next_match.participant1
+    assert tournament.matches.find_by(round: 1, participant1: participants(:heidi)).pending?
+  end
+
+  test "should not create bracket when both players of a first round match are withdrawn" do
+    tournament = tournaments(:zone)
+    participants(:frank).update!(withdrawn: true)
+    participants(:grace).update!(withdrawn: true)
+    log_in_as(users(:archer))
+    assert_no_difference "Match.count" do
+      post tournament_matches_path(tournament)
+    end
+    assert_redirected_to tournament_path(tournament)
+    assert_not flash[:danger].nil?
+  end
+
+  test "should not set winner for a match with a withdrawn participant" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    @bob.withdraw
+    log_in_as(users(:michael))
+    patch set_winner_tournament_match_path(@tournament, match),
+          params: { participant1_games: 2, participant2_games: 6 }
+    assert_redirected_to tournament_path(@tournament)
+    assert_not flash[:danger].nil?
+    match.reload
+    assert_equal @alice, match.winner
+    assert_nil match.winner_games
+  end
+
+  test "should not update status for a match with a withdrawn participant" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    @bob.withdraw
+    log_in_as(users(:michael))
+    patch update_status_tournament_match_path(@tournament, match),
+          params: { court: "コートA", status: "pending" }
+    assert_redirected_to tournament_path(@tournament)
+    assert_not flash[:danger].nil?
+    match.reload
+    assert match.finished?
+    assert_nil match.court
+  end
+
+  test "should cascade walkover when the winner advances to a withdrawn opponent" do
+    @tournament.update!(status: :during)
+    carol = participants(:carol)
+    final = @tournament.matches.create!(round: 2, participant2: carol)
+    match1 = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob,
+                                          next_match: final, next_slot: 1)
+    carol.withdraw
+    log_in_as(users(:michael))
+    patch set_winner_tournament_match_path(@tournament, match1),
+          params: { participant1_games: 6, participant2_games: 4 }
+    final.reload
+    assert final.finished?
+    assert_equal @alice, final.winner
+  end
+
   test "should redirect set_winner when not logged in" do
     match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
     patch set_winner_tournament_match_path(@tournament, match),

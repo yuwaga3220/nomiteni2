@@ -292,6 +292,43 @@ class PredictionsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#prediction-bracket .prediction-guide", count: 0
   end
 
+  test "should not save a prediction for a match with a withdrawn participant" do
+    @bob.withdraw
+    log_in_as(users(:michael))
+    assert_no_difference "Prediction.count" do
+      post tournament_prediction_path(@tournament), params: { match_id: @match.id, participant_id: @alice.id }
+    end
+    assert_redirected_to new_tournament_prediction_path(@tournament)
+    assert_not flash[:danger].nil?
+  end
+
+  test "should show withdrawn participant as disabled on predictions page" do
+    final = @tournament.matches.create!(round: 2)
+    @match.update!(next_match: final, next_slot: 1)
+    @tournament.matches.create!(round: 1, participant1: participants(:carol), participant2: participants(:dave),
+                                next_match: final, next_slot: 2)
+    @bob.withdraw
+    log_in_as(users(:michael))
+    get new_tournament_prediction_path(@tournament)
+    assert_select "button[disabled]", text: @alice.name
+    assert_select "button[disabled]", text: "#{@bob.name}（棄権）"
+    # 不戦勝の勝者は予想なしで次の試合に表示され、決勝は予想できる
+    assert_select "button:not([disabled])", text: @alice.name, count: 1
+    # 不戦勝の試合は予想の対象外なので、試合数に含めない
+    assert_select "#prediction-progress", text: "予想済み 0 / 2 試合"
+  end
+
+  test "should exclude walkover matches from prediction log and ranking" do
+    Prediction.create!(user: users(:michael), match: @match, predicted_participant: @alice)
+    @bob.withdraw
+    @tournament.update!(status: :during)
+    log_in_as(users(:michael))
+    get new_tournament_prediction_path(@tournament)
+    assert_empty @tournament.ranking.to_a
+    assert_select ".prediction-log-item", count: 0
+    assert_equal 0, users(:michael).score(@tournament)
+  end
+
   test "should not show tap guide during or after tournament" do
     log_in_as(users(:michael))
     %i[during after].each do |status|
