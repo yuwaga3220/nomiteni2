@@ -299,6 +299,36 @@ input {
   width: auto;
   margin-left: 0;
 }
+
+/* ログインしたままにする（スマートフォンでもタップしやすい大きさにする） */
+.remember-me {
+  margin-bottom: 15px;
+  .checkbox {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+    span {
+      margin-left: 10px;
+      font-size: 1.1em;
+    }
+  }
+  #session_remember_me {
+    position: static;
+    width: 22px;
+    // input 全体の height: auto !important を上書きする
+    height: 22px !important;
+    margin: 0;
+    cursor: pointer;
+  }
+  .help-block {
+    margin-top: 0;
+    font-size: 0.85em;
+  }
+}
+
 /* Dropdown menu */
 
 .dropdown-menu.active {
