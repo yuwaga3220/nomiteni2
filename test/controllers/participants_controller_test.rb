@@ -120,4 +120,51 @@ class ParticipantsControllerTest < ActionDispatch::IntegrationTest
           params: { participant_ids: [ bob.id, @participant.id ] }, as: :json
     assert_redirected_to login_url
   end
+
+  test "should withdraw and cancel withdrawal for owner even during tournament" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: @participant, participant2: participants(:bob))
+    log_in_as(users(:michael))
+    patch tournament_participant_path(@tournament, @participant), params: { participant: { withdrawn: true } }
+    assert_redirected_to tournament_path(@tournament)
+    assert_not flash[:success].nil?
+    assert @participant.reload.withdrawn?
+    assert_equal participants(:bob), match.reload.winner
+    patch tournament_participant_path(@tournament, @participant), params: { participant: { withdrawn: false } }
+    assert_not @participant.reload.withdrawn?
+    assert_nil match.reload.winner
+  end
+
+  test "should broadcast to owner and public streams when withdrawal is changed" do
+    log_in_as(users(:michael))
+    assert_broadcasts("tournament_#{@tournament.id}_owner", 1) do
+      assert_broadcasts("tournament_#{@tournament.id}_public", 1) do
+        patch tournament_participant_path(@tournament, @participant), params: { participant: { withdrawn: true } }
+      end
+    end
+  end
+
+  test "should not withdraw participant when wrong user" do
+    log_in_as(users(:archer))
+    patch tournament_participant_path(@tournament, @participant), params: { participant: { withdrawn: true } }
+    assert_redirected_to root_url
+    assert_not @participant.reload.withdrawn?
+  end
+
+  test "should not withdraw participant when not logged in" do
+    patch tournament_participant_path(@tournament, @participant), params: { participant: { withdrawn: true } }
+    assert_redirected_to login_url
+    assert_not @participant.reload.withdrawn?
+  end
+
+  test "should show an error when withdrawal is rejected" do
+    bob = participants(:bob)
+    @tournament.matches.create!(round: 1, participant1: @participant, participant2: bob,
+                                winner: bob, winner_games: 6, loser_games: 2, status: :finished)
+    log_in_as(users(:michael))
+    patch tournament_participant_path(@tournament, @participant), params: { participant: { withdrawn: true } }
+    assert_redirected_to tournament_path(@tournament)
+    assert_not flash[:danger].nil?
+    assert_not @participant.reload.withdrawn?
+  end
 end

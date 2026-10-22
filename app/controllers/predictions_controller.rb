@@ -27,6 +27,10 @@ class PredictionsController < ApplicationController
       redirect_to new_tournament_prediction_path(@tournament) and return
     end
     match = @tournament.matches.find(params[:match_id])
+    if match.walkover? || @tournament.participants.find_by(id: params[:participant_id])&.withdrawn?
+      flash[:danger] = "棄権者を含む試合は予想できません"
+      redirect_to new_tournament_prediction_path(@tournament) and return
+    end
     Prediction.transaction do
       current_user.predictions.find_or_initialize_by(match: match)
                   .update!(predicted_participant_id: params[:participant_id])
@@ -47,7 +51,7 @@ class PredictionsController < ApplicationController
                                         .where(match: @tournament.matches)
                                         .includes(:predicted_participant)
                                         .index_by(&:match_id)
-    @all_matches = @tournament.matches.includes(:participant1, :participant2).to_a
+    @all_matches = @tournament.matches.includes(:participant1, :participant2, :winner).to_a
     @feeder_matches = @all_matches.each_with_object({}) do |m, h|
       next unless m.next_match_id
       h[[ m.next_match_id, m.next_slot ]] = m
@@ -56,17 +60,18 @@ class PredictionsController < ApplicationController
   end
 
   # 未予想の試合のうち、トーナメント表の左上から順（回戦の若い順→上から順）で最初の1試合と、
-  # その対戦する2人を返す。両方の選手が確定していない試合は飛ばす
+  # その対戦する2人を返す。両方の選手が確定していない試合と、不戦勝の試合は飛ばす
   def next_unpredicted_match
     @all_matches.group_by(&:round).sort.flat_map(&:last).each do |match|
-      next if @existing_predictions.key?(match.id)
+      next if @existing_predictions.key?(match.id) || match.walkover?
       if match.round == 1
         participants = [ match.participant1, match.participant2 ]
       else
         # 2回戦以降は、前の試合で自分が予想した勝者が対戦する
         participants = [ 1, 2 ].map do |slot|
           feeder = @feeder_matches[[ match.id, slot ]]
-          @existing_predictions[feeder&.id]&.predicted_participant
+          # 不戦勝の試合は予想がないので、不戦勝の勝者がそのまま次の試合に進む
+          feeder&.walkover? ? feeder.winner : @existing_predictions[feeder&.id]&.predicted_participant
         end
       end
       return [ match, participants ] if participants.all?(&:present?)

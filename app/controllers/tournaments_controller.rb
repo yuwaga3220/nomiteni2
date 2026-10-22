@@ -39,6 +39,8 @@ class TournamentsController < ApplicationController
           @tournament.matches.update_all(winner_id: nil)
           @tournament.matches.where("round > 1")
                      .update_all(participant1_id: nil, participant2_id: nil)
+          # 棄権による不戦勝は開催前でも確定しているため、改めて反映する
+          @tournament.matches.where(round: 1).each(&:apply_walkover!)
         end
       end
       broadcast_tournament_status!(@tournament)

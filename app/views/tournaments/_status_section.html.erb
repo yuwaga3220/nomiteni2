@@ -19,4 +19,6 @@
         editable: owner_view && tournament.during? if tournament.matches.any? %>
 
   <%= render "tournaments/court_status", tournament: tournament if tournament.matches.any? %>
+
+  <%= render "tournaments/withdrawal_panel", tournament: tournament if owner_view && tournament.participants.any? %>
 </div>

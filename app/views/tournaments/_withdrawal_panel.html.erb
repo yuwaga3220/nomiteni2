@@ -1,0 +1,24 @@
+<%# 主催者が選手ごとに棄権をON/OFFするパネル %>
+<div class="panel panel-default withdrawal-panel">
+  <div class="panel-heading">
+    <h3 class="panel-title">棄権の設定</h3>
+  </div>
+  <ul class="list-group">
+    <% tournament.participants.order(:position, :id).each do |participant| %>
+      <li class="list-group-item clearfix">
+        <%= participant.name %>
+        <% if participant.withdrawn? %>
+          <span class="label label-default">棄権</span>
+          <%= button_to "棄権を取り消す", tournament_participant_path(tournament, participant),
+                method: :patch, params: { participant: { withdrawn: false } },
+                form: { class: "pull-right" }, class: "btn btn-xs btn-default" %>
+        <% else %>
+          <%= button_to "棄権にする", tournament_participant_path(tournament, participant),
+                method: :patch, params: { participant: { withdrawn: true } },
+                form: { class: "pull-right", data: { "turbo-confirm": "#{participant.name}を棄権にしますか？" } },
+                class: "btn btn-xs btn-danger" %>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</div>

@@ -26,7 +26,7 @@
               </div>
               <% status_labels = { "pending" => "予備", "in_progress" => "試合中", "finished" => "終了" }
                  show_meta = !match.pending?
-                 match_meta = status_labels[match.status]
+                 match_meta = match.finished? && match.walkover? ? "不戦勝" : status_labels[match.status]
                  p1 = match.participant1
                  p2 = match.participant2
                  # 予備の試合、または終了した試合の敗者側だけ文字をグレーにする
@@ -36,7 +36,7 @@
                  p2_class = "bracket-slot #{'bracket-slot-muted' if p2_muted}"
                  p1_games = match.winner == p1 ? match.winner_games : (match.winner == p2 ? match.loser_games : nil)
                  p2_games = match.winner == p2 ? match.winner_games : (match.winner == p1 ? match.loser_games : nil) %>
-              <% if editable && p1.present? && p2.present? && !match.result_locked? %>
+              <% if editable && p1.present? && p2.present? && !match.result_locked? && !match.walkover? %>
                 <div class="btn btn-sm" style="width: 100%; padding: 0; border: 0; cursor: pointer;"
                      data-controller="bracket-match-trigger"
                      data-bracket-match-trigger-modal-id-value="match-result-modal-<%= match.id %>"
@@ -54,10 +54,12 @@
               <% else %>
                 <div class="<%= p1_class %> <%= 'bracket-slot-empty' unless p1.present? %>" style="box-sizing: border-box; height: 42px; width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em; cursor: default; overflow: hidden;">
                   <%= p1&.name || "未定" %>
+                  <% if p1&.withdrawn? %><span class="label label-default">棄権</span><% end %>
                   <% if p1_games.present? %><span class="pull-right bracket-slot-score"><%= p1_games %></span><% end %>
                 </div>
                 <div class="<%= p2_class %> <%= 'bracket-slot-empty' unless p2.present? %>" style="box-sizing: border-box; height: 42px; width: 100%; border-radius: 0 0 4px 4px; padding: 10px 12px; font-size: 1em; cursor: default; overflow: hidden;">
                   <%= p2&.name || "未定" %>
+                  <% if p2&.withdrawn? %><span class="label label-default">棄権</span><% end %>
                   <% if p2_games.present? %><span class="pull-right bracket-slot-score"><%= p2_games %></span><% end %>
                 </div>
               <% end %>
@@ -84,7 +86,7 @@
         <% matches.each do |match| %>
           <% p1 = match.participant1
              p2 = match.participant2 %>
-          <% if p1.present? && p2.present? && !match.result_locked? %>
+          <% if p1.present? && p2.present? && !match.result_locked? && !match.walkover? %>
             <%= render "tournaments/match_result_modal", tournament: tournament, match: match, p1: p1, p2: p2 %>
           <% end %>
         <% end %>

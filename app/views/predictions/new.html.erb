@@ -10,7 +10,11 @@
   <% else %>
     <div class="col-md-9">  
       <% if @tournament.before? %>
-        <div class="alert alert-info">勝者を予想しましょう。</div>
+        <%# 操作方法が一目でわかるよう、ブラケットの上に吹き出しで案内する（通常の配置なのでボタンとは重ならない） %>
+        <div class="prediction-guide">
+          <span class="glyphicon glyphicon-hand-down" aria-hidden="true"></span>
+          参加者名をタップして勝者を予想しよう
+        </div>
       <% else %>
         <div class="alert alert-warning">現在予想を受け付けていません。</div>
       <% end %>

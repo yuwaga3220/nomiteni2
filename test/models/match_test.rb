@@ -35,4 +35,20 @@ class MatchTest < ActiveSupport::TestCase
     @match.next_match = final
     assert @match.result_locked?
   end
+
+  test "walkover? should be true only when a withdrawn player is in the match" do
+    @match.participant1 = participants(:alice)
+    @match.participant2 = participants(:bob)
+    assert_not @match.walkover?
+    participants(:bob).update!(withdrawn: true)
+    assert @match.walkover?
+  end
+
+  test "apply_walkover! should not decide the match until the opponent is determined" do
+    participants(:alice).update!(withdrawn: true)
+    @match.update!(participant1: participants(:alice))
+    @match.apply_walkover!
+    assert @match.reload.pending?
+    assert_nil @match.winner
+  end
 end
