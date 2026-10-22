@@ -30,6 +30,11 @@
             <div class="upset-highlight-winner"><h3><%= @best_predictor.name %></h3></div>
           </div>
         <% end %>
+      <% if @tournament.before? %>
+        <div id="next-prediction-card">
+          <%= render "next_prediction_card" %>
+        </div>
+      <% end %>
       <div id="prediction-bracket">
         <%= render "tournaments/prediction_bracket" %>
       </div>

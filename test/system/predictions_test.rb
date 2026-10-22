@@ -36,6 +36,26 @@ class PredictionsSystemTest < ApplicationSystemTestCase
     assert_equal before_scroller, evaluate_script("document.querySelector('.matches-scroller').scrollTop")
   end
 
+  test "should switch next prediction card to the next match without reloading" do
+    visit login_path
+    fill_in "メールアドレス", with: users(:michael).email
+    fill_in "パスワード", with: "password"
+    click_button "ログイン"
+    assert_no_current_path login_path
+    visit new_tournament_prediction_path(@tournament)
+    assert_selector "#next-prediction-card button", text: "選手1"
+
+    # 再読み込みされていないことを確認するための目印
+    execute_script("window.notReloaded = true")
+    within("#next-prediction-card") { click_button "選手1" }
+
+    assert_selector "#next-prediction-card button", text: "選手3"
+    assert_selector "#next-prediction-card button", text: "選手4"
+    assert_selector "button.bracket-slot-selected", text: "選手1"
+    assert_selector "#prediction-progress", text: "予想済み 1 / 32 試合"
+    assert evaluate_script("window.notReloaded === true")
+  end
+
   test "should not cover footer links with prediction progress bar" do
     visit login_path
     fill_in "メールアドレス", with: users(:michael).email

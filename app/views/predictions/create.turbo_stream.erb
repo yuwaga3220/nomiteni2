@@ -1,6 +1,9 @@
 <%= turbo_stream.update "prediction-bracket" do %>
   <%= render "tournaments/prediction_bracket", preserve_scroll: true %>
 <% end %>
+<%= turbo_stream.update "next-prediction-card" do %>
+  <%= render "next_prediction_card" %>
+<% end %>
 <%= turbo_stream.update "prediction-progress" do %>
   <%= render "progress" %>
 <% end %>
