@@ -28,7 +28,7 @@ env:
   GH_TOKEN: ${{ github.token }}
   GH_REPO: ${{ github.repository }}
   # WIP 制限（同時に進める Issue の最大数）
-  MAX_WIP: 2
+  MAX_WIP: 5
 
 jobs:
   code:
