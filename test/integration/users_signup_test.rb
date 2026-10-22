@@ -7,6 +7,20 @@ class UsersSignup < ActionDispatch::IntegrationTest
 end
 
 class UsersSignupTest < UsersSignup
+  test "signup page shows google signup above the email form" do
+    get signup_path
+    assert_select "form[action='/auth/google_oauth2'][method='post']" do
+      assert_select "button.btn-primary[data-turbo='false']", text: "Googleでサインアップ"
+    end
+    # DOM順で「Googleボタン → または → メール/パスワードのフォーム」になっていることを確認
+    body = response.body
+    google = body.index("/auth/google_oauth2")
+    separator = body.index("<p>または</p>")
+    form = body.index("action=\"#{users_path}\"")
+    assert google < separator
+    assert separator < form
+  end
+
   test "invalid signup information" do
     assert_no_difference "User.count" do
       post users_path, params: { user: { name: "",
