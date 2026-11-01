@@ -24,6 +24,7 @@ class BracketTapSystemTest < ApplicationSystemTestCase
 
   test "should subtract a game by long pressing the participant" do
     slot("アリス").click
+    assert_selector ".bracket-slot", text: /アリス\s*1/
     slot("アリス").click
     assert_selector ".bracket-slot", text: /アリス\s*2/
     long_press("アリス")
@@ -44,8 +45,11 @@ class BracketTapSystemTest < ApplicationSystemTestCase
 
   test "should confirm the live score and advance the result" do
     assert_no_button "確定"
-    3.times { slot("アリス").click }
-    assert_selector ".bracket-slot", text: /アリス\s*3/
+    # タップの反映（ブラケットの差し替え）を待ってから次をタップする
+    (1..3).each do |n|
+      slot("アリス").click
+      assert_selector ".bracket-slot", text: /アリス\s*#{n}/
+    end
     accept_confirm("アリス 3 - 0 ボブ で結果を確定しますか？") { click_button "確定" }
     assert_text "終了"
     @match.reload
@@ -57,6 +61,7 @@ class BracketTapSystemTest < ApplicationSystemTestCase
 
   test "should not show the confirm button when the score is tied" do
     slot("アリス").click
+    assert_selector ".bracket-slot", text: /アリス\s*1/
     slot("ボブ").click
     assert_selector ".bracket-slot", text: /ボブ\s*1/
     assert_no_button "確定"

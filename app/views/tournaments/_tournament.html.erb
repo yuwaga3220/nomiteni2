@@ -29,14 +29,14 @@
       <div class="tournament-card-actions">
         <% if tournament_passcode_required?(tournament) %>
           <%= render "tournaments/passcode_modal", tournament: tournament, label: "試合状況", next_target: "show" %>
-          <%= render "tournaments/passcode_modal", tournament: tournament, label: "PICK'EMS（予想）", next_target: "predictions" %>
+          <%= render "tournaments/passcode_modal", tournament: tournament, label: "投票する", next_target: "predictions" %>
         <% else %>
           <% if current_user?(tournament.user) %>
             <%= link_to "管理画面", tournament, class: "btn btn-lavender btn-sm" %>
           <% else %>
             <%= link_to "試合状況", tournament, class: "btn btn-lavender btn-sm" %>
           <% end %>
-          <%= link_to "PICK'EMS（予想）", new_tournament_prediction_path(tournament), class: "btn btn-lavender btn-sm" %>
+          <%= link_to "投票する", new_tournament_prediction_path(tournament), class: "btn btn-lavender btn-sm" %>
         <% end %>
       </div>
     </div>
