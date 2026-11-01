@@ -1,5 +1,6 @@
 class TournamentsController < ApplicationController
   before_action :logged_in_user, only: [ :show, :new, :create, :destroy, :update_status ]
+  before_action :admin_user, only: [ :new, :create ]
   before_action :correct_user, only: [ :destroy, :update_status ]
 
   def show
@@ -58,6 +59,11 @@ class TournamentsController < ApplicationController
 
   def tournament_params
     params.require(:tournament).permit(:title, :description, :held_on, :venue, :image, :passcode)
+  end
+
+  # 大会を作成できるのは管理者だけ
+  def admin_user
+    redirect_to(root_url, status: :see_other) unless current_user.admin?
   end
 
   def correct_user

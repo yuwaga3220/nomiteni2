@@ -42,9 +42,18 @@ class SiteLayoutTest < ActionDispatch::IntegrationTest
   test "layout links when logged in" do
     log_in_as(@user)
     get root_path   # ログイン直後はプロフィールに飛ぶので、レイアウト確認用に別ページへ
-    assert_select "a[href=?]", users_path, count: 0
+    assert_select "a[href=?]", users_path
+    assert_select "a[href=?]", new_tournament_path
     assert_select "a[href=?]", user_path(@user)
     assert_select "a[href=?]", logout_path
     assert_select "a[href=?]", login_path, count: 0
+  end
+
+  test "layout links when logged in as non-admin" do
+    log_in_as(users(:archer))
+    get root_path
+    assert_select "a[href=?]", users_path, count: 0
+    assert_select "a[href=?]", new_tournament_path, count: 0
+    assert_select "a[href=?]", logout_path
   end
 end
