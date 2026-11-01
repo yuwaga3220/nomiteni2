@@ -30,9 +30,15 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  # 非公開（選手が未登録）の大会にオーナー以外がアクセスしようとした場合や、
   # パスコードが必要な大会に、認可されていない状態でアクセスしようとした場合はrootへ戻す。
   # 戻り値がtrueならブロックした（呼び出し元は続けて `return if ...` で処理を止める）
   def block_unless_tournament_accessible(tournament)
+    if !current_user?(tournament.user) && !tournament.published?
+      flash[:danger] = "この大会はまだ公開されていません"
+      redirect_to root_url
+      return true
+    end
     return false unless tournament_passcode_required?(tournament)
     flash[:danger] = "パスコードが必要です。大会一覧からアクセスしてください"
     redirect_to root_url

@@ -104,4 +104,18 @@ class TournamentTest < ActiveSupport::TestCase
     assert @tournament.authenticate_passcode("1234")
     assert_not @tournament.authenticate_passcode("0000")
   end
+
+  test "should be published only when it has participants" do
+    @tournament.save!
+    assert_not @tournament.published?
+    participant = @tournament.participants.create!(name: "アリス", position: 1)
+    assert @tournament.published?
+    participant.destroy
+    assert_not @tournament.published?
+  end
+
+  test "published scope should include only tournaments with participants" do
+    assert_includes Tournament.published, tournaments(:orange)
+    assert_not_includes Tournament.published, tournaments(:tau_manifesto)
+  end
 end

@@ -147,3 +147,58 @@ class GuestTournamentListTest < ActionDispatch::IntegrationTest
     assert_select ".tournament-card", count: 0
   end
 end
+
+class TournamentPublishTest < ActionDispatch::IntegrationTest
+  def setup
+    @published = tournaments(:orange)
+    @unpublished = tournaments(:cat_video)
+  end
+
+  test "should not show unpublished tournaments to other users" do
+    log_in_as(users(:archer))
+    get root_path
+    assert_select "#tournament-#{@published.id}"
+    assert_select "#tournament-#{@unpublished.id}", count: 0
+  end
+
+  test "should show only published tournaments when not logged in" do
+    get root_path
+    assert_select "#tournament-#{@published.id}"
+    assert_select "#tournament-#{@unpublished.id}", count: 0
+    assert_select ".tournament-card-unpublished", count: 0
+  end
+
+  test "should show own unpublished tournaments with label to owner" do
+    log_in_as(users(:michael))
+    get root_path
+    assert_select "#tournament-#{@unpublished.id} .tournament-card-unpublished",
+                  text: "非公開（選手を登録すると公開されます）"
+    assert_select "#tournament-#{@published.id} .tournament-card-unpublished", count: 0
+  end
+
+  test "should hide tournament again when all participants are removed" do
+    log_in_as(users(:archer))
+    get root_path
+    assert_select "#tournament-#{@published.id}"
+    @published.participants.destroy_all
+    get root_path
+    assert_select "#tournament-#{@published.id}", count: 0
+  end
+
+  test "should paginate only visible tournaments" do
+    # 公開中は orange, ants, zone の3件なので、ページネーションは表示されない
+    get root_path
+    assert_select ".tournament-card", count: 3
+    assert_select "div.pagination", count: 0
+
+    # 30件の大会に選手を登録すると公開中は33件になり、1ページ目は30件、2ページ目は3件
+    30.times do |n|
+      tournaments(:"tournament_#{n}").participants.create!(name: "選手#{n}", position: 1)
+    end
+    get root_path
+    assert_select ".tournament-card", count: 30
+    assert_select "div.pagination"
+    get root_path, params: { page: 2 }
+    assert_select ".tournament-card", count: 3
+  end
+end
