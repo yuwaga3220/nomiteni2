@@ -15,6 +15,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 画像のバリアント生成（variant_processor = :vips）のテストに必要
+      - name: Install packages
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libvips
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
