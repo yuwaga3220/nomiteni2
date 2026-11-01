@@ -479,6 +479,25 @@ input {
   margin-top: 0;
 }
 
+// 2つのボタンを横並びの2等分にし、文言の長さやパスコード用の span の有無に関わらず揃える
+.tournament-card-actions {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+  > * {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  > span {
+    display: flex;
+  }
+  > .btn, > span > .btn {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
 .tournament-card-calendar-link {
   position: absolute;
   top: 12px;
@@ -944,13 +963,18 @@ h2 { color: $text-muted-dark; }
   color: $accent-purple-light;
 }
 
+// 縦はページのスクロールで見るため、ブラケットは高さを固定せず最後まで表示する
+// （Bracketryは .bracket-root を height: 100% にし、.matches-scroller に縦スクロールを付けるので上書きする）
 .bracket-wrapper {
-  height: 100vh;
-  min-height: 400px;
   margin-top: 10px;
+
+  .bracket-root {
+    height: auto !important;
+  }
 
   .matches-scroller {
     overflow-x: auto !important;
+    overflow-y: hidden !important;
   }
 
   .round-titles-wrapper {
@@ -1211,6 +1235,27 @@ h2 { color: $text-muted-dark; }
   .form-group {
     flex: 1;
     min-width: 0;
+  }
+}
+
+// ゲーム数の「−」「＋」ボタン（スマホでタップしやすいよう44px以上にする）
+.game-stepper {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  .game-stepper-button {
+    flex: 0 0 44px;
+    height: 44px;
+    padding: 0;
+    font-size: 1.4em;
+    line-height: 1;
+  }
+  .game-stepper-input {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 44px;
+    text-align: center;
+    font-size: 1.2em;
   }
 }
 

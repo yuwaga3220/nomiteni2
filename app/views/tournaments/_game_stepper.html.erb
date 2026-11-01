@@ -1,0 +1,5 @@
+<div class="game-stepper" data-controller="game-stepper">
+  <button type="button" class="btn btn-default game-stepper-button" aria-label="<%= name_label %>のゲーム数を減らす" data-action="click->game-stepper#decrement">&minus;</button>
+  <%= number_field_tag field, games, min: 0, required: true, class: "form-control game-stepper-input", data: { game_stepper_target: "input" } %>
+  <button type="button" class="btn btn-default game-stepper-button" aria-label="<%= name_label %>のゲーム数を増やす" data-action="click->game-stepper#increment">&plus;</button>
+</div>

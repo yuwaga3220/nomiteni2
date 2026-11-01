@@ -1,0 +1,102 @@
+require "application_system_test_case"
+
+class MatchResultModalSystemTest < ApplicationSystemTestCase
+  def setup
+    @tournament = tournaments(:orange)
+    @tournament.update!(status: :during)
+    @alice = participants(:alice)
+    @bob = participants(:bob)
+    @match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    # スマートフォン幅（375px）で表示する
+    current_window.resize_to(375, 800)
+    log_in_as_michael
+  end
+
+  def teardown
+    current_window.resize_to(1400, 1400)
+  end
+
+  test "should increase and decrease games with tap buttons and never go below zero" do
+    open_modal
+    within_stepper("アリス") do
+      find("button[aria-label='アリスのゲーム数を増やす']").click
+      find("button[aria-label='アリスのゲーム数を増やす']").click
+      assert_equal "2", find("input").value
+      find("button[aria-label='アリスのゲーム数を減らす']").click
+      assert_equal "1", find("input").value
+      2.times { find("button[aria-label='アリスのゲーム数を減らす']").click }
+      assert_equal "0", find("input").value
+    end
+  end
+
+  test "should have tap buttons large enough for smartphones" do
+    open_modal
+    sizes = evaluate_script(<<~JS)
+      Array.from(document.querySelectorAll("#match-result-modal-#{@match.id} .game-stepper-button"))
+        .map(b => { const r = b.getBoundingClientRect(); return { width: r.width, height: r.height }; })
+    JS
+    assert_equal 4, sizes.size
+    sizes.each do |size|
+      assert_operator size["width"], :>=, 44
+      assert_operator size["height"], :>=, 44
+    end
+  end
+
+  test "should save the result entered with tap buttons and advance the winner" do
+    open_modal
+    within_stepper("アリス") { 6.times { find("button[aria-label='アリスのゲーム数を増やす']").click } }
+    within_stepper("ボブ") { 3.times { find("button[aria-label='ボブのゲーム数を増やす']").click } }
+    click_button "結果を確定"
+    # 送信後に対戦表へ戻り、スコアが表示されるまで待つ
+    assert_selector ".bracket-slot-score", text: "6"
+    @match.reload
+    assert_equal @alice, @match.winner
+    assert_equal 6, @match.winner_games
+    assert_equal 3, @match.loser_games
+  end
+
+  test "should show an error when the games are tied" do
+    open_modal
+    within_stepper("アリス") { 2.times { find("button[aria-label='アリスのゲーム数を増やす']").click } }
+    within_stepper("ボブ") { 2.times { find("button[aria-label='ボブのゲーム数を増やす']").click } }
+    click_button "結果を確定"
+    assert_text "同点の結果は入力できません"
+    assert_nil @match.reload.winner
+  end
+
+  test "should show current games as initial values and allow direct input" do
+    @match.update!(winner: @bob, winner_games: 6, loser_games: 4, status: :finished)
+    open_modal
+    within_stepper("アリス") { assert_equal "4", find("input").value }
+    within_stepper("ボブ") do
+      assert_equal "6", find("input").value
+      find("input").set("7")
+      find("button[aria-label='ボブのゲーム数を増やす']").click
+      assert_equal "8", find("input").value
+    end
+  end
+
+  private
+
+    def log_in_as_michael
+      visit login_path
+      fill_in "メールアドレス", with: users(:michael).email
+      fill_in "パスワード", with: "password"
+      click_button "ログイン"
+      assert_no_current_path login_path
+    end
+
+    def open_modal
+      visit tournament_path(@tournament)
+      find("[data-bracket-match-trigger-modal-id-value='match-result-modal-#{@match.id}']").click
+      assert_selector "#match-result-modal-#{@match.id}", visible: true
+    end
+
+    # 指定した選手のゲーム数入力欄（「−」「＋」と数値欄）の中で操作する
+    def within_stepper(name, &block)
+      within("#match-result-modal-#{@match.id} .match-result-score-body") do
+        label = find("label", text: name)
+        within(label.find(:xpath, "..")) { within(".game-stepper", &block) }
+      end
+    end
+end

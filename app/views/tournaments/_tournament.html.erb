@@ -26,7 +26,7 @@
           <%= tournament.held_on&.strftime("%y/%m/%d") %><% if tournament.venue.present? %>（<%= tournament.venue %>）<% end %>
         </p>
       <% end %>
-      <p class="text-center">
+      <div class="tournament-card-actions">
         <% if tournament_passcode_required?(tournament) %>
           <%= render "tournaments/passcode_modal", tournament: tournament, label: "試合状況", next_target: "show" %>
           <%= render "tournaments/passcode_modal", tournament: tournament, label: "PICK'EMS（予想）", next_target: "predictions" %>
@@ -38,7 +38,7 @@
           <% end %>
           <%= link_to "PICK'EMS（予想）", new_tournament_prediction_path(tournament), class: "btn btn-lavender btn-sm" %>
         <% end %>
-      </p>
+      </div>
     </div>
   </div>
 </div>

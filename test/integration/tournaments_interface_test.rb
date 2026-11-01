@@ -167,6 +167,12 @@ class GuestTournamentListTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "#tournament-#{@tournament.id} .tournament-card-title", text: @tournament.title
     assert_select "#tournament-#{@tournament.id} a[href=?]", tournament_path(@tournament), count: 0
+    assert_select "#tournament-#{@tournament.id} .tournament-card-actions > span[data-controller=passcode-modal]", count: 2
+  end
+
+  test "should put two buttons in the actions row of a tournament card" do
+    get root_path
+    assert_select "#tournament-#{@tournament.id} .tournament-card-actions > a.btn", count: 2
   end
 
   test "should show home when there are no tournaments and not logged in" do
