@@ -9,7 +9,7 @@
           <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
         <% end %>
       <% end %>
-      <% if tournament.held_on.present? %>
+      <% if logged_in? && tournament.held_on.present? %>
         <%= link_to google_calendar_url(tournament), target: "_blank", rel: "noopener",
               class: "tournament-card-calendar-link", title: "Googleカレンダーに登録" do %>
           <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
