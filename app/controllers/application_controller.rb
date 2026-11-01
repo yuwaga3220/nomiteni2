@@ -1,19 +1,7 @@
 class ApplicationController < ActionController::Base
   include SessionsHelper
 
-  before_action :open_in_external_browser
-
   private
-
-  # LINEのアプリ内ブラウザで開かれたら、既定のブラウザで開き直す
-  # （openExternalBrowser=1 を付けたURLは、LINEが外部ブラウザで開く）
-  def open_in_external_browser
-    return unless request.get? && request.format.html?
-    return unless request.user_agent.to_s.match?(/\bLine\//)
-    return if params[:openExternalBrowser].present?
-
-    redirect_to url_for(request.query_parameters.merge(openExternalBrowser: 1)), allow_other_host: false
-  end
 
   # 大会状況（ステータス・試合結果・コート状況）の変化を、大会詳細画面を開いている
   # 全ユーザーにリアルタイムで反映する。オーナー用・公開用のストリームに分けて
