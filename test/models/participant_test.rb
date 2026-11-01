@@ -147,4 +147,35 @@ class ParticipantWithdrawalTest < ActiveSupport::TestCase
     assert @match1.reload.finished?
     assert_equal @frank, @match1.winner
   end
+
+  test "withdraw should delete predictions for the withdrawn participant in later matches" do
+    user = users(:archer)
+    other = users(:lana)
+    Prediction.create!(user: user, match: @final, predicted_participant: @grace)
+    kept = Prediction.create!(user: other, match: @final, predicted_participant: @heidi)
+    @grace.withdraw
+    assert_not Prediction.exists?(user: user, match: @final)
+    assert Prediction.exists?(kept.id)
+  end
+
+  test "withdraw should delete the same user's predictions after the deleted one" do
+    user = users(:archer)
+    grand_final = @tournament.matches.create!(round: 3)
+    @final.update!(next_match: grand_final, next_slot: 1)
+    Prediction.create!(user: user, match: @final, predicted_participant: @grace)
+    Prediction.create!(user: user, match: grand_final, predicted_participant: @heidi)
+    @grace.withdraw
+    assert_equal 0, user.predictions.where(match: [ @final, grand_final ]).count
+  end
+
+  test "withdraw should keep predictions of finished matches" do
+    user = users(:archer)
+    @match2.update!(winner: @heidi, winner_games: 6, loser_games: 1, status: :finished)
+    @match2.advance_winner!
+    decided = Prediction.create!(user: user, match: @match2, predicted_participant: @heidi, points: 10)
+    Prediction.create!(user: user, match: @final, predicted_participant: @heidi)
+    assert @heidi.reload.withdraw
+    assert Prediction.exists?(decided.id)
+    assert_not Prediction.exists?(user: user, match: @final)
+  end
 end

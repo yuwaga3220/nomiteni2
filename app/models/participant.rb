@@ -27,6 +27,7 @@ class Participant < ApplicationRecord
     transaction do
       update!(withdrawn: true)
       if match
+        destroy_open_predictions
         match.reload.predictions.destroy_all
         match.apply_walkover!
       end
@@ -55,6 +56,20 @@ class Participant < ApplicationRecord
   end
 
   private
+
+  # 棄権した選手が勝つと予想した未確定の試合の予想を削除する（確定済みの試合の予想は得点があるので残す）。
+  # 予想が消えた試合の勝者が次の試合の対戦相手になるため、同じユーザーの先の試合の予想も削除する
+  def destroy_open_predictions
+    Prediction.where(predicted_participant_id: id).includes(:match).find_each do |prediction|
+      next if prediction.match.finished?
+
+      match = prediction.match
+      while match
+        Prediction.where(user_id: prediction.user_id, match: match).destroy_all
+        match = match.next_match
+      end
+    end
+  end
 
   # 新規参加者は末尾に追加する
   def set_position
