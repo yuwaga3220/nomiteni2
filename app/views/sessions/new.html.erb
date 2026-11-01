@@ -12,10 +12,15 @@
       <%= link_to "(パスワードをお忘れの方)", new_password_reset_path, class: "login-hint-link" %>
       <%= f.password_field :password, class: 'form-control' %>
 
-      <%= f.label :remember_me, class: "checkbox inline" do %>
-        <%= f.check_box :remember_me %>
-        <span>ログインしたままにする</span>
-      <% end %>
+      <div class="remember-me">
+        <%= f.label :remember_me, class: "checkbox inline" do %>
+          <%= f.check_box :remember_me, aria: { describedby: "remember_me_help" } %>
+          <span>ログインしたままにする</span>
+        <% end %>
+        <p id="remember_me_help" class="help-block">
+          この端末では次回から自動でログインします。共用の端末ではチェックしないでください。
+        </p>
+      </div>
 
       <%= f.submit "ログイン", class: "btn btn-primary" %>
     <% end %>
