@@ -61,12 +61,11 @@ class MatchResultModalSystemTest < ApplicationSystemTestCase
     end
   end
 
-  test "should save the result entered with tap buttons and advance the winner" do
+  test "should save the result as finished and advance the winner" do
     open_modal
-    within_stepper("アリス") { 6.times { find("button[aria-label='アリスのゲーム数を増やす']").click } }
-    within_stepper("ボブ") { 3.times { find("button[aria-label='ボブのゲーム数を増やす']").click } }
-    select "終了", from: "status"
-    click_button "保存"
+    within_stepper("アリス") { find("input").set("6") }
+    within_stepper("ボブ") { find("input").set("3") }
+    save_as_finished
     # 送信後に対戦表へ戻り、スコアが表示されるまで待つ
     assert_selector ".bracket-slot-score", text: "6"
     @match.reload
@@ -77,10 +76,9 @@ class MatchResultModalSystemTest < ApplicationSystemTestCase
 
   test "should show an error when the games are tied" do
     open_modal
-    within_stepper("アリス") { 2.times { find("button[aria-label='アリスのゲーム数を増やす']").click } }
-    within_stepper("ボブ") { 2.times { find("button[aria-label='ボブのゲーム数を増やす']").click } }
-    select "終了", from: "status"
-    click_button "保存"
+    within_stepper("アリス") { find("input").set("2") }
+    within_stepper("ボブ") { find("input").set("2") }
+    save_as_finished
     assert_text "同点の結果は入力できません"
     assert_nil @match.reload.winner
   end
@@ -133,6 +131,13 @@ class MatchResultModalSystemTest < ApplicationSystemTestCase
       wait_for_stimulus("[data-controller='game-stepper']", "game-stepper")
       find(trigger).click
       assert_selector "#match-result-modal-#{@match.id}", visible: true
+    end
+
+    # 試合状況を「終了」にして保存する（セレクトのフォーカスを外してから押す）
+    def save_as_finished
+      select "終了", from: "status"
+      execute_script("document.activeElement.blur()")
+      click_button "保存"
     end
 
     # 指定した選手のゲーム数入力欄（「−」「＋」と数値欄）の中で操作する

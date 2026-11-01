@@ -98,6 +98,7 @@ class BracketTapSystemTest < ApplicationSystemTestCase
     # 長押し（pointerdown → 一定時間待つ → pointerup）を再現する。
     # 長押しの減算でブラケットが差し替わるため、pointerup は要素を取り直して送る
     def long_press(name)
+      wait_for_stimulus(".matches-scroller [data-controller='bracket-match-tap']", "bracket-match-tap")
       dispatch = <<~JS
         const type = arguments[1]
         const el = Array.from(document.querySelectorAll(".matches-scroller .bracket-slot"))
