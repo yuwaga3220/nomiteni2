@@ -148,4 +148,17 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     get tournament_path(@tournament)
     assert_response :success
   end
+
+  test "should redirect show to root with message when tournament is unpublished and not owner" do
+    log_in_as(users(:archer))
+    get tournament_path(tournaments(:tau_manifesto))
+    assert_redirected_to root_url
+    assert_equal "この大会はまだ公開されていません", flash[:danger]
+  end
+
+  test "should show unpublished tournament to owner" do
+    log_in_as(users(:michael))
+    get tournament_path(tournaments(:tau_manifesto))
+    assert_response :success
+  end
 end

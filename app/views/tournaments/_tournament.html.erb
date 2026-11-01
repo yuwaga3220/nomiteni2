@@ -16,6 +16,11 @@
         <% end %>
       <% end %>
       <h4 class="tournament-card-title"><%= tournament.title %></h4>
+      <% if current_user?(tournament.user) && !tournament.published? %>
+        <p class="text-center">
+          <span class="label label-default tournament-card-unpublished">非公開（選手を登録すると公開されます）</span>
+        </p>
+      <% end %>
       <% if tournament.held_on.present? || tournament.venue.present? %>
         <p class="held-on" style="text-align: center;">
           <%= tournament.held_on&.strftime("%y/%m/%d") %><% if tournament.venue.present? %>（<%= tournament.venue %>）<% end %>
