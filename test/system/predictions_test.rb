@@ -20,11 +20,11 @@ class PredictionsSystemTest < ApplicationSystemTestCase
     visit new_tournament_prediction_path(@tournament)
     assert_selector ".matches-scroller"
 
-    # ページとブラケットの両方をスクロールしてから投票する
-    execute_script("window.scrollTo(0, 300)")
-    execute_script("document.querySelector('.matches-scroller').scrollTop = 800")
+    # ページを縦に、ブラケットを横にスクロールしてから投票する
+    execute_script("window.scrollTo(0, 800)")
+    execute_script("document.querySelector('.matches-scroller').scrollLeft = 200")
     before_window = evaluate_script("window.scrollY")
-    before_scroller = evaluate_script("document.querySelector('.matches-scroller').scrollTop")
+    before_scroller = evaluate_script("document.querySelector('.matches-scroller').scrollLeft")
     assert before_window.positive?
     assert before_scroller.positive?
 
@@ -33,7 +33,7 @@ class PredictionsSystemTest < ApplicationSystemTestCase
 
     assert_selector "button.bracket-slot-selected", text: "選手63"
     assert_equal before_window, evaluate_script("window.scrollY")
-    assert_equal before_scroller, evaluate_script("document.querySelector('.matches-scroller').scrollTop")
+    assert_equal before_scroller, evaluate_script("document.querySelector('.matches-scroller').scrollLeft")
   end
 
   test "should switch next prediction card to the next match without reloading" do

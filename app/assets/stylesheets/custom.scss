@@ -924,13 +924,18 @@ h2 { color: $text-muted-dark; }
   color: $accent-purple-light;
 }
 
+// 縦はページのスクロールで見るため、ブラケットは高さを固定せず最後まで表示する
+// （Bracketryは .bracket-root を height: 100% にし、.matches-scroller に縦スクロールを付けるので上書きする）
 .bracket-wrapper {
-  height: 100vh;
-  min-height: 400px;
   margin-top: 10px;
+
+  .bracket-root {
+    height: auto !important;
+  }
 
   .matches-scroller {
     overflow-x: auto !important;
+    overflow-y: hidden !important;
   }
 
   .round-titles-wrapper {

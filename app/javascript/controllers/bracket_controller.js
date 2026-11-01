@@ -1,9 +1,10 @@
 import { Controller } from "@hotwired/stimulus"
 import { createBracket } from "bracketry"
 
-// 予想の投票でブラケットが差し替えられた後に復元するため、直近のスクロール位置を覚えておく
+// 予想の投票でブラケットが差し替えられた後に復元するため、直近の横スクロール位置を覚えておく
 // （disconnect時には要素がDOMから外れていて位置を読めないので、スクロールの度に記録する）
-let lastScrollPosition = { left: 0, top: 0 }
+// 縦はブラケットを最後まで表示してページ全体でスクロールするため、横だけ覚えればよい
+let lastScrollLeft = 0
 
 export default class extends Controller {
   static values = { data: Object, preserveScroll: Boolean }
@@ -33,7 +34,7 @@ export default class extends Controller {
     this.titlesWrapper = this.element.querySelector(".round-titles-wrapper")
     this.syncTitlesScroll = () => {
       this.titlesWrapper.style.marginLeft = `-${this.scroller.scrollLeft}px`
-      lastScrollPosition = { left: this.scroller.scrollLeft, top: this.scroller.scrollTop }
+      lastScrollLeft = this.scroller.scrollLeft
     }
     this.scroller?.addEventListener("scroll", this.syncTitlesScroll)
 
@@ -41,8 +42,7 @@ export default class extends Controller {
     // （通常の表示では現在位置を記録し直し、以前のページの位置が残らないようにする）
     if (!this.scroller) return
     if (this.preserveScrollValue) {
-      this.scroller.scrollLeft = lastScrollPosition.left
-      this.scroller.scrollTop = lastScrollPosition.top
+      this.scroller.scrollLeft = lastScrollLeft
     }
     this.syncTitlesScroll()
   }
