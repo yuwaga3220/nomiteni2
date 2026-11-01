@@ -1258,6 +1258,12 @@ h2 { color: $text-muted-dark; }
   }
 }
 
+// ゲーム数は「−」「＋」と数値欄で幅を取るため、選手ごとに1行ずつ縦に並べる
+.match-result-score-body .match-result-row {
+  flex-direction: column;
+  gap: 10px;
+}
+
 // ゲーム数の「−」「＋」ボタン（スマホでタップしやすいよう44px以上にする）
 .game-stepper {
   display: flex;
@@ -1270,10 +1276,12 @@ h2 { color: $text-muted-dark; }
     font-size: 1.4em;
     line-height: 1;
   }
+  // input 全体の height: auto !important と margin-bottom を上書きする
   .game-stepper-input {
     flex: 1 1 0;
     min-width: 0;
-    height: 44px;
+    height: 44px !important;
+    margin-bottom: 0;
     text-align: center;
     font-size: 1.2em;
   }

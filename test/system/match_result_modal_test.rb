@@ -42,6 +42,25 @@ class MatchResultModalSystemTest < ApplicationSystemTestCase
     end
   end
 
+  test "should show games readable inside the modal on smartphones" do
+    open_modal
+    rects = evaluate_script(<<~JS)
+      (() => {
+        const modal = document.querySelector("#match-result-modal-#{@match.id} .modal-content").getBoundingClientRect();
+        return Array.from(document.querySelectorAll("#match-result-modal-#{@match.id} .game-stepper-input")).map(input => {
+          const stepper = input.closest(".game-stepper").getBoundingClientRect();
+          return { width: input.getBoundingClientRect().width, height: input.getBoundingClientRect().height, inside: stepper.left >= modal.left && stepper.right <= modal.right };
+        });
+      })()
+    JS
+    assert_equal 2, rects.size
+    rects.each do |rect|
+      assert_operator rect["width"], :>=, 60
+      assert_operator rect["height"], :>=, 44
+      assert rect["inside"], "ゲーム数の欄がモーダルからはみ出している"
+    end
+  end
+
   test "should save the result entered with tap buttons and advance the winner" do
     open_modal
     within_stepper("アリス") { 6.times { find("button[aria-label='アリスのゲーム数を増やす']").click } }
