@@ -31,6 +31,35 @@ class TournamentsInterfaceTest < TournamentsInterface
     assert_match title, response.body
   end
 
+  # 画像付きで作成した大会は、一覧のカード背景にモザイク画像が表示される
+  { "kitten.jpg" => "image/jpeg", "tournament.png" => "image/png",
+    "tournament.gif" => "image/gif", "tournament.webp" => "image/webp" }.each do |file, content_type|
+    test "should show #{content_type} image on tournament card" do
+      post tournaments_path, params: { tournament: { title: "画像付き大会",
+                                                     image: fixture_file_upload(file, content_type) } }
+      tournament = Tournament.first
+      assert tournament.image.attached?
+      follow_redirect!
+      assert_select "#tournament-#{tournament.id}.tournament-card-with-image[style*=?]",
+                    "background-image: url("
+      # 背景画像のURLをたどり、バリアント（モザイク画像）が実際に生成できることを確認する
+      image_url = css_select("#tournament-#{tournament.id}").first["style"][/url\((.+?)\)/, 1]
+      get image_url
+      follow_redirect! while response.redirect?
+      assert_response :success
+      assert_equal 1, tournament.image.blob.variant_records.count
+    end
+  end
+
+  test "should show tournament card without image as before" do
+    post tournaments_path, params: { tournament: { title: "画像なし大会" } }
+    tournament = Tournament.first
+    follow_redirect!
+    assert_select "#tournament-#{tournament.id}.tournament-card"
+    assert_select "#tournament-#{tournament.id}.tournament-card-with-image", count: 0
+    assert_select "#tournament-#{tournament.id}[style]", count: 0
+  end
+
   test "should have tournament delete links on own profile page" do
     get user_path(@user)
     assert_select "a.tournament-card-delete-link"
