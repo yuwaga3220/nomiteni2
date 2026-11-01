@@ -3,7 +3,7 @@
        id="tournament-<%= tournament.id %>"
        <% if tournament.image.attached? %>style="background-image: url(<%= url_for(tournament.image.variant(:mosaic)) %>);"<% end %>>
     <div class="panel-body">
-      <% if current_user?(tournament.user) %>
+      <% if current_user?(tournament.user) || (logged_in? && current_user.admin?) %>
         <%= link_to tournament, class: "tournament-card-delete-link", title: "削除",
               data: { "turbo-method": :delete, "turbo-confirm": "本当に削除しますか？" } do %>
           <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>

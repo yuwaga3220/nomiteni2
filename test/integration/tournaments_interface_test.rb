@@ -83,7 +83,13 @@ class TournamentsInterfaceTest < TournamentsInterface
     end
   end
 
-  test "should not have delete links on other user's profile page" do
+  test "should have delete links on other user's profile page as admin" do
+    get user_path(users(:archer))
+    assert_select "a.tournament-card-delete-link"
+  end
+
+  test "should not have delete links on other user's profile page as non-admin" do
+    log_in_as(users(:lana))
     get user_path(users(:archer))
     assert_select "a.tournament-card-delete-link", count: 0
   end

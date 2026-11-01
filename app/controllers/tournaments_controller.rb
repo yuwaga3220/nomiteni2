@@ -1,7 +1,8 @@
 class TournamentsController < ApplicationController
   before_action :logged_in_user, only: [ :show, :new, :create, :destroy, :update_status ]
   before_action :admin_user, only: [ :new, :create ]
-  before_action :correct_user, only: [ :destroy, :update_status ]
+  before_action :correct_user, only: [ :update_status ]
+  before_action :owner_or_admin, only: [ :destroy ]
 
   def show
     @tournament = Tournament.find(params[:id])
@@ -68,6 +69,12 @@ class TournamentsController < ApplicationController
 
   def correct_user
     @tournament = current_user.tournaments.find_by(id: params[:id])
+    redirect_to root_url, status: :see_other if @tournament.nil?
+  end
+
+  # 大会を削除できるのは作成者と管理者（どの大会でも削除できる）
+  def owner_or_admin
+    @tournament = (current_user.admin? ? Tournament : current_user.tournaments).find_by(id: params[:id])
     redirect_to root_url, status: :see_other if @tournament.nil?
   end
 end

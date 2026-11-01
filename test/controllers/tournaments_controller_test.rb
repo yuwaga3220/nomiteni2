@@ -45,9 +45,19 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to login_url
   end
 
-  test "should redirect destroy for wrong tournament" do
+  test "should destroy any tournament when logged in as admin" do
     log_in_as(users(:michael))
     tournament = tournaments(:ants)
+    assert_not_equal users(:michael), tournament.user
+    assert_difference "Tournament.count", -1 do
+      delete tournament_path(tournament)
+    end
+    assert_response :see_other
+  end
+
+  test "should redirect destroy for wrong tournament" do
+    log_in_as(users(:archer))
+    tournament = tournaments(:orange)
     assert_no_difference "Tournament.count" do
       delete tournament_path(tournament)
     end
