@@ -50,30 +50,7 @@ class MatchesController < ApplicationController
       redirect_to tournament_path(@tournament) and return
     end
 
-    p1_games = params[:participant1_games].to_i
-    p2_games = params[:participant2_games].to_i
-
-    if p1_games == p2_games
-      flash[:danger] = "同点の結果は入力できません"
-      redirect_to tournament_path(@tournament) and return
-    end
-
-    winner, winner_games, loser_games =
-      p1_games > p2_games ? [ match.participant1, p1_games, p2_games ] : [ match.participant2, p2_games, p1_games ]
-
-    Match.transaction do
-      match.update!(winner: winner, winner_games: winner_games, loser_games: loser_games, status: :finished,
-                    participant1_games: nil, participant2_games: nil)
-      match.advance_winner!
-      # 進出先の相手が棄権済みなら、連鎖して不戦勝にする
-      match.next_match&.apply_walkover!
-      match.predictions.each do |prediction|
-        points = prediction.predicted_participant_id == winner.id ? 10 : 0
-        prediction.update!(points: points)
-      end
-    end
-    broadcast_tournament_status!(@tournament)
-    redirect_to tournament_path(@tournament)
+    finish_match(match, match_attrs: {})
   end
 
   # ブラケットのタップで、指定した枠（slot: 1 or 2）の選手の途中スコアを増減する（delta: 1 or -1）
@@ -122,9 +99,21 @@ class MatchesController < ApplicationController
       flash[:danger] = "次の試合が開始しているため、この試合の状況は変更できません"
       redirect_to tournament_path(@tournament) and return
     end
+    if params[:status] == "finished"
+      finish_match(match, match_attrs: { court: params[:court] }) and return
+    end
+
     attrs = { court: params[:court], status: params[:status] }
-    # 予備に戻したら、それまでの結果（勝者・ゲーム数）はリセットする
-    attrs.merge!(winner: nil, winner_games: nil, loser_games: nil, participant1_games: nil, participant2_games: nil) if params[:status] == "pending"
+    live_games = { participant1_games: submitted_games(:participant1_games),
+                   participant2_games: submitted_games(:participant2_games) }
+    if params[:status] == "pending" && !match.pending?
+      # 予備に戻したら、それまでの結果（勝者・ゲーム数）と途中スコアはリセットする
+      attrs.merge!(winner: nil, winner_games: nil, loser_games: nil, participant1_games: nil, participant2_games: nil)
+    elsif match.winner.nil?
+      attrs.merge!(live_games)
+      # 点が入った試合は「試合中」にする
+      attrs[:status] = :in_progress if params[:status] == "pending" && live_games.values.compact.sum.positive?
+    end
     match.update!(attrs)
     broadcast_tournament_status!(@tournament)
     redirect_to tournament_path(@tournament)
@@ -139,6 +128,44 @@ class MatchesController < ApplicationController
   end
 
   private
+
+  # 送信されたゲーム数を返す（未入力は nil、負の数は0にする）
+  def submitted_games(key)
+    params[key].presence&.to_i&.clamp(0..)
+  end
+
+  # 送信されたゲーム数で勝敗を確定し、勝者を次の試合へ進める
+  def finish_match(match, match_attrs:)
+    p1_games = submitted_games(:participant1_games)
+    p2_games = submitted_games(:participant2_games)
+
+    if p1_games.nil? || p2_games.nil?
+      flash[:danger] = "ゲーム数を入力してください"
+      redirect_to tournament_path(@tournament) and return true
+    end
+    if p1_games == p2_games
+      flash[:danger] = "同点の結果は入力できません"
+      redirect_to tournament_path(@tournament) and return true
+    end
+
+    winner, winner_games, loser_games =
+      p1_games > p2_games ? [ match.participant1, p1_games, p2_games ] : [ match.participant2, p2_games, p1_games ]
+
+    Match.transaction do
+      match.update!(match_attrs.merge(winner: winner, winner_games: winner_games, loser_games: loser_games,
+                                      status: :finished, participant1_games: nil, participant2_games: nil))
+      match.advance_winner!
+      # 進出先の相手が棄権済みなら、連鎖して不戦勝にする
+      match.next_match&.apply_walkover!
+      match.predictions.each do |prediction|
+        points = prediction.predicted_participant_id == winner.id ? 10 : 0
+        prediction.update!(points: points)
+      end
+    end
+    broadcast_tournament_status!(@tournament)
+    redirect_to tournament_path(@tournament)
+    true
+  end
 
   # 2の冪乗かチェックする
   def power_of_two?(count)

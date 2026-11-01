@@ -9,6 +9,7 @@ class BracketTapSystemTest < ApplicationSystemTestCase
     @match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
     log_in_as_michael
     visit tournament_path(@tournament)
+    wait_for_stimulus("[data-controller='match-result-modal']", "match-result-modal")
   end
 
   test "should add a game by tapping the participant and not open the edit modal" do
@@ -35,6 +36,8 @@ class BracketTapSystemTest < ApplicationSystemTestCase
   test "should open the edit modal only from the edit icon and show the live scores" do
     slot("アリス").click
     assert_selector ".bracket-slot", text: /アリス\s*1/
+    wait_for_stimulus(".matches-scroller [data-controller='bracket-match-trigger']", "bracket-match-trigger")
+    wait_for_stimulus("[data-controller='match-result-modal']", "match-result-modal")
     find("button[aria-label='試合の詳細を編集']").click
     assert_selector "#match-result-modal-#{@match.id}", visible: true
     within("#match-result-modal-#{@match.id} .match-result-score-body") do
@@ -70,7 +73,7 @@ class BracketTapSystemTest < ApplicationSystemTestCase
   test "should not add games by tapping a finished match" do
     @match.update!(winner: @alice, winner_games: 6, loser_games: 3, status: :finished)
     visit tournament_path(@tournament)
-    slot("ボブ").click
+    find(".matches-scroller .bracket-slot", text: /ボブ/).click
     sleep 0.3
     assert_nil @match.reload.participant2_games
     assert_selector ".bracket-slot", text: /ボブ\s*3/
@@ -86,7 +89,9 @@ class BracketTapSystemTest < ApplicationSystemTestCase
       assert_no_current_path login_path
     end
 
+    # タップのたびにブラケットが差し替わるので、タップできる状態になってから要素を返す
     def slot(name)
+      wait_for_stimulus(".matches-scroller [data-controller='bracket-match-tap']", "bracket-match-tap")
       find(".matches-scroller .bracket-slot", text: /#{name}/)
     end
 

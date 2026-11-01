@@ -62,11 +62,10 @@
                   <% end %>
                 <% end %>
                 <% if match.live_result_ready? %>
-                  <button type="button" class="btn btn-xs btn-primary bracket-match-confirm"
-                          data-controller="bracket-match-confirm"
-                          data-bracket-match-confirm-modal-id-value="match-result-modal-<%= match.id %>"
-                          data-bracket-match-confirm-message-value="<%= "#{p1.name} #{p1_games} - #{p2_games} #{p2.name} で結果を確定しますか？" %>"
-                          data-action="click->bracket-match-confirm#confirm">確定</button>
+                  <%= button_to "確定", set_winner_tournament_match_path(tournament, match), method: :patch,
+                        params: { participant1_games: p1_games, participant2_games: p2_games },
+                        class: "btn btn-xs btn-primary bracket-match-confirm",
+                        form: { data: { turbo_confirm: "#{p1.name} #{p1_games} - #{p2_games} #{p2.name} で結果を確定しますか？" } } %>
                 <% end %>
               <% else %>
                 <div class="<%= p1_class %> <%= 'bracket-slot-empty' unless p1.present? %>" style="box-sizing: border-box; height: 42px; width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em; cursor: default; overflow: hidden;">

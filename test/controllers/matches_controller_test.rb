@@ -463,4 +463,67 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_nil match.participant1_games
     assert_nil match.participant2_games
   end
+
+  # 結果入力モーダルの一括更新
+  test "should save court and live games together when in progress" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    log_in_as(users(:michael))
+    patch update_status_tournament_match_path(@tournament, match),
+          params: { court: "コートA", status: "in_progress", participant1_games: 3, participant2_games: 3 }
+    match.reload
+    assert_equal "コートA", match.court
+    assert match.in_progress?
+    assert_equal [ 3, 3 ], [ match.participant1_games, match.participant2_games ]
+    assert_nil match.winner
+  end
+
+  test "should finish match with court and games together" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    log_in_as(users(:michael))
+    patch update_status_tournament_match_path(@tournament, match),
+          params: { court: "コートB", status: "finished", participant1_games: 2, participant2_games: 6 }
+    match.reload
+    assert_equal "コートB", match.court
+    assert match.finished?
+    assert_equal @bob, match.winner
+    assert_equal [ 6, 2 ], [ match.winner_games, match.loser_games ]
+  end
+
+  test "should not finish match with tied or blank games" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    log_in_as(users(:michael))
+    [ { participant1_games: 3, participant2_games: 3 }, { participant1_games: "", participant2_games: "" } ].each do |games|
+      patch update_status_tournament_match_path(@tournament, match), params: { court: "コートB", status: "finished" }.merge(games)
+      assert_not flash[:danger].nil?
+      match.reload
+      assert_nil match.winner
+      assert_not_equal "コートB", match.court
+    end
+  end
+
+  test "should start a pending match when games are saved" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    log_in_as(users(:michael))
+    patch update_status_tournament_match_path(@tournament, match),
+          params: { court: "", status: "pending", participant1_games: 1, participant2_games: "" }
+    match.reload
+    assert match.in_progress?
+    assert_equal 1, match.participant1_games
+  end
+
+  test "should reset live games when an in-progress match is set back to pending from the form" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob,
+                                        participant1_games: 4, participant2_games: 2, status: :in_progress)
+    log_in_as(users(:michael))
+    patch update_status_tournament_match_path(@tournament, match),
+          params: { court: "", status: "pending", participant1_games: 4, participant2_games: 2 }
+    match.reload
+    assert match.pending?
+    assert_nil match.participant1_games
+  end
 end

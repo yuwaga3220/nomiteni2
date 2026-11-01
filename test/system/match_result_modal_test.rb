@@ -65,7 +65,8 @@ class MatchResultModalSystemTest < ApplicationSystemTestCase
     open_modal
     within_stepper("アリス") { 6.times { find("button[aria-label='アリスのゲーム数を増やす']").click } }
     within_stepper("ボブ") { 3.times { find("button[aria-label='ボブのゲーム数を増やす']").click } }
-    click_button "結果を確定"
+    select "終了", from: "status"
+    click_button "保存"
     # 送信後に対戦表へ戻り、スコアが表示されるまで待つ
     assert_selector ".bracket-slot-score", text: "6"
     @match.reload
@@ -78,9 +79,28 @@ class MatchResultModalSystemTest < ApplicationSystemTestCase
     open_modal
     within_stepper("アリス") { 2.times { find("button[aria-label='アリスのゲーム数を増やす']").click } }
     within_stepper("ボブ") { 2.times { find("button[aria-label='ボブのゲーム数を増やす']").click } }
-    click_button "結果を確定"
+    select "終了", from: "status"
+    click_button "保存"
     assert_text "同点の結果は入力できません"
     assert_nil @match.reload.winner
+  end
+
+  test "should save court, status and games with one button" do
+    open_modal
+    assert_equal 1, all("#match-result-modal-#{@match.id} input[type=submit]").size
+    within("#match-result-modal-#{@match.id}") do
+      fill_in "court", with: "コートA"
+      select "試合中", from: "status"
+    end
+    within_stepper("アリス") { find("input").set("2") }
+    within_stepper("ボブ") { find("input").set("2") }
+    click_button "保存"
+    assert_selector ".bracket-slot-score", text: "2", count: 2
+    @match.reload
+    assert_equal "コートA", @match.court
+    assert @match.in_progress?
+    assert_equal [ 2, 2 ], [ @match.participant1_games, @match.participant2_games ]
+    assert_nil @match.winner
   end
 
   test "should show current games as initial values and allow direct input" do
@@ -107,7 +127,11 @@ class MatchResultModalSystemTest < ApplicationSystemTestCase
 
     def open_modal
       visit tournament_path(@tournament)
-      find("[data-bracket-match-trigger-modal-id-value='match-result-modal-#{@match.id}']").click
+      trigger = "[data-bracket-match-trigger-modal-id-value='match-result-modal-#{@match.id}']"
+      wait_for_stimulus(trigger, "bracket-match-trigger")
+      wait_for_stimulus("[data-controller='match-result-modal']", "match-result-modal")
+      wait_for_stimulus("[data-controller='game-stepper']", "game-stepper")
+      find(trigger).click
       assert_selector "#match-result-modal-#{@match.id}", visible: true
     end
 

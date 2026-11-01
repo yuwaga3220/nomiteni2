@@ -1292,8 +1292,10 @@ h2 { color: $text-muted-dark; }
   border-top: 0 !important;
 }
 
-.match-result-modal-footer-divider {
-  border-bottom: 1px solid $border-dark !important;
+.match-result-hint {
+  margin: 8px 0 0;
+  font-size: 0.75em;
+  color: $text-muted-dark;
 }
 
 /* participant register form */
