@@ -171,6 +171,19 @@ class PredictionsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_url
   end
 
+  test "should redirect predictions page to root with message when tournament is unpublished and not owner" do
+    log_in_as(users(:archer))
+    get new_tournament_prediction_path(tournaments(:tau_manifesto))
+    assert_redirected_to root_url
+    assert_equal "この大会はまだ公開されていません", flash[:danger]
+  end
+
+  test "should show predictions page of unpublished tournament to owner" do
+    log_in_as(users(:michael))
+    get new_tournament_prediction_path(tournaments(:tau_manifesto))
+    assert_response :success
+  end
+
   test "should replace only the bracket with turbo stream and show the selected participant" do
     log_in_as(users(:michael))
     assert_difference "Prediction.count", 1 do

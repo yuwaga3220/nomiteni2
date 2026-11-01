@@ -780,6 +780,26 @@ h2 { color: $text-muted-dark; }
   margin-bottom: 16px;
 }
 
+// スマホ幅: PC向けの大きな余白を詰めて、1画面に収まりやすくする
+@media (max-width: 480px) {
+  .guest-welcome-intro {
+    margin-bottom: 32px;
+    font-size: 1.05em;
+  }
+
+  .guest-welcome-features-pushed {
+    margin-top: 48px;
+  }
+
+  .guest-welcome-features-heading {
+    margin-bottom: 24px;
+  }
+
+  .guest-welcome-features-row {
+    gap: 28px;
+  }
+}
+
 .login-hint {
   margin-top: 4px;
   margin-bottom: 0;
@@ -851,10 +871,10 @@ h2 { color: $text-muted-dark; }
 .jumbotron {
   background: radial-gradient(ellipse at top, #2a1257 0%, #110027 65%);
   color: $text-primary;
-  padding-top: 80px;
-  padding-bottom: 64px;
+  padding-top: 32px;
+  padding-bottom: 24px;
   margin-top: -9px;
-  margin-bottom: 40px;
+  margin-bottom: 24px;
   margin-left: calc(-50vw + 50%);
   margin-right: calc(-50vw + 50%);
   padding-left: calc(50vw - 50%);

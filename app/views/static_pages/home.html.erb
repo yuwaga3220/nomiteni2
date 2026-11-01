@@ -3,12 +3,8 @@
     <%= image_tag "icon.svg", alt: "", class: "jumbotron-title-icon" %>
     HIT'EMS
   </h1>
-  <h2>
-    大会をもっと楽しく。
-  </h2>
 </div>
 <% if logged_in? %>
-  <%= render 'users/profile_summary', user: current_user %>
   <%= render 'static_pages/tournament_list' %>
 <% else %>
   <%= render 'static_pages/guest_welcome' %>

@@ -10,6 +10,8 @@ class Tournament < ApplicationRecord
     attachable.variant :mosaic, resize_to_fill: [ 128, 108 ]
   end
   default_scope -> { order(created_at: :desc) }
+  # 選手が1人以上登録されている（公開中の）大会
+  scope :published, -> { where(id: Participant.select(:tournament_id)) }
   enum :status, { before: 0, during: 1, after: 2 }
   has_secure_password :passcode, validations: false
   validates :user_id, presence: true
@@ -20,6 +22,11 @@ class Tournament < ApplicationRecord
                                     message: "must be a valid image format" },
                     size:         { less_than: 5.megabytes,
                                     message:   "should be less than 5MB" }
+
+  # 選手が1人以上登録されていれば公開中とみなす
+  def published?
+    participants.exists?
+  end
 
   # 予想を1件以上行っているユーザーを、獲得ポイントの合計が多い順に返す
   # 各ユーザーには total_points（獲得ポイント）、decided_predictions_count（結果が出た予想数）、
