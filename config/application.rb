@@ -10,7 +10,8 @@ module SampleApp
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.1
-    config.active_storage.variant_processor = :mini_magick
+    # 本番のDockerイメージにはlibvipsのみ入っている（ImageMagickは無い）ため、vipsで画像を変換する
+    config.active_storage.variant_processor = :vips
     config.i18n.default_locale = :ja
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
