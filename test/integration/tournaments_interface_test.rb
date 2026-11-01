@@ -94,3 +94,56 @@ class TournamentShowTest < TournamentsInterface
     assert_select ".upset-highlight", count: 0
   end
 end
+
+class GuestTournamentListTest < ActionDispatch::IntegrationTest
+  def setup
+    @tournament = tournaments(:orange)
+  end
+
+  test "should show tournament list on home when not logged in" do
+    get root_path
+    assert_response :success
+    assert_select "#tournament-#{@tournament.id} .tournament-card-title", text: @tournament.title
+    assert_select "h2.tournament-list-heading", text: "開催前（予想受付中）"
+  end
+
+  test "should not show delete or calendar links when not logged in" do
+    @tournament.update!(held_on: Date.new(2026, 12, 1))
+    get root_path
+    assert_select "a.tournament-card-delete-link", count: 0
+    assert_select "a.tournament-card-calendar-link", count: 0
+  end
+
+  test "should redirect to login and forward back to show page after login" do
+    get root_path
+    assert_select "#tournament-#{@tournament.id} a[href=?]", tournament_path(@tournament), text: "試合状況"
+    get tournament_path(@tournament)
+    assert_redirected_to login_url
+    log_in_as(users(:archer))
+    assert_redirected_to tournament_url(@tournament)
+  end
+
+  test "should redirect to login and forward back to predictions page after login" do
+    get root_path
+    assert_select "#tournament-#{@tournament.id} a[href=?]", new_tournament_prediction_path(@tournament)
+    get new_tournament_prediction_path(@tournament)
+    assert_redirected_to login_url
+    log_in_as(users(:archer))
+    assert_redirected_to new_tournament_prediction_url(@tournament)
+  end
+
+  test "should show passcode protected tournament card when not logged in" do
+    @tournament.update!(passcode: "1234")
+    get root_path
+    assert_response :success
+    assert_select "#tournament-#{@tournament.id} .tournament-card-title", text: @tournament.title
+    assert_select "#tournament-#{@tournament.id} a[href=?]", tournament_path(@tournament), count: 0
+  end
+
+  test "should show home when there are no tournaments and not logged in" do
+    Tournament.destroy_all
+    get root_path
+    assert_response :success
+    assert_select ".tournament-card", count: 0
+  end
+end
