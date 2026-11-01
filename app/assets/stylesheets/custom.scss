@@ -479,6 +479,25 @@ input {
   margin-top: 0;
 }
 
+// 2つのボタンを横並びの2等分にし、文言の長さやパスコード用の span の有無に関わらず揃える
+.tournament-card-actions {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+  > * {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  > span {
+    display: flex;
+  }
+  > .btn, > span > .btn {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
 .tournament-card-calendar-link {
   position: absolute;
   top: 12px;
