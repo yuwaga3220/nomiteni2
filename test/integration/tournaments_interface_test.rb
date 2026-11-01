@@ -65,6 +65,17 @@ class TournamentsInterfaceTest < TournamentsInterface
     assert_select "a.tournament-card-delete-link"
   end
 
+  test "should be able to delete own tournament with a bracket" do
+    tournament = tournaments(:orange)
+    final = tournament.matches.create!(round: 2)
+    tournament.matches.create!(round: 1, participant1: participants(:alice), participant2: participants(:bob),
+                               next_match: final, next_slot: 1)
+    assert_difference "Tournament.count", -1 do
+      delete tournament_path(tournament)
+    end
+    assert_response :see_other
+  end
+
   test "should be able to delete own tournament" do
     first_tournament = @user.tournaments.paginate(page: 1).first
     assert_difference "Tournament.count", -1 do

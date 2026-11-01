@@ -118,4 +118,26 @@ class TournamentTest < ActiveSupport::TestCase
     assert_includes Tournament.published, tournaments(:orange)
     assert_not_includes Tournament.published, tournaments(:tau_manifesto)
   end
+
+  test "should destroy tournament with bracket, results and predictions" do
+    tournament = tournaments(:orange)
+    alice = participants(:alice)
+    bob = participants(:bob)
+    carol = tournament.participants.create!(name: "選手C")
+    dave = tournament.participants.create!(name: "選手D")
+    # 決勝を先に作り、準決勝から参照させる（実際のツリー作成と同じ順序）
+    final = tournament.matches.create!(round: 2, participant1: alice)
+    semi1 = tournament.matches.create!(round: 1, participant1: alice, participant2: bob, next_match: final, next_slot: 1,
+                                       winner: alice, winner_games: 6, loser_games: 2, status: :finished)
+    tournament.matches.create!(round: 1, participant1: carol, participant2: dave, next_match: final, next_slot: 2)
+    Prediction.create!(user: users(:archer), match: semi1, predicted_participant: alice, points: 10)
+
+    assert_difference [ "Tournament.count" ], -1 do
+      assert_difference "Match.where(tournament_id: #{tournament.id}).count", -3 do
+        tournament.destroy!
+      end
+    end
+    assert_equal 0, Participant.where(tournament_id: tournament.id).count
+    assert_equal 0, Prediction.where(match_id: semi1.id).count
+  end
 end

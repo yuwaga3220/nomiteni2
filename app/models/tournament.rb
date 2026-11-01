@@ -1,5 +1,7 @@
 class Tournament < ApplicationRecord
   belongs_to :user
+  # matchesが次の試合を外部キー（next_match_id）で参照しているため、matchesの削除前に参照を外す
+  before_destroy :clear_match_links, prepend: true
   # matchesがparticipantsを外部キーで参照しているため、削除時はmatches→participantsの順である必要がある
   has_many :matches, dependent: :destroy
   has_many :participants, dependent: :destroy
@@ -54,5 +56,11 @@ class Tournament < ApplicationRecord
   def best_predictor
     return nil unless after?
     ranking.first
+  end
+
+  private
+
+  def clear_match_links
+    matches.update_all(next_match_id: nil)
   end
 end
