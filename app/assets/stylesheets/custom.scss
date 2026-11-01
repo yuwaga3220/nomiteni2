@@ -780,6 +780,26 @@ h2 { color: $text-muted-dark; }
   margin-bottom: 16px;
 }
 
+// スマホ幅: PC向けの大きな余白を詰めて、1画面に収まりやすくする
+@media (max-width: 480px) {
+  .guest-welcome-intro {
+    margin-bottom: 32px;
+    font-size: 1.05em;
+  }
+
+  .guest-welcome-features-pushed {
+    margin-top: 48px;
+  }
+
+  .guest-welcome-features-heading {
+    margin-bottom: 24px;
+  }
+
+  .guest-welcome-features-row {
+    gap: 28px;
+  }
+}
+
 .login-hint {
   margin-top: 4px;
   margin-bottom: 0;
