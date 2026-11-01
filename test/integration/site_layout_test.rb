@@ -26,6 +26,19 @@ class SiteLayoutTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", edit_user_path(@user), count: 0
   end
 
+  test "start buttons link to login when logged out" do
+    get root_path
+    # 「はじめる」ボタン（上下2箇所）はログイン画面へ遷移する
+    assert_select "a.btn[href=?]", login_path, text: "はじめる", count: 2
+    assert_select "a.btn[href=?]", signup_path, count: 0
+    assert_no_match "アカウントをお持ちの方は", response.body
+    # ログイン画面からアカウント作成画面へ遷移できる
+    get login_path
+    assert_select "a[href=?]", signup_path, text: "こちら"
+    get signup_path
+    assert_template "users/new"
+  end
+
   test "layout links when logged in" do
     log_in_as(@user)
     get root_path   # ログイン直後はプロフィールに飛ぶので、レイアウト確認用に別ページへ
