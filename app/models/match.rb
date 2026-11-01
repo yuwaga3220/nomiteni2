@@ -8,8 +8,22 @@ class Match < ApplicationRecord
   enum :status, { pending: 0, in_progress: 1, finished: 2 }
   validates :round, presence: true, numericality: { only_integer: true, greater_than: 0 }
   validates :next_slot, inclusion: { in: [ 1, 2 ] }, allow_nil: true
-  validates :winner_games, :loser_games, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
+  validates :winner_games, :loser_games, :participant1_games, :participant2_games, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
   validate :winner_games_must_exceed_loser_games, if: -> { winner_games.present? || loser_games.present? }
+
+  # ブラケットに表示する、指定した枠（1 or 2）の選手のゲーム数。
+  # 勝者が決まっていれば確定した結果、未確定ならタップで加算した途中スコアを返す
+  def games_for(slot)
+    return slot == 1 ? participant1_games : participant2_games if winner.nil?
+
+    winner == (slot == 1 ? participant1 : participant2) ? winner_games : loser_games
+  end
+
+  # 途中スコアが両者入力済みで、勝敗がつく（同点でない）状態か
+  def live_result_ready?
+    !finished? && participant1_games.present? && participant2_games.present? &&
+      participant1_games != participant2_games
+  end
 
   # 次の試合が既に始まっている（予備でない）場合、この試合の結果は変更できない
   def result_locked?

@@ -16,7 +16,8 @@
   <% end %>
 
   <%= render "tournaments/bracket", tournament: tournament, owner_view: owner_view,
-        editable: owner_view && tournament.during? if tournament.matches.any? %>
+        editable: owner_view && tournament.during?,
+        preserve_scroll: local_assigns.fetch(:preserve_scroll, false) if tournament.matches.any? %>
 
   <%= render "tournaments/court_status", tournament: tournament if tournament.matches.any? %>
 

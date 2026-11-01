@@ -376,4 +376,91 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
           params: { court: "コートA", status: "in_progress" }
     assert_redirected_to root_url
   end
+
+  # ブラケットのタップによる途中スコアの加算・減算
+  test "should add game to participant1 and start the match" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    log_in_as(users(:michael))
+    patch adjust_games_tournament_match_path(@tournament, match), params: { slot: 1, delta: 1 },
+                                                                  headers: { "Accept" => "text/vnd.turbo-stream.html" }
+    assert_response :success
+    match.reload
+    assert_equal [ 1, 0 ], [ match.participant1_games, match.participant2_games ]
+    assert match.in_progress?
+    assert_nil match.winner
+  end
+
+  test "should subtract game but never go below zero" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob,
+                                        participant1_games: 1, participant2_games: 0, status: :in_progress)
+    log_in_as(users(:michael))
+    2.times do
+      patch adjust_games_tournament_match_path(@tournament, match), params: { slot: 1, delta: -1 },
+                                                                    headers: { "Accept" => "text/vnd.turbo-stream.html" }
+    end
+    assert_equal 0, match.reload.participant1_games
+  end
+
+  test "should not adjust games before tournament starts" do
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    log_in_as(users(:michael))
+    patch adjust_games_tournament_match_path(@tournament, match), params: { slot: 1, delta: 1 }
+    assert_response :unprocessable_entity
+    assert_nil match.reload.participant1_games
+  end
+
+  test "should not adjust games of a finished match" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob,
+                                        winner: @alice, winner_games: 6, loser_games: 3, status: :finished)
+    log_in_as(users(:michael))
+    patch adjust_games_tournament_match_path(@tournament, match), params: { slot: 2, delta: 1 }
+    assert_response :unprocessable_entity
+    assert_nil match.reload.participant2_games
+  end
+
+  test "should reject invalid slot and delta" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    log_in_as(users(:michael))
+    patch adjust_games_tournament_match_path(@tournament, match), params: { slot: 3, delta: 1 }
+    assert_response :unprocessable_entity
+    patch adjust_games_tournament_match_path(@tournament, match), params: { slot: 1, delta: 5 }
+    assert_response :unprocessable_entity
+    assert_nil match.reload.participant1_games
+  end
+
+  test "should not adjust games when wrong user" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
+    log_in_as(users(:archer))
+    patch adjust_games_tournament_match_path(@tournament, match), params: { slot: 1, delta: 1 }
+    assert_redirected_to root_url
+    assert_nil match.reload.participant1_games
+  end
+
+  test "should clear live scores when the result is confirmed" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob,
+                                        participant1_games: 6, participant2_games: 3, status: :in_progress)
+    log_in_as(users(:michael))
+    patch set_winner_tournament_match_path(@tournament, match), params: { participant1_games: 6, participant2_games: 3 }
+    match.reload
+    assert_equal @alice, match.winner
+    assert_nil match.participant1_games
+    assert_nil match.participant2_games
+  end
+
+  test "should clear live scores when the match is set back to pending" do
+    @tournament.update!(status: :during)
+    match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob,
+                                        participant1_games: 2, participant2_games: 1, status: :in_progress)
+    log_in_as(users(:michael))
+    patch update_status_tournament_match_path(@tournament, match), params: { court: "", status: "pending" }
+    match.reload
+    assert_nil match.participant1_games
+    assert_nil match.participant2_games
+  end
 end

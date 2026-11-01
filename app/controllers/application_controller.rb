@@ -12,13 +12,13 @@ class ApplicationController < ActionController::Base
       "tournament_#{tournament.id}_owner",
       target: "tournament-status-section",
       partial: "tournaments/status_section",
-      locals: { tournament: tournament, owner_view: true }
+      locals: { tournament: tournament, owner_view: true, preserve_scroll: true }
     )
     Turbo::StreamsChannel.broadcast_replace_to(
       "tournament_#{tournament.id}_public",
       target: "tournament-status-section",
       partial: "tournaments/status_section",
-      locals: { tournament: tournament, owner_view: false }
+      locals: { tournament: tournament, owner_view: false, preserve_scroll: true }
     )
   end
 

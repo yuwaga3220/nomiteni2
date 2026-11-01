@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_21_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_01_000000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.integer "blob_id", null: false
     t.datetime "created_at", null: false
@@ -45,7 +45,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_21_000000) do
     t.integer "loser_games"
     t.integer "next_match_id"
     t.integer "next_slot"
+    t.integer "participant1_games"
     t.integer "participant1_id"
+    t.integer "participant2_games"
     t.integer "participant2_id"
     t.integer "round", null: false
     t.integer "status", default: 0, null: false

@@ -62,7 +62,8 @@ class MatchesController < ApplicationController
       p1_games > p2_games ? [ match.participant1, p1_games, p2_games ] : [ match.participant2, p2_games, p1_games ]
 
     Match.transaction do
-      match.update!(winner: winner, winner_games: winner_games, loser_games: loser_games, status: :finished)
+      match.update!(winner: winner, winner_games: winner_games, loser_games: loser_games, status: :finished,
+                    participant1_games: nil, participant2_games: nil)
       match.advance_winner!
       # 進出先の相手が棄権済みなら、連鎖して不戦勝にする
       match.next_match&.apply_walkover!
@@ -73,6 +74,34 @@ class MatchesController < ApplicationController
     end
     broadcast_tournament_status!(@tournament)
     redirect_to tournament_path(@tournament)
+  end
+
+  # ブラケットのタップで、指定した枠（slot: 1 or 2）の選手の途中スコアを増減する（delta: 1 or -1）
+  def adjust_games
+    match = @tournament.matches.find(params[:id])
+    slot = params[:slot].to_i
+    delta = params[:delta].to_i
+    unless @tournament.during? && [ 1, 2 ].include?(slot) && [ 1, -1 ].include?(delta) &&
+           match.participant1 && match.participant2 && !match.walkover? && !match.result_locked? && !match.finished?
+      head :unprocessable_entity and return
+    end
+
+    scores = [ match.participant1_games || 0, match.participant2_games || 0 ]
+    scores[slot - 1] = [ scores[slot - 1] + delta, 0 ].max
+    attrs = { participant1_games: scores[0], participant2_games: scores[1] }
+    # 点が入った試合は「試合中」にする
+    attrs[:status] = :in_progress if match.pending?
+    match.update!(attrs)
+    broadcast_tournament_status!(@tournament)
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "tournament-status-section",
+          partial: "tournaments/status_section",
+          locals: { tournament: @tournament, owner_view: true, preserve_scroll: true }
+        )
+      end
+    end
   end
 
   def update_status
@@ -95,7 +124,7 @@ class MatchesController < ApplicationController
     end
     attrs = { court: params[:court], status: params[:status] }
     # 予備に戻したら、それまでの結果（勝者・ゲーム数）はリセットする
-    attrs.merge!(winner: nil, winner_games: nil, loser_games: nil) if params[:status] == "pending"
+    attrs.merge!(winner: nil, winner_games: nil, loser_games: nil, participant1_games: nil, participant2_games: nil) if params[:status] == "pending"
     match.update!(attrs)
     broadcast_tournament_status!(@tournament)
     redirect_to tournament_path(@tournament)

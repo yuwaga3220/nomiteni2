@@ -34,23 +34,40 @@
                  p2_muted = match.pending? || (match.finished? && match.winner != p2)
                  p1_class = "bracket-slot #{'bracket-slot-muted' if p1_muted}"
                  p2_class = "bracket-slot #{'bracket-slot-muted' if p2_muted}"
-                 p1_games = match.winner == p1 ? match.winner_games : (match.winner == p2 ? match.loser_games : nil)
-                 p2_games = match.winner == p2 ? match.winner_games : (match.winner == p1 ? match.loser_games : nil) %>
+                 p1_games = match.games_for(1)
+                 p2_games = match.games_for(2) %>
               <% if editable && p1.present? && p2.present? && !match.result_locked? && !match.walkover? %>
-                <div class="btn btn-sm" style="width: 100%; padding: 0; border: 0; cursor: pointer;"
-                     data-controller="bracket-match-trigger"
-                     data-bracket-match-trigger-modal-id-value="match-result-modal-<%= match.id %>"
-                     data-action="click->bracket-match-trigger#open">
-                  <span class="glyphicon glyphicon-pencil bracket-match-edit-icon" aria-hidden="true"></span>
-                  <div class="<%= p1_class %>" style="box-sizing: border-box; height: 42px; border-radius: 4px 4px 0 0; padding: 10px 12px; font-size: 1em; overflow: hidden;">
+                <%# スロットのタップでゲーム数を加算（長押しで減算）。詳細の編集は左上の編集マークから。確定済みの試合はタップ対象外 %>
+                <% tappable = !match.finished?
+                   tap_attrs = lambda do |slot|
+                     next {} unless tappable
+                     { data: { action: "pointerdown->bracket-match-tap#start pointerup->bracket-match-tap#end pointerleave->bracket-match-tap#cancel pointercancel->bracket-match-tap#cancel contextmenu->bracket-match-tap#suppress",
+                               "bracket-match-tap-slot-param": slot } }
+                   end %>
+                <%= tag.div class: "btn btn-sm bracket-match-editable", style: "width: 100%; padding: 0; border: 0; cursor: #{tappable ? 'pointer' : 'default'};",
+                      data: (tappable ? { controller: "bracket-match-tap", "bracket-match-tap-url-value": adjust_games_tournament_match_path(tournament, match) } : {}) do %>
+                  <button type="button" class="bracket-match-edit-icon" aria-label="試合の詳細を編集"
+                          data-controller="bracket-match-trigger"
+                          data-bracket-match-trigger-modal-id-value="match-result-modal-<%= match.id %>"
+                          data-action="click->bracket-match-trigger#open">
+                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                  </button>
+                  <%= tag.div class: p1_class, style: "box-sizing: border-box; height: 42px; border-radius: 4px 4px 0 0; padding: 10px 12px 10px 30px; font-size: 1em; overflow: hidden;", **tap_attrs.call(1) do %>
                     <%= p1.name %>
                     <% if p1_games.present? %><span class="pull-right bracket-slot-score"><%= p1_games %></span><% end %>
-                  </div>
-                  <div class="<%= p2_class %>" style="box-sizing: border-box; height: 42px; border-radius: 0 0 4px 4px; padding: 10px 12px; font-size: 1em; overflow: hidden;">
+                  <% end %>
+                  <%= tag.div class: p2_class, style: "box-sizing: border-box; height: 42px; border-radius: 0 0 4px 4px; padding: 10px 12px 10px 30px; font-size: 1em; overflow: hidden;", **tap_attrs.call(2) do %>
                     <%= p2.name %>
                     <% if p2_games.present? %><span class="pull-right bracket-slot-score"><%= p2_games %></span><% end %>
-                  </div>
-                </div>
+                  <% end %>
+                <% end %>
+                <% if match.live_result_ready? %>
+                  <button type="button" class="btn btn-xs btn-primary bracket-match-confirm"
+                          data-controller="bracket-match-confirm"
+                          data-bracket-match-confirm-modal-id-value="match-result-modal-<%= match.id %>"
+                          data-bracket-match-confirm-message-value="<%= "#{p1.name} #{p1_games} - #{p2_games} #{p2.name} で結果を確定しますか？" %>"
+                          data-action="click->bracket-match-confirm#confirm">確定</button>
+                <% end %>
               <% else %>
                 <div class="<%= p1_class %> <%= 'bracket-slot-empty' unless p1.present? %>" style="box-sizing: border-box; height: 42px; width: 100%; border-radius: 4px 4px 0 0; margin: 0; padding: 10px 12px; font-size: 1em; cursor: default; overflow: hidden;">
                   <%= p1&.name || "未定" %>
@@ -80,7 +97,7 @@
         <% end %>
       <% end %>
     </div>
-    <div class="bracket-wrapper" data-controller="bracket" data-bracket-data-value="<%= bracket_data.to_json %>"></div>
+    <div class="bracket-wrapper" data-controller="bracket" data-bracket-data-value="<%= bracket_data.to_json %>" data-bracket-preserve-scroll-value="<%= local_assigns.fetch(:preserve_scroll, false) %>"></div>
     <% if editable %>
       <% grouped.each do |_round, matches| %>
         <% matches.each do |match| %>

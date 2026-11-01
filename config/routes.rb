@@ -36,6 +36,7 @@ Rails.application.routes.draw do
       member do
         patch :set_winner
         patch :update_status
+        patch :adjust_games
       end
     end
   end
