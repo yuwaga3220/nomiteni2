@@ -32,7 +32,7 @@ jobs:
       cancel-in-progress: false
     steps:
       - name: Checkout PR
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: refs/pull/${{ inputs.pr }}/head
           fetch-depth: 0

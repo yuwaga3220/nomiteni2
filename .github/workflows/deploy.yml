@@ -13,7 +13,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # 画像のバリアント生成（variant_processor = :vips）のテストに必要
       - name: Install packages
@@ -39,7 +39,7 @@ jobs:
     # 本番サーバーと同じ arm64 のランナーでビルドする（QEMU でのエミュレーションは遅いため使わない）
     runs-on: ubuntu-24.04-arm
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
