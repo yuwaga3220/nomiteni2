@@ -1,13 +1,24 @@
 <h4>
-  リーダーボード
-  <% if @tournament.during? %>
+  <%= @tournament.before? ? "投票者一覧" : "リーダーボード" %>
+  <% if @tournament.before? %>
+    <small class="text-muted">（<%= @voters.size %>人）</small>
+  <% elsif @tournament.during? %>
     <small class="text-muted">（暫定）</small>
   <% elsif @tournament.after? %>
     <small class="text-muted">（確定）</small>
   <% end %>
 </h4>
+<%# 開催前は予想の内容を見せないよう、投票した人の名前だけを表示する %>
 <% if @tournament.before? %>
-  <p class="text-muted">集計前です。大会が始まるとランキングが表示されます。</p>
+  <% if @voters.blank? %>
+    <p class="text-muted">まだ投票している人がいません。</p>
+  <% else %>
+    <ul class="list-group">
+      <% @voters.each do |user| %>
+        <li class="list-group-item"><%= user.name %></li>
+      <% end %>
+    </ul>
+  <% end %>
 <% elsif @ranking.blank? %>
   <p class="text-muted">まだ予想している人がいません。</p>
 <% else %>

@@ -56,7 +56,10 @@ class PredictionsController < ApplicationController
       next unless m.next_match_id
       h[[ m.next_match_id, m.next_slot ]] = m
     end
-    @next_match, @next_participants = next_unpredicted_match if @tournament.before?
+    return unless @tournament.before?
+
+    @next_match, @next_participants = next_unpredicted_match
+    @voters = @tournament.voters
   end
 
   # 未予想の試合のうち、トーナメント表の左上から順（回戦の若い順→上から順）で最初の1試合と、

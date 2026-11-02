@@ -8,10 +8,43 @@ class PredictionsControllerTest < ActionDispatch::IntegrationTest
     @match = @tournament.matches.create!(round: 1, participant1: @alice, participant2: @bob)
   end
 
-  test "should not show ranking before tournament starts" do
+  test "should show voters without ranking or prediction contents before tournament starts" do
+    archer = users(:archer)
+    Prediction.create!(user: archer, match: @match, predicted_participant: @alice)
     log_in_as(users(:michael))
     get new_tournament_prediction_path(@tournament)
-    assert_select "p", text: "集計前です。大会が始まるとランキングが表示されます。"
+    assert_select "h4", text: /投票者一覧/
+    assert_select "h4", text: /1人/
+    assert_select "h4", text: /リーダーボード/, count: 0
+    assert_select "#prediction-ranking li", count: 1
+    assert_select "#prediction-ranking li", text: archer.name
+    assert_select "#prediction-ranking", text: /#{@alice.name}/, count: 0
+    assert_select "#prediction-ranking", text: /pt|Hit rate/, count: 0
+  end
+
+  test "should show empty message when nobody has voted before tournament starts" do
+    log_in_as(users(:michael))
+    get new_tournament_prediction_path(@tournament)
+    assert_select "#prediction-ranking p", text: "まだ投票している人がいません。"
+  end
+
+  test "should list each voter once and only for this tournament" do
+    final = @tournament.matches.create!(round: 2)
+    archer = users(:archer)
+    Prediction.create!(user: archer, match: @match, predicted_participant: @alice)
+    Prediction.create!(user: archer, match: final, predicted_participant: @alice)
+    assert_equal [ archer ], @tournament.voters.to_a
+    assert_empty tournaments(:ants).voters.to_a
+  end
+
+  test "should add the user to voters with turbo stream when predicting" do
+    user = users(:michael)
+    log_in_as(user)
+    post tournament_prediction_path(@tournament), params: { match_id: @match.id, participant_id: @alice.id },
+                                                  as: :turbo_stream
+    assert_turbo_stream action: "update", target: "prediction-ranking" do
+      assert_select "template li", text: user.name
+    end
   end
 
   test "should show ranking sorted by total points during tournament" do

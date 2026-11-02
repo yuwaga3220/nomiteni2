@@ -44,7 +44,7 @@
         <% unless @tournament.before? %>
           <%= render "prediction_log" %>
         <% end %>
-        <%= render "ranking" %>
+        <div id="prediction-ranking"><%= render "ranking" %></div>
       <% end %>
     </div>
   <% end %>

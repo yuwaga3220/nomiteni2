@@ -46,6 +46,11 @@ class Tournament < ApplicationRecord
         .order(Arel.sql("total_points DESC"))
   end
 
+  # この大会で予想を1件以上行っているユーザーを、名前順に返す
+  def voters
+    User.where(id: Prediction.where(match_id: matches.select(:id)).select(:user_id)).order(:name)
+  end
+
   # 決勝（next_matchを持たない試合）の勝者を優勝者として返す（開催後でなければnil）
   def champion
     return nil unless after?
