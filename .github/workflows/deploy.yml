@@ -36,7 +36,8 @@ jobs:
 
   deploy:
     needs: test
-    runs-on: ubuntu-latest
+    # 本番サーバーと同じ arm64 のランナーでビルドする（QEMU でのエミュレーションは遅いため使わない）
+    runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v4
 
@@ -44,9 +45,6 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-
-      - name: Set up QEMU (arm64 cross-build)
-        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
