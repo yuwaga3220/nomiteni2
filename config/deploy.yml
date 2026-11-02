@@ -76,6 +76,9 @@ aliases:
 volumes:
   - "sample_app_storage:/rails/storage"
 
+# Keep fewer old containers and images because the server disk is small (default: 5).
+retain_containers: 2
+
 # Bridge fingerprinted assets, like JS and CSS, between versions to avoid
 # hitting 404 on in-flight requests. Combines all files from new and old
 # version inside the asset_path.
