@@ -42,11 +42,12 @@ class Match < ApplicationRecord
   end
 
   # 棄権者を含む試合なら、相手を勝者として不戦勝で確定し、勝者を次の試合へ進める。
-  # 不戦勝の試合は予想の対象外なので予想は削除する。進出先も不戦勝なら連鎖して確定する
+  # 不戦勝の試合は予想の対象外なので予想は削除する。進出先も不戦勝なら連鎖して確定する。
+  # 両者棄権の場合は片方を形式上の勝者として進め、次の試合を相手の不戦勝にする
   def apply_walkover!
     return unless walkover? && winner_id.nil?
     walkover_winner = participant1&.withdrawn? ? participant2 : participant1
-    return if walkover_winner.nil? || walkover_winner.withdrawn?
+    return if walkover_winner.nil?
     predictions.destroy_all
     update!(winner: walkover_winner, winner_games: nil, loser_games: nil, status: :finished)
     advance_winner!

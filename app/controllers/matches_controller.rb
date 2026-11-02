@@ -13,12 +13,6 @@ class MatchesController < ApplicationController
     # 表示順（ドラッグ&ドロップで並び替えられたposition）をそのままポジションとして割り当てる
     ordered_participants = @tournament.participants.order(:position, :id).to_a
 
-    # 1回戦で両選手が棄権していると勝者を決められないため作成しない
-    if ordered_participants.each_slice(2).any? { |pair| pair.all?(&:withdrawn?) }
-      flash[:danger] = "1回戦で両選手が棄権している試合があるため、トーナメントツリーを作成できません"
-      redirect_to tournament_path(@tournament) and return
-    end
-
     Match.transaction do
       @tournament.matches.update_all(next_match_id: nil)
       @tournament.matches.destroy_all

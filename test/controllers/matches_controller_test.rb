@@ -233,16 +233,17 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert tournament.matches.find_by(round: 1, participant1: participants(:heidi)).pending?
   end
 
-  test "should not create bracket when both players of a first round match are withdrawn" do
+  test "should create bracket and advance when both players of a first round match are withdrawn" do
     tournament = tournaments(:zone)
     participants(:frank).update!(withdrawn: true)
     participants(:grace).update!(withdrawn: true)
     log_in_as(users(:archer))
-    assert_no_difference "Match.count" do
-      post tournament_matches_path(tournament)
-    end
+    post tournament_matches_path(tournament)
     assert_redirected_to tournament_path(tournament)
-    assert_not flash[:danger].nil?
+    assert_not_empty tournament.matches.reload
+    match1 = tournament.matches.find_by(round: 1, participant1: participants(:frank))
+    assert match1.finished?
+    assert match1.next_match.reload.walkover?
   end
 
   test "should not set winner for a match with a withdrawn participant" do

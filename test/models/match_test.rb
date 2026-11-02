@@ -51,4 +51,18 @@ class MatchTest < ActiveSupport::TestCase
     assert @match.reload.pending?
     assert_nil @match.winner
   end
+
+  test "apply_walkover! should advance one player when both players have withdrawn" do
+    final = @tournament.matches.create!(round: 2)
+    participants(:alice).update!(withdrawn: true)
+    participants(:bob).update!(withdrawn: true)
+    @match.update!(participant1: participants(:alice), participant2: participants(:bob),
+                   next_match: final, next_slot: 1)
+    @match.apply_walkover!
+    assert @match.reload.finished?
+    assert_equal participants(:bob), @match.winner
+    assert_equal participants(:bob), final.reload.participant1
+    # 進出先は相手が決まるまで確定しない
+    assert final.pending?
+  end
 end

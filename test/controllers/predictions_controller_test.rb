@@ -418,6 +418,33 @@ class PredictionsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "should predict the final through a walkover whose opponent is undecided" do
+    # 1回戦A（アリス対ボブ）が両者棄権 → 2回戦は相手が未定の不戦勝 → 決勝
+    build_four_player_bracket
+    final = @tournament.matches.create!(round: 3)
+    @final.update!(next_match: final, next_slot: 1)
+    eve = participants(:eve)
+    frank = participants(:frank)
+    other_semi = @tournament.matches.create!(round: 2, next_match: final, next_slot: 2,
+                                             participant1: eve, participant2: frank)
+    @alice.withdraw
+    @bob.reload.withdraw
+    log_in_as(users(:michael))
+    post tournament_prediction_path(@tournament), params: { match_id: @other_match.id, participant_id: @carol.id }
+    post tournament_prediction_path(@tournament), params: { match_id: other_semi.id, participant_id: eve.id }
+    get new_tournament_prediction_path(@tournament)
+    # 不戦勝の2回戦は飛ばされ、予想した勝者がそのまま決勝に進む
+    assert_select "#next-prediction-card input[name=match_id][value=?]", final.id.to_s, count: 2
+    assert_select "#next-prediction-card button.next-prediction-button", text: @carol.name
+    assert_select "#next-prediction-card button.next-prediction-button", text: eve.name
+    assert_select "#prediction-progress", text: "予想済み 2 / 3 試合"
+    post tournament_prediction_path(@tournament), params: { match_id: final.id, participant_id: @carol.id }
+    assert_equal @carol, users(:michael).predictions.find_by(match: final).predicted_participant
+    get new_tournament_prediction_path(@tournament)
+    assert_select "#next-prediction-card", text: /すべての試合を予想しました/
+    assert_select "#prediction-progress", text: "予想済み 3 / 3 試合"
+  end
+
   test "should show completion message when all matches are predicted" do
     log_in_as(users(:michael))
     post tournament_prediction_path(@tournament), params: { match_id: @match.id, participant_id: @alice.id },

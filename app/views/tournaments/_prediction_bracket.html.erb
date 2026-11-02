@@ -15,9 +15,9 @@
             # 前のラウンドの試合を取得
            feeder1 = @feeder_matches[[match.id, 1]]
            feeder2 = @feeder_matches[[match.id, 2]]
-           # 前のラウンドの試合の予想勝者を取得（不戦勝の試合は予想できないため、確定した勝者を使う）
-           p1 = feeder1&.walkover? ? feeder1.winner : @existing_predictions[feeder1&.id]&.predicted_participant
-           p2 = feeder2&.walkover? ? feeder2.winner : @existing_predictions[feeder2&.id]&.predicted_participant
+           # 前のラウンドの試合の予想勝者を取得（不戦勝の試合は予想できないため、不戦勝で勝ち上がる選手を使う）
+           p1 = predicted_advancer(feeder1, @existing_predictions, @feeder_matches)
+           p2 = predicted_advancer(feeder2, @existing_predictions, @feeder_matches)
          end
          # その試合の予想を取得
          prediction  = @existing_predictions[match.id]

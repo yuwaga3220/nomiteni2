@@ -1,4 +1,5 @@
 class PredictionsController < ApplicationController
+  include PredictionsHelper
   before_action :logged_in_user
   before_action :set_tournament
 
@@ -72,9 +73,8 @@ class PredictionsController < ApplicationController
       else
         # 2回戦以降は、前の試合で自分が予想した勝者が対戦する
         participants = [ 1, 2 ].map do |slot|
-          feeder = @feeder_matches[[ match.id, slot ]]
-          # 不戦勝の試合は予想がないので、不戦勝の勝者がそのまま次の試合に進む
-          feeder&.walkover? ? feeder.winner : @existing_predictions[feeder&.id]&.predicted_participant
+          # 不戦勝の試合は予想がないので、不戦勝で勝ち上がる選手がそのまま次の試合に進む
+          predicted_advancer(@feeder_matches[[ match.id, slot ]], @existing_predictions, @feeder_matches)
         end
       end
       return [ match, participants ] if participants.all?(&:present?)
